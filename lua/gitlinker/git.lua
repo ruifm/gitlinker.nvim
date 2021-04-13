@@ -195,7 +195,7 @@ function M.get_branch_remote()
     end
 
     -- try HEAD and last 50 parent commits
-    for i in 0, 50 do
+    for i = 0, 50 do
       local revspec = "HEAD~" .. i
       if is_rev_in_remote(revspec, remote) then return remote end
 
