@@ -16,6 +16,17 @@ locally:
 make lint
 ```
 
+## Formatting
+
+Lua formatting rules are specified in the `.lua-format` file at the root of the
+repository.
+
+To auto-format all files:
+
+```bash
+make format
+```
+
 ## Support a new host
 
 - Check how the url permalinks for that host are constructed.
