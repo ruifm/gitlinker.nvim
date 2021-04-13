@@ -139,7 +139,7 @@ function M.get_closest_remote_compatible_rev(buf_repo_path, remote)
     if upstream_rev then return upstream_rev end
 
     -- try last 50 parent commits
-    for i in 1, 50 do
+    for i = 1, 50 do
         local revspec = "HEAD~" .. i
         if is_rev_in_remote(revspec, remote) then
             local rev = get_rev_for_revspec_if_contains_file(buf_repo_path,
@@ -191,7 +191,7 @@ function M.get_branch_remote()
     end
     if #remotes == 1 then return remotes[1] end
 
-    for _, remote in remotes do
+    for _, remote in ipairs(remotes) do
         -- try upstream branch HEAD (a.k.a @{u})
         local upstream_revspec = "@{u}"
         if get_rev(upstream_revspec) and
