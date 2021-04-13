@@ -194,7 +194,7 @@ function M.get_branch_remote()
       return remote
     end
 
-    -- try last 50 parent commits
+    -- try HEAD and last 50 parent commits
     for i in 0, 50 do
       local revspec = "HEAD~" .. i
       if is_rev_in_remote(revspec, remote) then return remote end
@@ -204,7 +204,8 @@ function M.get_branch_remote()
 
   error [[
       Multiple remotes available and all of them can be used.
-      Please choose one of them using require'gitlinker'.setup({remote='<remotename>'})
+      Please choose one of them using
+      require'gitlinker'.setup({opts={remote='<remotename>'}})
     ]]
   return nil
 end

@@ -26,10 +26,7 @@ M.actions = require 'gitlinker.actions'
 --    ["githostname.tld"] = <func> -- where <func> is a function that takes a
 --    url_data table and returns the url
 --   },
---  mappings = {
---    n = "<keys>" -- keys for the normal mode keymap
---    v = "<keys>" -- keys for the visual mode keymap
---    }
+--  mappings = "<keys>"-- keys for normal and visual mode keymaps
 -- }
 -- @param user_opts a table to override options passed in M.setup()
 function M.setup(config)
@@ -76,7 +73,7 @@ end
 -- Prints the url
 --
 -- @param mode vim's mode this function was called on. Either 'v' or 'n'
--- @param user_opts a table to override options passed in M.setup()
+-- @param user_opts a table to override options passed
 --
 -- @returns The url string
 function M.get_buf_range_url(mode, user_opts)

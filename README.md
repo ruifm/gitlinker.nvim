@@ -66,7 +66,7 @@ In your `init.lua` or in a lua-here-doc in your `init.vim`:
 require"gitlinker".setup()
 ```
 
-By default, the following mapping is defined:
+By default, the following mappings are defined:
 
 - `<leader>gy` for normal and visual mode
 
@@ -105,7 +105,6 @@ require"gitlinker".setup({
         ["repo.or.cz"] = require"gitlinker.hosts"get_repoorcz_type_url,
         ["git.kernel.org"] = require"gitlinker.hosts"get_cgit_type_url,
         ["git.savannah.gnu.org"] = require"gitlinker.hosts"get_cgit_type_url
-        -- add your personal/company git server callback here
   },
   mappings = "<leader>gy" -- mapping to call url generation
 })
@@ -114,46 +113,7 @@ require"gitlinker".setup({
 When configuring `gitlinker.nvim`, you don’t need to copy-paste the
 above, you just need to override/add what you want.
 
-### `opts`
-
-#### `remote`
-
-If `remote = nil` (default), the relevant remote will be auto-detected.
-If you have multiple git remotes configured and want to use a specific
-one (e.g. `myfork`), do `remote = "myfork"`.
-
-#### `add_current_line_on_normal_mode`
-
-If `true`, when invoking the mapping/command in normal mode, it adds the
-current line to the url.
-
-#### `action_callback`
-
-A function that receives a url string and decides which action to take.
-By default set to `require"gitlinker.actions".copy_to_clipboard` which
-copies to generated url to your system clipboard.
-
-An alternative callback `require"gitlinker.actions".open_in_browser` is
-provided which opens the url in your preferred browser using `xdg-open`
-(linux only).
-
-You can define your own action callback.
-
-#### `mappings`
-
-A string representing the keys you wish to map these plugin’s actions.
-By default, a normal and a visual mapping is set up for `<leader>gy`.
-
-**To disable mappings** just set `mappings = nil`.
-
-If you want to disable mappings and set them on your own, the function
-you are looking for is
-`require"gitlinker".get_buf_range_url(mode, user_opts)` where `mode` is
-the either `"n"` (normal) or `"v"` (visual) and `user_opts` is a table
-of opts similar to the one passed in `setup()` (it can be `nil`, or not
-passed), only `mode` is mandatory.
-
-### `callbacks`
+### callbacks
 
 Besides the already configured hosts in the `callbacks` table, one can
 add support for other git web hosts or self-hosted and enterprise
@@ -214,6 +174,45 @@ callbacks = {
     end
 }
 ```
+
+### Options
+
+- `remote`
+
+If `remote = nil` (default), the relevant remote will be auto-detected.
+If you have multiple git remotes configured and want to use a specific
+one (e.g. `myfork`), do `remote = "myfork"`.
+
+- `add_current_line_on_normal_mode`
+
+If `true`, when invoking the mapping/command in normal mode, it adds the
+current line to the url.
+
+- `action_callback`
+
+A function that receives a url string and decides which action to take.
+By default set to `require"gitlinker.actions".copy_to_clipboard` which
+copies to generated url to your system clipboard.
+
+An alternative callback `require"gitlinker.actions".open_in_browser` is
+provided which opens the url in your preferred browser using `xdg-open`
+(linux only).
+
+You can define your own action callback.
+
+- `mappings`
+
+A string representing the keys you wish to map these plugin’s actions.
+By default, a normal and a visual mapping is set up for `<leader>gy`.
+
+**To disable mappings** just set `mappings = nil`.
+
+If you want to disable mappings and set them on your own, the function
+you are looking for is
+`require"gitlinker".get_buf_range_url(mode, user_opts)` where `mode` is
+the either `"n"` (normal) or `"v"` (visual) and `user_opts` is a table
+of opts similar to the one passed in `setup()` (it can be `nil`, or not
+passed), only `mode` is mandatory.
 
 ## Contributing
 
