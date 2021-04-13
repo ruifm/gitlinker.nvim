@@ -72,18 +72,40 @@ end
 
 local function parse_uri(uri, errs)
   local chars = "[_%-%w%.]+"
-  local protocol_schema = "%g+[/@]"
-  local host_schema = chars .. "%." .. chars
-  local path_schema = "" .. chars .. "/" .. chars
-  local host_capture = protocol_schema .. '(' .. host_schema .. ")[:/]" ..
-                         path_schema .. "%.git$"
-  local path_capture =
-    protocol_schema .. host_schema .. "[:/](" .. path_schema .. ")%.git$"
-  local repo = {host = uri:match(host_capture), path = uri:match(path_capture)}
+  local pathChars = "[/_%-%w%.]+"
+
+  local protocol_schema = chars .. "://"
+  local ssh_schema = chars .. "@"
+
+  -- strip the protocol (https://, git@, etc)
+  local stripped_uri = uri:match(protocol_schema .. "(.+)$") or
+                         uri:match(ssh_schema .. "(.+)$")
+  if not stripped_uri then
+    table.insert(errs, string.format(
+                   ": remote uri '%s' uses an unsupported protocol format", uri))
+    return nil
+  end
+
+  -- strip '.git' at the end if it exists
+  stripped_uri = stripped_uri:match("(.+)%.git$") or stripped_uri
+
+  local host_capture = '(' .. chars .. ")[:/].+$"
+  local path_capture = chars .. "[:/](" .. pathChars .. ")$"
+
+  local repo = {
+    host = stripped_uri:match(host_capture),
+    path = stripped_uri:match(path_capture)
+  }
+
   if not repo.host then
     table.insert(errs, string.format(
-                   ": cannot parse the host name from uri '%s'", uri))
+                   ": cannot parse the hostname from uri '%s'", uri))
   end
+  if not repo.path then
+    table.insert(errs, string.format(
+                   ": cannot parse the repo path from uri '%s'", uri))
+  end
+
   return repo
 end
 
@@ -167,7 +189,7 @@ function M.get_repo(remote)
   end
 
   local repo = parse_uri(remote_uri, errs)
-  if not repo then error(table.concat(errs)) end
+  if not repo or vim.tbl_isempty(repo) then error(table.concat(errs)) end
   return repo
 end
 
