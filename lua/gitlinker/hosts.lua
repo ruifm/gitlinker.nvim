@@ -14,13 +14,13 @@ local M = {}
 --
 -- @returns The url string
 function M.get_github_type_url(url_data)
-    local url = "https://" .. url_data.host .. "/" .. url_data.repo .. "/blob/" ..
-                    url_data.rev .. "/" .. url_data.file
-    if url_data.lstart then
-        url = url .. "#L" .. url_data.lstart
-        if url_data.lend then url = url .. "-L" .. url_data.lend end
-    end
-    return url
+  local url = "https://" .. url_data.host .. "/" .. url_data.repo .. "/blob/" ..
+                url_data.rev .. "/" .. url_data.file
+  if url_data.lstart then
+    url = url .. "#L" .. url_data.lstart
+    if url_data.lend then url = url .. "-L" .. url_data.lend end
+  end
+  return url
 end
 
 --- Constructs a gitea style url
@@ -37,13 +37,13 @@ end
 --
 -- @returns The url string
 function M.get_gitea_type_url(url_data)
-    local url = "https://" .. url_data.host .. "/" .. url_data.repo .. "/src/commit/" ..
-                    url_data.rev .. "/" .. url_data.file
-    if url_data.lstart then
-        url = url .. "#L" .. url_data.lstart
-        if url_data.lend then url = url .. "-L" .. url_data.lend end
-    end
-    return url
+  local url = "https://" .. url_data.host .. "/" .. url_data.repo ..
+                "/src/commit/" .. url_data.rev .. "/" .. url_data.file
+  if url_data.lstart then
+    url = url .. "#L" .. url_data.lstart
+    if url_data.lend then url = url .. "-L" .. url_data.lend end
+  end
+  return url
 end
 
 --- Constructs a gitlab style url
@@ -60,13 +60,14 @@ end
 --
 -- @returns The url string
 function M.get_gitlab_type_url(url_data)
-    local url = "https://" .. url_data.host .. "/" .. url_data.repo .. "-/blob/" ..
-                    url_data.rev .. "/" .. url_data.file
-    if url_data.lstart then
-        url = url .. "#L" .. url_data.lstart
-        if url_data.lend then url = url .. "-" .. url_data.lend end
-    end
-    return url
+  local url =
+    "https://" .. url_data.host .. "/" .. url_data.repo .. "-/blob/" ..
+      url_data.rev .. "/" .. url_data.file
+  if url_data.lstart then
+    url = url .. "#L" .. url_data.lstart
+    if url_data.lend then url = url .. "-" .. url_data.lend end
+  end
+  return url
 end
 
 --- Constructs a bitbucket style url
@@ -83,13 +84,13 @@ end
 --
 -- @returns The url string
 function M.get_bitbucket_type_url(url_data)
-    local url = "https://" .. url_data.host .. "/" .. url_data.repo .. "/src/" ..
-                    url_data.rev .. "/" .. url_data.file
-    if url_data.lstart then
-        url = url .. "#lines-" .. url_data.lstart
-        if url_data.lend then url = url .. ":" .. url_data.lend end
-    end
-    return url
+  local url = "https://" .. url_data.host .. "/" .. url_data.repo .. "/src/" ..
+                url_data.rev .. "/" .. url_data.file
+  if url_data.lstart then
+    url = url .. "#lines-" .. url_data.lstart
+    if url_data.lend then url = url .. ":" .. url_data.lend end
+  end
+  return url
 end
 
 --- Constructs a gogs style url
@@ -106,13 +107,13 @@ end
 --
 -- @returns The url string
 function M.get_gogs_type_url(url_data)
-    local url = "https://" .. url_data.host .. "/" .. url_data.repo .. "/src/" ..
-                    url_data.rev .. "/" .. url_data.file
-    if url_data.lstart then
-        url = url .. "#L" .. url_data.lstart
-        if url_data.lend then url = url .. "-L" .. url_data.lend end
-    end
-    return url
+  local url = "https://" .. url_data.host .. "/" .. url_data.repo .. "/src/" ..
+                url_data.rev .. "/" .. url_data.file
+  if url_data.lstart then
+    url = url .. "#L" .. url_data.lstart
+    if url_data.lend then url = url .. "-L" .. url_data.lend end
+  end
+  return url
 end
 
 --- Constructs a cgit style url
@@ -129,12 +130,12 @@ end
 --
 -- @returns The url string
 function M.get_cgit_type_url(url_data)
-    local repo = ""
-    if url_data.repo then repo = url_data.repo .. ".git/" end
-    local url = "https://" .. url_data.host .. "/cgit/" .. repo .. "tree/" ..
-                    url_data.file .. "?id=" .. url_data.rev
-    if url_data.lstart then url = url .. "#n" .. url_data.lstart end
-    return url
+  local repo = ""
+  if url_data.repo then repo = url_data.repo .. ".git/" end
+  local url = "https://" .. url_data.host .. "/cgit/" .. repo .. "tree/" ..
+                url_data.file .. "?id=" .. url_data.rev
+  if url_data.lstart then url = url .. "#n" .. url_data.lstart end
+  return url
 end
 
 --- Constructs a sourcehut style url
@@ -151,13 +152,13 @@ end
 --
 -- @returns The url string
 function M.get_srht_type_url(url_data)
-    local url = "https://" .. url_data.host .. "/" .. url_data.repo .. "/tree/" ..
-                    url_data.rev .. "/item/" .. url_data.file
-    if url_data.lstart then
-        url = url .. "#L" .. url_data.lstart
-        if url_data.lend then url = url .. "-" .. url_data.lend end
-    end
-    return url
+  local url = "https://" .. url_data.host .. "/" .. url_data.repo .. "/tree/" ..
+                url_data.rev .. "/item/" .. url_data.file
+  if url_data.lstart then
+    url = url .. "#L" .. url_data.lstart
+    if url_data.lend then url = url .. "-" .. url_data.lend end
+  end
+  return url
 end
 
 --- Constructs a launchpad style url
@@ -174,10 +175,10 @@ end
 --
 -- @returns The url string
 function M.get_launchpad_type_url(url_data)
-    local url = "https://" .. url_data.host .. "/" .. url_data.repo .. "/tree/" ..
-                    url_data.file .. "?id=" .. url_data.rev
-    if url_data.lstart then url = url .. "#n" .. url_data.lstart end
-    return url
+  local url = "https://" .. url_data.host .. "/" .. url_data.repo .. "/tree/" ..
+                url_data.file .. "?id=" .. url_data.rev
+  if url_data.lstart then url = url .. "#n" .. url_data.lstart end
+  return url
 end
 
 --- Constructs a repo.or.cz style url
@@ -194,10 +195,10 @@ end
 --
 -- @returns The url string
 function M.get_repoorcz_type_url(url_data)
-    local url = "https://" .. url_data.host .. "/" .. url_data.repo .. "/blob/" ..
-                    url_data.rev .. ":/" .. url_data.file
-    if url_data.lstart then url = url .. "#l" .. url_data.lstart end
-    return url
+  local url = "https://" .. url_data.host .. "/" .. url_data.repo .. "/blob/" ..
+                url_data.rev .. ":/" .. url_data.file
+  if url_data.lstart then url = url .. "#l" .. url_data.lstart end
+  return url
 end
 
 --- Gets a matching callback for a given host
@@ -206,31 +207,31 @@ end
 --
 -- @returns the host's callback
 function M.get_matching_callback(target_host)
-    local matching_callback
-    for host, callback in pairs(M.callbacks) do
-        if host:match(target_host) then
-            matching_callback = callback
-            break
-        end
+  local matching_callback
+  for host, callback in pairs(M.callbacks) do
+    if host:match(target_host) then
+      matching_callback = callback
+      break
     end
-    if not matching_callback then
-        error("No host callback defined for host '%s'", target_host)
-    end
-    return matching_callback
+  end
+  if not matching_callback then
+    error("No host callback defined for host '%s'", target_host)
+  end
+  return matching_callback
 end
 
 M.callbacks = {
-        ["github.com"] = M.get_github_type_url,
-        ["gitlab.com"] = M.get_gitlab_type_url,
-        ["try.gitea.io"] = M.get_gitea_type_url,
-        ["codeberg.org"] = M.get_gitea_type_url,
-        ["bitbucket.org"] = M.get_bitbucket_type_url,
-        ["try.gogs.io"] = M.get_gogs_type_url,
-        ["git.sr.ht"] = M.get_srht_type_url,
-        ["git.launchpad.net"] = M.get_launchpad_type_url,
-        ["repo.or.cz"] = M.get_repoorcz_type_url,
-        ["git.kernel.org"] = M.get_cgit_type_url,
-        ["git.savannah.gnu.org"] = M.get_cgit_type_url
+  ["github.com"] = M.get_github_type_url,
+  ["gitlab.com"] = M.get_gitlab_type_url,
+  ["try.gitea.io"] = M.get_gitea_type_url,
+  ["codeberg.org"] = M.get_gitea_type_url,
+  ["bitbucket.org"] = M.get_bitbucket_type_url,
+  ["try.gogs.io"] = M.get_gogs_type_url,
+  ["git.sr.ht"] = M.get_srht_type_url,
+  ["git.launchpad.net"] = M.get_launchpad_type_url,
+  ["repo.or.cz"] = M.get_repoorcz_type_url,
+  ["git.kernel.org"] = M.get_cgit_type_url,
+  ["git.savannah.gnu.org"] = M.get_cgit_type_url
 }
 
 return M
