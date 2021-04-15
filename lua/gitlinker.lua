@@ -88,7 +88,7 @@ function M.get_buf_range_url(mode, user_opts)
   local url = matching_callback(url_data)
 
   if opts.action_callback then opts.action_callback(url) end
-  print(url)
+  if opts.print_url then print(url) end
 
   return url
 end
