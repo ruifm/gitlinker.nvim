@@ -91,7 +91,9 @@ require"gitlinker".setup({
     -- adds current line nr in the url for normal mode
     add_current_line_on_normal_mode = true,
     -- callback for what to do with the url
-    action_callback = require"gitlinker.actions".copy_to_clipboard
+    action_callback = require"gitlinker.actions".copy_to_clipboard,
+    -- print the url after performing the action
+    print_url = true
   },
   callbacks = {
         ["github.com"] = require"gitlinker.hosts".get_github_type_url,
@@ -199,6 +201,10 @@ provided which opens the url in your preferred browser using `xdg-open`
 (linux only).
 
 You can define your own action callback.
+
+- `print_url`
+
+If `true`, then print the url before performing the configured action.
 
 - `mappings`
 
