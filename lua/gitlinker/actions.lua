@@ -13,7 +13,9 @@ function M.copy_to_clipboard(url) api.nvim_command("let @+ = '" .. url .. "'") e
 -- Uses xdg-open
 -- @param url the url string
 function M.open_in_browser(url)
-  job:new({command = "xdg-open", args = {url}}):start()
+  local command = vim.loop.os_uname().sysname == 'Darwin' and 'open' or
+                    'xdg-open'
+  job:new({command = command, args = {url}}):start()
 end
 
 return M
