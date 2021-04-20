@@ -93,7 +93,9 @@ require"gitlinker".setup({
     -- callback for what to do with the url
     action_callback = require"gitlinker.actions".copy_to_clipboard,
     -- print the url after performing the action
-    print_url = true
+    print_url = true,
+    -- mapping to call url generation
+    mappings = "<leader>gy"
   },
   callbacks = {
         ["github.com"] = require"gitlinker.hosts".get_github_type_url,
@@ -107,8 +109,7 @@ require"gitlinker".setup({
         ["repo.or.cz"] = require"gitlinker.hosts"get_repoorcz_type_url,
         ["git.kernel.org"] = require"gitlinker.hosts"get_cgit_type_url,
         ["git.savannah.gnu.org"] = require"gitlinker.hosts"get_cgit_type_url
-  },
-  mappings = "<leader>gy" -- mapping to call url generation
+  }
 })
 ```
 
