@@ -84,7 +84,11 @@ Here’s all the options with their defaults:
       -- adds current line nr in the url for normal mode
       add_current_line_on_normal_mode = true,
       -- callback for what to do with the url
-      action_callback = require"gitlinker.actions".copy_to_clipboard
+      action_callback = require"gitlinker.actions".copy_to_clipboard,
+      -- print the url after performing the action
+      print_url = true,
+      -- mapping to call url generation
+      mappings = "<leader>gy"
     },
     callbacks = {
           ["github.com"] = require"gitlinker.hosts".get_github_type_url,
@@ -98,8 +102,7 @@ Here’s all the options with their defaults:
           ["repo.or.cz"] = require"gitlinker.hosts"get_repoorcz_type_url,
           ["git.kernel.org"] = require"gitlinker.hosts"get_cgit_type_url,
           ["git.savannah.gnu.org"] = require"gitlinker.hosts"get_cgit_type_url
-    },
-    mappings = "<leader>gy" -- mapping to call url generation
+    }
   })
 <
 
