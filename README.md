@@ -128,12 +128,17 @@ function that constructs the url and receives:
 ``` lua
 url_data = {
   host = "<host.tld>",
+  port = "3000" or nil,
   repo = "<user/repo>",
   file = "<path/to/file/from/repo/root>",
   lstart = 42, -- the line start of the selected range / current line
   lend 57, -- the line end of the selected range
 }
 ```
+
+`port` will always be `nil` except when the remote URI configured locally is
+http(s) **and specifies a port** (e.g. `http://localhost:3000/user/repo.git`),
+in which case the generated url permalink also needs the right port.
 
 `lstart` and `lend` can be `nil` in case normal mode was used or
 `opts.add_current_line_on_normal_mode = false`. Do not forget to check
@@ -145,11 +150,11 @@ it’s already builtin**, it’s just an example):
 ``` lua
 callbacks = {
   ["github.com"] = function(url_data)
-      local url = "https://" .. url_data.host .. "/" .. url_data.repo .. "/blob/" ..
-                      url_data.rev .. "/" .. url_data.file
+      local url = require"gitlinker.hosts".get_base_https_url(url_data) ..
+        url_data.repo .. "/blob/" .. url_data.rev .. "/" .. url_data.file
       if url_data.lstart then
-          url = url .. "#L" .. url_data.lstart
-          if url_data.lend then url = url .. "-L" .. url_data.lend end
+        url = url .. "#L" .. url_data.lstart
+        if url_data.lend then url = url .. "-L" .. url_data.lend end
       end
       return url
     end
