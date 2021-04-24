@@ -177,7 +177,7 @@ function M.get_closest_remote_compatible_rev(buf_repo_path, remote)
   return nil
 end
 
-function M.get_repo(remote)
+function M.get_repo_data(remote)
   local errs = {
     string.format("Failed to retrieve repo data for remote '%s'", remote)
   }
