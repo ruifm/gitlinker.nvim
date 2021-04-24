@@ -57,6 +57,7 @@ local function get_url_data(mode)
   return {
     host = repo.host,
     repo = repo.path,
+    port = repo.port,
     rev = rev,
     file = buf_repo_path,
     lstart = range.lstart,
