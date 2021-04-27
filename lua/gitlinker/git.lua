@@ -70,14 +70,13 @@ local function is_rev_in_remote(revspec, remote)
   return is_in_remote
 end
 
-local function parse_uri(uri, errs)
-  local chars = "[_%-%w%.]+"
-  local pathChars = "[/_%-%w%.]+"
+local chars = "[_%-%w%.]+"
 
+-- strips the protocol (https://, git@, ssh://, etc)
+local function strip_protocol(uri, errs)
   local protocol_schema = chars .. "://"
   local ssh_schema = chars .. "@"
 
-  -- strip the protocol (https://, git@, etc)
   local stripped_uri = uri:match(protocol_schema .. "(.+)$") or
                          uri:match(ssh_schema .. "(.+)$")
   if not stripped_uri then
@@ -85,28 +84,72 @@ local function parse_uri(uri, errs)
                    ": remote uri '%s' uses an unsupported protocol format", uri))
     return nil
   end
+  return stripped_uri
+end
 
-  -- strip '.git' at the end if it exists
-  stripped_uri = stripped_uri:match("(.+)%.git$") or stripped_uri
+local function strip_dot_git(uri) return uri:match("(.+)%.git$") or uri end
 
+local function strip_uri(uri, errs)
+  local stripped_uri = strip_protocol(uri, errs)
+  return strip_dot_git(stripped_uri)
+end
+
+local function parse_host(stripped_uri, errs)
   local host_capture = '(' .. chars .. ")[:/].+$"
-  local path_capture = chars .. "[:/](" .. pathChars .. ")$"
-
-  local repo = {
-    host = stripped_uri:match(host_capture),
-    path = stripped_uri:match(path_capture)
-  }
-
-  if not repo.host then
+  local host = stripped_uri:match(host_capture)
+  if not host then
     table.insert(errs, string.format(
-                   ": cannot parse the hostname from uri '%s'", uri))
+                   ": cannot parse the hostname from uri '%s'", stripped_uri))
   end
-  if not repo.path then
-    table.insert(errs, string.format(
-                   ": cannot parse the repo path from uri '%s'", uri))
-  end
+  return host
+end
 
-  return repo
+local function parse_port(stripped_uri, host)
+  assert(host)
+  local port_capture = host .. ":([0-9]+)[:/].+$"
+  return stripped_uri:match(port_capture)
+end
+
+local function parse_repo_path(stripped_uri, host, port, errs)
+  assert(host)
+
+  local pathChars = "[/_%-%w%.]+"
+  -- base of path capture
+  local path_capture = "[:/](" .. pathChars .. ")$"
+
+  -- if port is specified, add it to the path capture
+  if port then path_capture = ':' .. port .. path_capture end
+
+  -- add parsed host to path capture
+  path_capture = host .. path_capture
+
+  -- parse repo path
+  local repo_path = stripped_uri:match(path_capture)
+  if not repo_path then
+    table.insert(errs, string.format(
+                   ": cannot parse the repo path from uri '%s'", stripped_uri))
+    return nil
+  end
+  return repo_path
+end
+
+local function parse_uri(uri, errs)
+  local stripped_uri = strip_uri(uri, errs)
+
+  local host = parse_host(stripped_uri, errs)
+  if not host then return nil end
+
+  local port = parse_port(stripped_uri, host)
+
+  local repo_path = parse_repo_path(stripped_uri, host, port, errs)
+  if not repo_path then return nil end
+
+  -- do not pass the port if it's NOT a http(s) uri since most likely the port
+  -- is just an ssh port, so it's irrelevant to the git permalink construction
+  -- (which is always an http url)
+  if not uri:match("https?://") then port = nil end
+
+  return {host = host, port = port, path = repo_path}
 end
 
 local function is_file_compatible_with_revspec(buf_repo_path, revspec, errs)
@@ -177,7 +220,7 @@ function M.get_closest_remote_compatible_rev(buf_repo_path, remote)
   return nil
 end
 
-function M.get_repo(remote)
+function M.get_repo_data(remote)
   local errs = {
     string.format("Failed to retrieve repo data for remote '%s'", remote)
   }

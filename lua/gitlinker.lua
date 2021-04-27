@@ -44,7 +44,7 @@ local function get_url_data(mode)
   local remote = opts.remote or git.get_branch_remote()
   if not remote then return nil end
 
-  local repo = git.get_repo(remote)
+  local repo = git.get_repo_data(remote)
   if not repo or vim.tbl_isempty(repo) then return nil end
 
   local buf_repo_path = buffer.get_relative_path(git.get_git_root())
@@ -57,6 +57,7 @@ local function get_url_data(mode)
   return {
     host = repo.host,
     repo = repo.path,
+    port = repo.port,
     rev = rev,
     file = buf_repo_path,
     lstart = range.lstart,

@@ -1,20 +1,14 @@
 local M = {}
 
+function M.get_base_https_url(url_data)
+  local url = "https://" .. url_data.host
+  if url_data.port then url = url .. ':' .. url_data.port end
+  return url .. '/'
+end
+
 --- Constructs a github style url
---
--- @param url_data table containing
--- {
---  host = "<hostname>", -- e.g. github.com
---  repo = "<repo-path>", -- e.g. ruifm/gitlinker.nvim
---  rev = "revision-sha", -- the commit revision sha
---  file = "<filepath>", the file path
---  lstart = <number>/nil, the line starting range
---  lend = <number>/nil, the line ending range
--- }
---
--- @returns The url string
 function M.get_github_type_url(url_data)
-  local url = "https://" .. url_data.host .. "/" .. url_data.repo .. "/blob/" ..
+  local url = M.get_base_https_url(url_data) .. url_data.repo .. "/blob/" ..
                 url_data.rev .. "/" .. url_data.file
   if url_data.lstart then
     url = url .. "#L" .. url_data.lstart
@@ -24,21 +18,10 @@ function M.get_github_type_url(url_data)
 end
 
 --- Constructs a gitea style url
---
--- @param url_data table containing
--- {
---  host = "<hostname>", -- e.g. gitea.com
---  repo = "<repo-path>", -- e.g. ruifm/gitlinker.nvim
---  rev = "revision-sha", -- the commit revision sha
---  file = "<filepath>", the file path
---  lstart = <number>/nil, the line starting range
---  lend = <number>/nil, the line ending range
--- }
---
--- @returns The url string
 function M.get_gitea_type_url(url_data)
-  local url = "https://" .. url_data.host .. "/" .. url_data.repo ..
-                "/src/commit/" .. url_data.rev .. "/" .. url_data.file
+  local url =
+    M.get_base_https_url(url_data) .. url_data.repo .. "/src/commit/" ..
+      url_data.rev .. "/" .. url_data.file
   if url_data.lstart then
     url = url .. "#L" .. url_data.lstart
     if url_data.lend then url = url .. "-L" .. url_data.lend end
@@ -47,22 +30,9 @@ function M.get_gitea_type_url(url_data)
 end
 
 --- Constructs a gitlab style url
---
--- @param url_data table containing
--- {
---  host = "<hostname>", -- e.g. gitlab.com
---  repo = "<repo-path>", -- e.g. ruifm/gitlinker.nvim
---  rev = "revision-sha", -- the commit revision sha
---  file = "<filepath>", the file path
---  lstart = <number>/nil, the line starting range
---  lend = <number>/nil, the line ending range
--- }
---
--- @returns The url string
 function M.get_gitlab_type_url(url_data)
-  local url =
-    "https://" .. url_data.host .. "/" .. url_data.repo .. "-/blob/" ..
-      url_data.rev .. "/" .. url_data.file
+  local url = M.get_base_https_url(url_data) .. url_data.repo .. "-/blob/" ..
+                url_data.rev .. "/" .. url_data.file
   if url_data.lstart then
     url = url .. "#L" .. url_data.lstart
     if url_data.lend then url = url .. "-" .. url_data.lend end
@@ -71,20 +41,8 @@ function M.get_gitlab_type_url(url_data)
 end
 
 --- Constructs a bitbucket style url
---
--- @param url_data table containing
--- {
---  host = "<hostname>", -- e.g. bitbucket.com
---  repo = "<repo-path>", -- e.g. ruifm/gitlinker.nvim
---  rev = "revision-sha", -- the commit revision sha
---  file = "<filepath>", the file path
---  lstart = <number>/nil, the line starting range
---  lend = <number>/nil, the line ending range
--- }
---
--- @returns The url string
 function M.get_bitbucket_type_url(url_data)
-  local url = "https://" .. url_data.host .. "/" .. url_data.repo .. "/src/" ..
+  local url = M.get_base_https_url(url_data) .. url_data.repo .. "/src/" ..
                 url_data.rev .. "/" .. url_data.file
   if url_data.lstart then
     url = url .. "#lines-" .. url_data.lstart
@@ -94,20 +52,8 @@ function M.get_bitbucket_type_url(url_data)
 end
 
 --- Constructs a gogs style url
---
--- @param url_data table containing
--- {
---  host = "<hostname>", -- e.g. gogs.com
---  repo = "<repo-path>", -- e.g. ruifm/gitlinker.nvim
---  rev = "revision-sha", -- the commit revision sha
---  file = "<filepath>", the file path
---  lstart = <number>/nil, the line starting range
---  lend = <number>/nil, the line ending range
--- }
---
--- @returns The url string
 function M.get_gogs_type_url(url_data)
-  local url = "https://" .. url_data.host .. "/" .. url_data.repo .. "/src/" ..
+  local url = M.get_base_https_url(url_data) .. url_data.repo .. "/src/" ..
                 url_data.rev .. "/" .. url_data.file
   if url_data.lstart then
     url = url .. "#L" .. url_data.lstart
@@ -117,18 +63,6 @@ function M.get_gogs_type_url(url_data)
 end
 
 --- Constructs a cgit style url
---
--- @param url_data table containing
--- {
---  host = "<hostname>", -- e.g. git.kernel.org
---  repo = "<repo-path>", -- e.g. ruifm/gitlinker.nvim
---  rev = "revision-sha", -- the commit revision sha
---  file = "<filepath>", the file path
---  lstart = <number>/nil, the line starting range
---  lend = <number>/nil, the line ending range
--- }
---
--- @returns The url string
 function M.get_cgit_type_url(url_data)
   local repo = ""
   if url_data.repo then repo = url_data.repo .. ".git/" end
@@ -139,20 +73,8 @@ function M.get_cgit_type_url(url_data)
 end
 
 --- Constructs a sourcehut style url
---
--- @param url_data table containing
--- {
---  host = "<hostname>", -- e.g. git.sr.ht
---  repo = "<repo-path>", -- e.g. ruifm/gitlinker.nvim
---  rev = "revision-sha", -- the commit revision sha
---  file = "<filepath>", the file path
---  lstart = <number>/nil, the line starting range
---  lend = <number>/nil, the line ending range
--- }
---
--- @returns The url string
 function M.get_srht_type_url(url_data)
-  local url = "https://" .. url_data.host .. "/" .. url_data.repo .. "/tree/" ..
+  local url = M.get_base_https_url(url_data) .. url_data.repo .. "/tree/" ..
                 url_data.rev .. "/item/" .. url_data.file
   if url_data.lstart then
     url = url .. "#L" .. url_data.lstart
@@ -162,40 +84,16 @@ function M.get_srht_type_url(url_data)
 end
 
 --- Constructs a launchpad style url
---
--- @param url_data table containing
--- {
---  host = "<hostname>", -- e.g. launchpad.net
---  repo = "<repo-path>", -- e.g. ruifm/gitlinker.nvim
---  rev = "revision-sha", -- the commit revision sha
---  file = "<filepath>", the file path
---  lstart = <number>/nil, the line starting range
---  lend = <number>/nil, the line ending range
--- }
---
--- @returns The url string
 function M.get_launchpad_type_url(url_data)
-  local url = "https://" .. url_data.host .. "/" .. url_data.repo .. "/tree/" ..
+  local url = M.get_base_https_url(url_data) .. url_data.repo .. "/tree/" ..
                 url_data.file .. "?id=" .. url_data.rev
   if url_data.lstart then url = url .. "#n" .. url_data.lstart end
   return url
 end
 
 --- Constructs a repo.or.cz style url
---
--- @param url_data table containing
--- {
---  host = "<hostname>", -- e.g. repo.or.cz
---  repo = "<repo-path>", -- e.g. ruifm/gitlinker.nvim
---  rev = "revision-sha", -- the commit revision sha
---  file = "<filepath>", the file path
---  lstart = <number>/nil, the line starting range
---  lend = <number>/nil, the line ending range
--- }
---
--- @returns The url string
 function M.get_repoorcz_type_url(url_data)
-  local url = "https://" .. url_data.host .. "/" .. url_data.repo .. "/blob/" ..
+  local url = M.get_base_https_url(url_data) .. url_data.repo .. "/blob/" ..
                 url_data.rev .. ":/" .. url_data.file
   if url_data.lstart then url = url .. "#l" .. url_data.lstart end
   return url
