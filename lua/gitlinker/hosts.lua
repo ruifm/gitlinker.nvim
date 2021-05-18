@@ -31,7 +31,7 @@ end
 
 --- Constructs a gitlab style url
 function M.get_gitlab_type_url(url_data)
-  local url = M.get_base_https_url(url_data) .. url_data.repo .. "-/blob/" ..
+  local url = M.get_base_https_url(url_data) .. url_data.repo .. "/-/blob/" ..
                 url_data.rev .. "/" .. url_data.file
   if url_data.lstart then
     url = url .. "#L" .. url_data.lstart
