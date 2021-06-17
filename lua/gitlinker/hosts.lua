@@ -113,7 +113,7 @@ function M.get_matching_callback(target_host)
     end
   end
   if not matching_callback then
-    error("No host callback defined for host '%s'", target_host)
+    error(string.format("No host callback defined for host '%s'", target_host))
   end
   return matching_callback
 end
