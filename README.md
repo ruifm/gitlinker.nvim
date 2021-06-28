@@ -1,15 +1,14 @@
 # gitlinker.nvim
 
-A lua [neovim](https://github.com/neovim/neovim) plugin to generate
-shareable file permalinks (with line ranges) for several git web
-frontend hosts. Inspired by
-[tpope/vim-fugitive](https://github.com/tpope/vim-fugitive)’s `:GBrowse`
+A lua [neovim](https://github.com/neovim/neovim) plugin to generate shareable
+file permalinks (with line ranges) for several git web frontend hosts. Inspired
+by [tpope/vim-fugitive](https://github.com/tpope/vim-fugitive)'s `:GBrowse`
 
 Example of a permalink:
 <https://github.com/neovim/neovim/blob/2e156a3b7d7e25e56b03683cc6228c531f4c91ef/src/nvim/main.c#L137-L156>
 
-Personally, I use this all the time to easily share code locations with
-my co-workers.
+Personally, I use this all the time to easily share code locations with my
+co-workers.
 
 ## Supported git web hosts
 
@@ -24,17 +23,15 @@ my co-workers.
 - [launchpad](https://launchpad.net)
 - [repo.or.cz](https://repo.or.cz)
 
-**You can easily configure support for more hosts** by defining your own
-host callbacks. It’s even easier if your host is just an
-enterprise/self-hosted github/gitlab/gitea/gogs/cgit instance since you
-can just use the same callbacks that already exist in gitlinker! See
-[callbacks](#callbacks)
+**You can easily configure support for more hosts** by defining your own host
+callbacks. It's even easier if your host is just an enterprise/self-hosted
+github/gitlab/gitea/gogs/cgit instance since you can just use the same callbacks
+that already exist in gitlinker! See [callbacks](#callbacks)
 
 ## Installation
 
 Install it like any other vim plugin, just make sure
-[plenary.nvim](https://github.com/nvim-lua/plenary.nvim) is also
-installed.
+[plenary.nvim](https://github.com/nvim-lua/plenary.nvim) is also installed.
 
 - [packer.nvim](https://github.com/wbthomason/packer.nvim)
 
@@ -70,19 +67,18 @@ By default, the following mappings are defined:
 
 - `<leader>gy` for normal and visual mode
 
-When used, it will copy the generated url to your clipboard and print it
-in `:messages`.
+When used, it will copy the generated url to your clipboard and print it in
+`:messages`.
 
 - In normal mode, it will add the current line number to the url
-- In visual mode , it will add the line range of the visual selection to
-  the url
+- In visual mode , it will add the line range of the visual selection to the url
 
 ## Configuration
 
-To configure `gitlinker.nvim`, call `require"gitlinker".setup(config)`
-in your `init.lua` or in a lua-here-doc in your `init.vim`.
+To configure `gitlinker.nvim`, call `require"gitlinker".setup(config)` in your
+`init.lua` or in a lua-here-doc in your `init.vim`.
 
-Here’s all the options with their defaults:
+Here's all the options with their defaults:
 
 ``` lua
 require"gitlinker".setup({
@@ -113,17 +109,16 @@ require"gitlinker".setup({
 })
 ```
 
-When configuring `gitlinker.nvim`, you don’t need to copy-paste the
-above, you just need to override/add what you want.
+When configuring `gitlinker.nvim`, you don't need to copy-paste the above, you
+just need to override/add what you want.
 
 ### callbacks
 
-Besides the already configured hosts in the `callbacks` table, one can
-add support for other git web hosts or self-hosted and enterprise
-instances.
+Besides the already configured hosts in the `callbacks` table, one can add
+support for other git web hosts or self-hosted and enterprise instances.
 
-In the key, place a string with the hostname and in value a callback
-function that constructs the url and receives:
+In the key, place a string with the hostname and in value a callback function
+that constructs the url and receives:
 
 ``` lua
 url_data = {
@@ -137,15 +132,15 @@ url_data = {
 ```
 
 `port` will always be `nil` except when the remote URI configured locally is
-http(s) **and specifies a port** (e.g. `http://localhost:3000/user/repo.git`),
+http(s) **and specifies a port** (e.g. `http://localhost:3000/user/repo.git`),
 in which case the generated url permalink also needs the right port.
 
 `lstart` and `lend` can be `nil` in case normal mode was used or
-`opts.add_current_line_on_normal_mode = false`. Do not forget to check
-for that in your callback.
+`opts.add_current_line_on_normal_mode = false`. Do not forget to check for that
+in your callback.
 
-As an example, here is the callback for github (**you don’t need this,
-it’s already builtin**, it’s just an example):
+As an example, here is the callback for github (**you don't need this, it's
+already builtin**, it's just an example):
 
 ``` lua
 callbacks = {
@@ -161,7 +156,7 @@ callbacks = {
 }
 ```
 
-If you want to add support for your company’s gitlab instance:
+If you want to add support for your company's gitlab instance:
 
 ``` lua
 callbacks = {
@@ -169,9 +164,9 @@ callbacks = {
 }
 ```
 
-Here is my personal configuration for my personal self-hosted gitea
-instance for which the `host` is a local one (since I can only access it
-from my LAN) and but the web interface is public:
+Here is my personal configuration for my personal self-hosted gitea instance for
+which the `host` is a local one (since I can only access it from my LAN) and but
+the web interface is public:
 
 ``` lua
 callbacks = {
@@ -187,24 +182,23 @@ callbacks = {
 
 - `remote`
 
-If `remote = nil` (default), the relevant remote will be auto-detected.
-If you have multiple git remotes configured and want to use a specific
-one (e.g. `myfork`), do `remote = "myfork"`.
+If `remote = nil` (default), the relevant remote will be auto-detected. If you
+have multiple git remotes configured and want to use a specific one
+(e.g. `myfork`), do `remote = "myfork"`.
 
 - `add_current_line_on_normal_mode`
 
-If `true`, when invoking the mapping/command in normal mode, it adds the
-current line to the url.
+If `true`, when invoking the mapping/command in normal mode, it adds the current
+line to the url.
 
 - `action_callback`
 
-A function that receives a url string and decides which action to take.
-By default set to `require"gitlinker.actions".copy_to_clipboard` which
-copies to generated url to your system clipboard.
+A function that receives a url string and decides which action to take. By
+default set to `require"gitlinker.actions".copy_to_clipboard` which copies to
+generated url to your system clipboard.
 
-An alternative callback `require"gitlinker.actions".open_in_browser` is
-provided which opens the url in your preferred browser using `xdg-open`
-(linux only).
+An alternative callback `require"gitlinker.actions".open_in_browser` is provided
+which opens the url in your preferred browser using `xdg-open` (linux only).
 
 You can define your own action callback.
 
@@ -214,17 +208,16 @@ If `true`, then print the url before performing the configured action.
 
 - `mappings`
 
-A string representing the keys you wish to map these plugin’s actions.
-By default, a normal and a visual mapping is set up for `<leader>gy`.
+A string representing the keys you wish to map these plugin's actions. By
+default, a normal and a visual mapping is set up for `<leader>gy`.
 
 **To disable mappings** just set `mappings = nil`.
 
-If you want to disable mappings and set them on your own, the function
-you are looking for is
-`require"gitlinker".get_buf_range_url(mode, user_opts)` where `mode` is
-the either `"n"` (normal) or `"v"` (visual) and `user_opts` is a table
-of opts similar to the one passed in `setup()` (it can be `nil`, or not
-passed), only `mode` is mandatory.
+If you want to disable mappings and set them on your own, the function you are
+looking for is `require"gitlinker".get_buf_range_url(mode, user_opts)` where
+`mode` is the either `"n"` (normal) or `"v"` (visual) and `user_opts` is a table
+of opts similar to the one passed in `setup()` (it can be `nil`, or not passed),
+only `mode` is mandatory.
 
 ## Contributing
 
@@ -237,5 +230,5 @@ passed), only `mode` is mandatory.
 
 All contributions are welcome, feel free to open a pull request.
 
-Please read [CONTRIBUTING.md](./CONTRIBUTING.md) for general
-contributing guidelines for this project.
+Please read [CONTRIBUTING.md](./CONTRIBUTING.md) for general contributing
+guidelines for this project.
