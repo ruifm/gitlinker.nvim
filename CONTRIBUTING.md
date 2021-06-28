@@ -2,15 +2,12 @@
 
 ## Requirements
 
-- [luacheck](https://github.com/luarocks/luacheck#installation) for
-  linting
-- [lua-format](https://github.com/Koihik/LuaFormatter) for lua
-  auto-formatting
+- [luacheck](https://github.com/luarocks/luacheck#installation) for linting
+- [stylua](https://github.com/JohnnyMorganz/StyLua) for lua auto-formatting
 
 ## Lint
 
-Pull requests have a CI check for linting issues. To run the linter
-locally:
+Pull requests have a CI check for linting issues. To run the linter locally:
 
 ``` bash
 make lint
@@ -18,12 +15,12 @@ make lint
 
 ## Formatting
 
-Lua formatting rules are specified in the `.lua-format` file at the root of the
+Lua formatting rules are specified in the `stylua.toml` file at the root of the
 repository.
 
 To auto-format all files:
 
-```bash
+``` bash
 make format
 ```
 

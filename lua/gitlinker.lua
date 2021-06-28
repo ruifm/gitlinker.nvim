@@ -1,13 +1,13 @@
 local M = {}
 
-local git = require 'gitlinker.git'
-local buffer = require 'gitlinker.buffer'
-local mappings = require 'gitlinker.mappings'
-local opts = require 'gitlinker.opts'
+local git = require("gitlinker.git")
+local buffer = require("gitlinker.buffer")
+local mappings = require("gitlinker.mappings")
+local opts = require("gitlinker.opts")
 
 -- public
-M.hosts = require 'gitlinker.hosts'
-M.actions = require 'gitlinker.actions'
+M.hosts = require("gitlinker.hosts")
+M.actions = require("gitlinker.actions")
 
 --- Setup the plugin configuration
 --
@@ -31,10 +31,15 @@ M.actions = require 'gitlinker.actions'
 -- @param user_opts a table to override options passed in M.setup()
 function M.setup(config)
   if config then
-    if config.opts then opts = vim.tbl_extend('force', opts, config.opts) end
+    if config.opts then
+      opts = vim.tbl_extend("force", opts, config.opts)
+    end
     if config.callbacks then
-      M.hosts.callbacks = vim.tbl_extend('force', M.hosts.callbacks,
-                                         config.callbacks)
+      M.hosts.callbacks = vim.tbl_extend(
+        "force",
+        M.hosts.callbacks,
+        config.callbacks
+      )
     end
   end
   mappings.set(opts.mappings)
@@ -42,15 +47,21 @@ end
 
 local function get_url_data(mode)
   local remote = opts.remote or git.get_branch_remote()
-  if not remote then return nil end
+  if not remote then
+    return nil
+  end
 
   local repo = git.get_repo_data(remote)
-  if not repo or vim.tbl_isempty(repo) then return nil end
+  if not repo or vim.tbl_isempty(repo) then
+    return nil
+  end
 
   local buf_repo_path = buffer.get_relative_path(git.get_git_root())
 
   local rev = git.get_closest_remote_compatible_rev(buf_repo_path, remote)
-  if not rev then return nil end
+  if not rev then
+    return nil
+  end
 
   local range = buffer.get_range(mode, opts.add_current_line_on_normal_mode)
 
@@ -61,7 +72,7 @@ local function get_url_data(mode)
     rev = rev,
     file = buf_repo_path,
     lstart = range.lstart,
-    lend = range.lend
+    lend = range.lend,
   }
 end
 
@@ -78,18 +89,28 @@ end
 --
 -- @returns The url string
 function M.get_buf_range_url(mode, user_opts)
-  if user_opts then opts = vim.tbl_extend('force', opts, user_opts) end
+  if user_opts then
+    opts = vim.tbl_extend("force", opts, user_opts)
+  end
 
   local url_data = get_url_data(mode)
-  if not url_data then return nil end
+  if not url_data then
+    return nil
+  end
 
   local matching_callback = M.hosts.get_matching_callback(url_data.host)
-  if not matching_callback then return nil end
+  if not matching_callback then
+    return nil
+  end
 
   local url = matching_callback(url_data)
 
-  if opts.action_callback then opts.action_callback(url) end
-  if opts.print_url then print(url) end
+  if opts.action_callback then
+    opts.action_callback(url)
+  end
+  if opts.print_url then
+    print(url)
+  end
 
   return url
 end
