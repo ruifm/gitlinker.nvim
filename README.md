@@ -63,7 +63,7 @@ In your `init.lua` or in a lua-here-doc in your `init.vim`:
 require"gitlinker".setup()
 ```
 
-By default, the following mappings are defined:
+**By default, the following mappings are defined:**
 
 - `<leader>gy` for normal and visual mode
 
@@ -72,6 +72,26 @@ When used, it will copy the generated url to your clipboard and print it in
 
 - In normal mode, it will add the current line number to the url
 - In visual mode , it will add the line range of the visual selection to the url
+
+**To disable the default mappings** just set `mappings = nil` in the `setup()`
+function (see [Configuration](#Configuration))
+
+If you want to disable mappings and set them on your own, the function you are
+looking for is `require"gitlinker".get_buf_range_url(mode, user_opts)` where:
+
+- `mode` is the either `"n"` (normal) or `"v"` (visual)
+
+- `user_opts` is a table of options that override the ones set in `setup()` (see
+  [Configuration](#Configuration)). Because it just overrides, you do not need
+  to pass this parameter, only if you want to change something.
+
+  Example for setting extra mappings for an alternative `action_callback` (in
+  this case, open in browser):
+
+  ``` lua
+  vim.api.nvim_set_keymap('n', '<leader>gb', '<cmd>lua require"gitlinker".get_buf_range_url("n", {action_callback = require"gitlinker.actions".open_in_browser})<cr>', {silent = true})
+  vim.api.nvim_set_keymap('v', '<leader>gb', ':lua require"gitlinker".get_buf_range_url("v", {action_callback = require"gitlinker.actions".open_in_browser})<cr>')
+  ```
 
 ## Configuration
 
@@ -90,8 +110,6 @@ require"gitlinker".setup({
     action_callback = require"gitlinker.actions".copy_to_clipboard,
     -- print the url after performing the action
     print_url = true,
-    -- mapping to call url generation
-    mappings = "<leader>gy"
   },
   callbacks = {
         ["github.com"] = require"gitlinker.hosts".get_github_type_url,
@@ -105,12 +123,14 @@ require"gitlinker".setup({
         ["repo.or.cz"] = require"gitlinker.hosts"get_repoorcz_type_url,
         ["git.kernel.org"] = require"gitlinker.hosts"get_cgit_type_url,
         ["git.savannah.gnu.org"] = require"gitlinker.hosts"get_cgit_type_url
-  }
+  },
+-- default mapping to call url generation with action_callback
+  mappings = "<leader>gy"
 })
 ```
 
-When configuring `gitlinker.nvim`, you don't need to copy-paste the above, you
-just need to override/add what you want.
+When configuring `gitlinker.nvim`, **you don't need to copy-paste the above, you
+just need to override/add what you want.**
 
 ### callbacks
 
@@ -125,9 +145,10 @@ url_data = {
   host = "<host.tld>",
   port = "3000" or nil,
   repo = "<user/repo>",
+  rev = "<commit sha>",
   file = "<path/to/file/from/repo/root>",
   lstart = 42, -- the line start of the selected range / current line
-  lend 57, -- the line end of the selected range
+  lend = 57, -- the line end of the selected range
 }
 ```
 
@@ -205,19 +226,6 @@ You can define your own action callback.
 - `print_url`
 
 If `true`, then print the url before performing the configured action.
-
-- `mappings`
-
-A string representing the keys you wish to map these plugin's actions. By
-default, a normal and a visual mapping is set up for `<leader>gy`.
-
-**To disable mappings** just set `mappings = nil`.
-
-If you want to disable mappings and set them on your own, the function you are
-looking for is `require"gitlinker".get_buf_range_url(mode, user_opts)` where
-`mode` is the either `"n"` (normal) or `"v"` (visual) and `user_opts` is a table
-of opts similar to the one passed in `setup()` (it can be `nil`, or not passed),
-only `mode` is mandatory.
 
 ## Contributing
 
