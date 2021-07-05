@@ -2,8 +2,12 @@ local M = {}
 
 local api = vim.api
 
-local function set_keymap(mode, keys)
-  local mapping_opts = { noremap = true, silent = true }
+local function set_keymap(mode, keys, mapping_opts)
+  mapping_opts = vim.tbl_extend(
+    "force",
+    { noremap = true, silent = true },
+    mapping_opts or {}
+  )
   api.nvim_set_keymap(
     mode,
     keys,
@@ -13,11 +17,9 @@ local function set_keymap(mode, keys)
 end
 
 function M.set(mappings)
-  if not mappings then
-    return
-  end
+  mappings = mappings or "<leader>gy"
   set_keymap("n", mappings)
-  set_keymap("v", mappings)
+  set_keymap("v", mappings, { silent = false })
 end
 
 return M

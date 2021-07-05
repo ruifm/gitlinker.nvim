@@ -31,22 +31,21 @@ M.actions = require("gitlinker.actions")
 -- @param user_opts a table to override options passed in M.setup()
 function M.setup(config)
   if config then
-    if config.opts then
-      opts = vim.tbl_extend("force", opts, config.opts)
-    end
-    if config.callbacks then
-      M.hosts.callbacks = vim.tbl_extend(
-        "force",
-        M.hosts.callbacks,
-        config.callbacks
-      )
-    end
+    opts.setup(config.opts)
+    M.hosts.callbacks = vim.tbl_deep_extend(
+      "force",
+      M.hosts.callbacks,
+      config.callbacks or {}
+    )
+    mappings.set(config.mappings)
+  else
+    opts.setup()
+    mappings.set()
   end
-  mappings.set(opts.mappings)
 end
 
-local function get_url_data(mode)
-  local remote = opts.remote or git.get_branch_remote()
+local function get_url_data(mode, user_opts)
+  local remote = user_opts.remote or git.get_branch_remote()
   if not remote then
     return nil
   end
@@ -63,7 +62,10 @@ local function get_url_data(mode)
     return nil
   end
 
-  local range = buffer.get_range(mode, opts.add_current_line_on_normal_mode)
+  local range = buffer.get_range(
+    mode or "n",
+    user_opts.add_current_line_on_normal_mode
+  )
 
   return {
     host = repo.host,
@@ -89,11 +91,9 @@ end
 --
 -- @returns The url string
 function M.get_buf_range_url(mode, user_opts)
-  if user_opts then
-    opts = vim.tbl_extend("force", opts, user_opts)
-  end
+  user_opts = vim.tbl_deep_extend("force", opts.get(), user_opts or {})
 
-  local url_data = get_url_data(mode)
+  local url_data = get_url_data(mode, user_opts)
   if not url_data then
     return nil
   end
@@ -105,10 +105,10 @@ function M.get_buf_range_url(mode, user_opts)
 
   local url = matching_callback(url_data)
 
-  if opts.action_callback then
-    opts.action_callback(url)
+  if user_opts.action_callback then
+    user_opts.action_callback(url)
   end
-  if opts.print_url then
+  if user_opts.print_url then
     print(url)
   end
 

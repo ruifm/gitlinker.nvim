@@ -69,6 +69,26 @@ in `:messages`.
 * In visual mode , it will add the line range of the visual selection to
   the url
 
+To disable the default mappings just set `mappings = nil` in the `setup()`
+function.
+
+If you want to disable mappings and set them on your own, the function you are
+looking for is `require"gitlinker".get_buf_range_url(mode, user_opts)` where:
+
+- `mode` is the either `"n"` (normal) or `"v"` (visual)
+
+- `user_opts` is a table of options that override the ones set in `setup()`.
+  Because it just overrides, you do not need to pass this parameter, only if
+  you want to change something.
+
+  Example for setting extra mappings for an alternative `action_callback` (in
+  this case, open in browser):
+
+>
+  vim.api.nvim_set_keymap('n', '<leader>gb', '<cmd>lua require"gitlinker".get_buf_range_url("n", {action_callback = require"gitlinker.actions".open_in_browser})<cr>', {silent = true})
+  vim.api.nvim_set_keymap('v', '<leader>gb', ':lua require"gitlinker".get_buf_range_url("v", {action_callback = require"gitlinker.actions".open_in_browser})<cr>'))
+<
+
 ==============================================================================
 Configuration                                                *gitlinker-config*
 
