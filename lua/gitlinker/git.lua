@@ -181,7 +181,7 @@ local function parse_uri(uri, errs)
     port = nil
   end
 
-  return { host = host, port = port, path = repo_path }
+  return { host = host, port = port, repo = repo_path }
 end
 
 local function is_file_compatible_with_revspec(buf_repo_path, revspec, errs)

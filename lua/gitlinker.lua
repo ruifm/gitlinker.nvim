@@ -44,14 +44,23 @@ function M.setup(config)
   end
 end
 
-local function get_url_data(mode, user_opts)
-  local remote = user_opts.remote or git.get_branch_remote()
+local function get_repo_url_data(remote)
+  remote = remote or git.get_branch_remote()
   if not remote then
     return nil
   end
 
   local repo = git.get_repo_data(remote)
   if not repo or vim.tbl_isempty(repo) then
+    return nil
+  end
+  return repo
+end
+
+local function get_buf_range_url_data(mode, user_opts)
+  local remote = user_opts.remote or git.get_branch_remote()
+  local repo_url_data = get_repo_url_data(remote)
+  if not repo_url_data then
     return nil
   end
 
@@ -67,15 +76,12 @@ local function get_url_data(mode, user_opts)
     user_opts.add_current_line_on_normal_mode
   )
 
-  return {
-    host = repo.host,
-    repo = repo.path,
-    port = repo.port,
+  return vim.tbl_extend("force", repo_url_data, {
     rev = rev,
     file = buf_repo_path,
     lstart = range.lstart,
     lend = range.lend,
-  }
+  })
 end
 
 --- Retrieves the url for the selected buffer range
@@ -93,7 +99,7 @@ end
 function M.get_buf_range_url(mode, user_opts)
   user_opts = vim.tbl_deep_extend("force", opts.get(), user_opts or {})
 
-  local url_data = get_url_data(mode, user_opts)
+  local url_data = get_buf_range_url_data(mode, user_opts)
   if not url_data then
     return nil
   end
@@ -104,6 +110,31 @@ function M.get_buf_range_url(mode, user_opts)
   end
 
   local url = matching_callback(url_data)
+
+  if user_opts.action_callback then
+    user_opts.action_callback(url)
+  end
+  if user_opts.print_url then
+    print(url)
+  end
+
+  return url
+end
+
+function M.get_repo_url(user_opts)
+  user_opts = vim.tbl_deep_extend("force", opts.get(), user_opts or {})
+
+  local repo_url_data = get_repo_url_data(user_opts.remote)
+  if not repo_url_data then
+    return nil
+  end
+
+  local matching_callback = M.hosts.get_matching_callback(repo_url_data.host)
+  if not matching_callback then
+    return nil
+  end
+
+  local url = matching_callback(repo_url_data)
 
   if user_opts.action_callback then
     user_opts.action_callback(url)
