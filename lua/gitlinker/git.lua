@@ -1,7 +1,6 @@
 local M = {}
 
 local job = require("plenary.job")
-local path = require("plenary.path")
 
 local function get_remotes()
   local remotes
@@ -37,7 +36,7 @@ local function get_rev(revspec)
   return rev
 end
 
-local function is_file_in_rev(file, revspec)
+function M.is_file_in_rev(file, revspec)
   local is_in_rev = false
   local p = job:new({
     command = "git",
@@ -50,7 +49,7 @@ local function is_file_in_rev(file, revspec)
   return is_in_rev
 end
 
-local function has_file_changed(file, rev)
+function M.has_file_changed(file, rev)
   local has_changed = false
   local p = job:new({
     command = "git",
@@ -184,76 +183,17 @@ local function parse_uri(uri, errs)
   return { host = host, port = port, repo = repo_path }
 end
 
-local function is_file_compatible_with_revspec(buf_repo_path, revspec, errs)
-  if not is_file_in_rev(buf_repo_path, revspec) then
-    table.insert(
-      errs,
-      string.format(": '%s' is not in '%s'", buf_repo_path, revspec)
-    )
-    return false
-  end
-
-  local buf_path = path:new(buf_repo_path):make_relative()
-  if has_file_changed(buf_path, revspec) then
-    table.insert(
-      errs,
-      string.format(
-        ": '%s' has changed relative to '%s'",
-        buf_repo_path,
-        revspec
-      )
-    )
-    return false
-  end
-
-  return true
-end
-
-local function get_rev_for_revspec_if_contains_file(
-  buf_repo_path,
-  revspec,
-  errs
-)
-  local rev = get_rev(revspec)
-  if not rev then
-    table.insert(
-      errs,
-      string.format(": could not retrieve revision for '%s'", revspec)
-    )
-    return nil
-  end
-
-  if not is_file_compatible_with_revspec(buf_repo_path, revspec, errs) then
-    return nil
-  end
-  return rev
-end
-
-function M.get_closest_remote_compatible_rev(buf_repo_path, remote)
-  local errs = { "Failed get appropriate revision" }
+function M.get_closest_remote_compatible_rev(remote)
   -- try HEAD
   if is_rev_in_remote("HEAD", remote) then
-    local head_rev = get_rev_for_revspec_if_contains_file(
-      buf_repo_path,
-      "HEAD",
-      errs
-    )
+    local head_rev = get_rev("HEAD")
     if head_rev then
       return head_rev
     end
-  else
-    table.insert(
-      errs,
-      string.format(": current 'HEAD' not in remote '%s'", remote)
-    )
   end
 
   -- try upstream branch HEAD (a.k.a @{u})
-  local upstream_rev = get_rev_for_revspec_if_contains_file(
-    buf_repo_path,
-    "@{u}",
-    errs
-  )
+  local upstream_rev = get_rev("@{u}")
   if upstream_rev then
     return upstream_rev
   end
@@ -262,11 +202,7 @@ function M.get_closest_remote_compatible_rev(buf_repo_path, remote)
   for i = 1, 50 do
     local revspec = "HEAD~" .. i
     if is_rev_in_remote(revspec, remote) then
-      local rev = get_rev_for_revspec_if_contains_file(
-        buf_repo_path,
-        revspec,
-        {}
-      )
+      local rev = get_rev(revspec)
       if rev then
         return rev
       end
@@ -274,16 +210,17 @@ function M.get_closest_remote_compatible_rev(buf_repo_path, remote)
   end
 
   -- try remote HEAD
-  local remote_rev = get_rev_for_revspec_if_contains_file(
-    buf_repo_path,
-    remote,
-    errs
-  )
+  local remote_rev = get_rev(remote)
   if remote_rev then
     return remote_rev
   end
 
-  error(table.concat(errs))
+  error(
+    string.format(
+      "Failed to get closest revision in that exists in remote '%s'",
+      remote
+    )
+  )
   return nil
 end
 

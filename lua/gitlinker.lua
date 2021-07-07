@@ -58,23 +58,44 @@ local function get_repo_url_data(remote)
 end
 
 local function get_buf_range_url_data(mode, user_opts)
+  local git_root = git.get_git_root()
+  if not git_root then
+    error("Not in a git repository")
+    return nil
+  end
+  mode = mode or "n"
   local remote = user_opts.remote or git.get_branch_remote()
   local repo_url_data = get_repo_url_data(remote)
   if not repo_url_data then
     return nil
   end
 
-  local buf_repo_path = buffer.get_relative_path(git.get_git_root())
-
-  local rev = git.get_closest_remote_compatible_rev(buf_repo_path, remote)
+  local rev = git.get_closest_remote_compatible_rev(remote)
   if not rev then
     return nil
   end
 
-  local range = buffer.get_range(
-    mode or "n",
-    user_opts.add_current_line_on_normal_mode
-  )
+  local buf_repo_path = buffer.get_relative_path(git_root)
+  if not git.is_file_in_rev(buf_repo_path, rev) then
+    error(
+      string.format("'%s' does not exist in remote '%s'", buf_repo_path, remote)
+    )
+    return nil
+  end
+
+  local range = {}
+
+  local buf_path = buffer.get_relative_path()
+  if not git.has_file_changed(buf_path, rev) then
+    range = buffer.get_range(mode, user_opts.add_current_line_on_normal_mode)
+  elseif mode == "v" or user_opts.add_current_line_on_normal_mode then
+    print(
+      string.format(
+        "No line numbers were computed because '%s' has changes",
+        buf_path
+      )
+    )
+  end
 
   return vim.tbl_extend("force", repo_url_data, {
     rev = rev,
