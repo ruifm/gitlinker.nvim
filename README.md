@@ -63,6 +63,8 @@ In your `init.lua` or in a lua-here-doc in your `init.vim`:
 require"gitlinker".setup()
 ```
 
+### buffer url with (optional line range)
+
 **By default, the following mappings are defined:**
 
 - `<leader>gy` for normal and visual mode
@@ -92,6 +94,20 @@ looking for is `require"gitlinker".get_buf_range_url(mode, user_opts)` where:
   vim.api.nvim_set_keymap('n', '<leader>gb', '<cmd>lua require"gitlinker".get_buf_range_url("n", {action_callback = require"gitlinker.actions".open_in_browser})<cr>', {silent = true})
   vim.api.nvim_set_keymap('v', '<leader>gb', ':lua require"gitlinker".get_buf_range_url("v", {action_callback = require"gitlinker.actions".open_in_browser})<cr>')
   ```
+
+### Repo home page url
+
+For convenience, the function
+`require"gitlinker".get_buf_range_url(mode, user_opts)` allows one to generate
+the url for the repository homepage. You can map it like so:
+
+  ``` lua
+  vim.api.nvim_set_keymap('n', '<leader>gY', '<cmd>lua require"gitlinker".get_repo_url()<cr>', {silent = true})
+  vim.api.nvim_set_keymap('n', '<leader>gB', '<cmd>lua require"gitlinker".get_repo_url({action_callback = require"gitlinker.actions".open_in_browser})<cr>', {silent = true})
+  ```
+
+And use `<leader>gY` to copy the repo's homepage to your clipboard or
+`<leader>gB` to open it in your browser.
 
 ## Configuration
 
