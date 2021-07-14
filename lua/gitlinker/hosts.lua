@@ -171,7 +171,7 @@ end
 function M.get_matching_callback(target_host)
   local matching_callback
   for host, callback in pairs(M.callbacks) do
-    if host:match(target_host) then
+    if target_host:match(host) then
       matching_callback = callback
       break
     end
