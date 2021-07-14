@@ -82,12 +82,12 @@ local function is_rev_in_remote(revspec, remote)
   return is_in_remote
 end
 
-local chars = "[_%-%w%.]+"
+local allowed_chars = "[_%-%w%.]+"
 
 -- strips the protocol (https://, git@, ssh://, etc)
 local function strip_protocol(uri, errs)
-  local protocol_schema = chars .. "://"
-  local ssh_schema = chars .. "@"
+  local protocol_schema = allowed_chars .. "://"
+  local ssh_schema = allowed_chars .. "@"
 
   local stripped_uri = uri:match(protocol_schema .. "(.+)$")
     or uri:match(ssh_schema .. "(.+)$")
@@ -114,7 +114,7 @@ local function strip_uri(uri, errs)
 end
 
 local function parse_host(stripped_uri, errs)
-  local host_capture = "(" .. chars .. ")[:/].+$"
+  local host_capture = "(" .. allowed_chars .. ")[:/].+$"
   local host = stripped_uri:match(host_capture)
   if not host then
     table.insert(
@@ -127,7 +127,7 @@ end
 
 local function parse_port(stripped_uri, host)
   assert(host)
-  local port_capture = host .. ":([0-9]+)[:/].+$"
+  local port_capture = allowed_chars .. ":([0-9]+)[:/].+$"
   return stripped_uri:match(port_capture)
 end
 
@@ -144,7 +144,7 @@ local function parse_repo_path(stripped_uri, host, port, errs)
   end
 
   -- add parsed host to path capture
-  path_capture = host .. path_capture
+  path_capture = allowed_chars .. path_capture
 
   -- parse repo path
   local repo_path = stripped_uri:match(path_capture)
