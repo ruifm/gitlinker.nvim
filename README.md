@@ -215,6 +215,10 @@ callbacks = {
 }
 ```
 
+**Warning**: The keys in `callbacks` table are actually interpreted as lua
+regexes. If your url contains magic lua character such as `-`, it needs to be
+escaped as `%-`.
+
 ### Options
 
 - `remote`
