@@ -15,8 +15,8 @@ function M.get_range(mode, add_current_line_on_normal_mode)
   local lstart
   local lend
   if mode == "v" then
-    lstart = api.nvim_buf_get_mark(0, "<")[1]
-    lend = api.nvim_buf_get_mark(0, ">")[1]
+    lstart = vim.fn.getpos("v")[2]
+    lend = vim.fn.getcurpos()[2]
   elseif add_current_line_on_normal_mode == true then
     lstart = M.get_curr_line()
   end
