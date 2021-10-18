@@ -215,11 +215,12 @@ function M.get_closest_remote_compatible_rev(remote)
     return remote_rev
   end
 
-  error(
+  vim.notify(
     string.format(
       "Failed to get closest revision in that exists in remote '%s'",
       remote
-    )
+    ),
+    vim.log.levels.Error
   )
   return nil
 end
@@ -239,7 +240,7 @@ function M.get_repo_data(remote)
 
   local repo = parse_uri(remote_uri, errs)
   if not repo or vim.tbl_isempty(repo) then
-    error(table.concat(errs))
+    vim.notify(table.concat(errs), vim.log.levels.Error)
   end
   return repo
 end
@@ -260,7 +261,7 @@ end
 function M.get_branch_remote()
   local remotes = get_remotes()
   if #remotes == 0 then
-    error("Git repo has no remote")
+    vim.notify("Git repo has no remote", vim.log.levels.Error)
     return nil
   end
   if #remotes == 1 then

@@ -177,7 +177,10 @@ function M.get_matching_callback(target_host)
     end
   end
   if not matching_callback then
-    error(string.format("No host callback defined for host '%s'", target_host))
+    vim.notify(
+      string.format("No host callback defined for host '%s'", target_host),
+      vim.log.levels.Error
+    )
   end
   return matching_callback
 end
