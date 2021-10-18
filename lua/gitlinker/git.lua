@@ -36,6 +36,19 @@ local function get_rev(revspec)
   return rev
 end
 
+local function get_rev_name(revspec)
+  local rev
+  local p = job:new({
+    command = "git",
+    args = { "rev-parse", "--abbrev-ref", revspec },
+  })
+  p:after_success(function(j)
+    rev = j:result()[1]
+  end)
+  p:sync()
+  return rev
+end
+
 function M.is_file_in_rev(file, revspec)
   local is_in_rev = false
   local p = job:new({
@@ -215,11 +228,12 @@ function M.get_closest_remote_compatible_rev(remote)
     return remote_rev
   end
 
-  error(
+  vim.notify(
     string.format(
       "Failed to get closest revision in that exists in remote '%s'",
       remote
-    )
+    ),
+    vim.log.levels.Error
   )
   return nil
 end
@@ -239,7 +253,7 @@ function M.get_repo_data(remote)
 
   local repo = parse_uri(remote_uri, errs)
   if not repo or vim.tbl_isempty(repo) then
-    error(table.concat(errs))
+    vim.notify(table.concat(errs), vim.log.levels.Error)
   end
   return repo
 end
@@ -260,37 +274,54 @@ end
 function M.get_branch_remote()
   local remotes = get_remotes()
   if #remotes == 0 then
-    error("Git repo has no remote")
+    vim.notify("Git repo has no remote", vim.log.levels.Error)
     return nil
   end
   if #remotes == 1 then
     return remotes[1]
   end
 
-  for _, remote in ipairs(remotes) do
-    -- try upstream branch HEAD (a.k.a @{u})
-    local upstream_revspec = "@{u}"
-    if
-      get_rev(upstream_revspec)
-      and is_rev_in_remote(upstream_revspec, remote)
-    then
-      return remote
-    end
+  local upstream_branch = get_rev_name("@{u}")
+  if not upstream_branch then
+    vim.notify(
+      [[
+      Multiple remotes available and all of them can be used.
+      Either set up a tracking remote tracking branch by creating one your
+      current branch (git push -u) or set an existing one
+      (git branch --set-upstream-to=<remote>/<branch>).
+      Otherwise, choose one of them using
+      require'gitlinker'.setup({opts={remote='<remotename>'}}).
+    ]],
+      vim.log.levels.Warning
+    )
+    return nil
+  end
 
-    -- try HEAD and last 50 parent commits
-    for i = 0, 50 do
-      local revspec = "HEAD~" .. i
-      if is_rev_in_remote(revspec, remote) then
-        return remote
-      end
+  local remote_from_upstream_branch = upstream_branch:match(
+    "^(" .. allowed_chars .. ")%/"
+  )
+  if not remote_from_upstream_branch then
+    error(
+      string.format(
+        "Could not parse remote name from remote branch '%s'",
+        upstream_branch
+      )
+    )
+    return nil
+  end
+  for _, remote in ipairs(remotes) do
+    if remote_from_upstream_branch == remote then
+      return remote
     end
   end
 
-  error([[
-      Multiple remotes available and all of them can be used.
-      Please choose one of them using
-      require'gitlinker'.setup({opts={remote='<remotename>'}})
-    ]])
+  error(
+    string.format(
+      "Parsed remote '%s' from remote branch '%s' is not a valid remote",
+      remote_from_upstream_branch,
+      upstream_branch
+    )
+  )
   return nil
 end
 
