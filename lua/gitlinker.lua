@@ -100,7 +100,7 @@ local function get_buf_range_url_data(mode, user_opts)
   end
 
   return vim.tbl_extend("force", repo_url_data, {
-    rev = rev,
+    rev = repo_url_data.rev or rev,
     file = buf_repo_path,
     lstart = range.lstart,
     lend = range.lend,
