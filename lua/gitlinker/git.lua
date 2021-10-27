@@ -1,97 +1,63 @@
 local M = {}
 
 local job = require("plenary.job")
+local path = require("plenary.path")
 
-local function get_remotes()
-  local remotes
-  local p = job:new({ command = "git", args = { "remote" } })
+-- wrap the git command to do the rigth thing alwasy
+local function git(args)
+  vim.list_extend(args,
+    { '-C', tostring(path:new(vim.api.nvim_buf_get_name(0)):parent()) })
+
+  local results
+  local p = job:new({ command = "git", args = args })
   p:after_success(function(j)
-    remotes = j:result()
+    results = j:result()
   end)
   p:sync()
-  return remotes
+  return results
+end
+
+local function get_remotes()
+  return git({ 'remote' })
 end
 
 local function get_remote_uri(remote)
   assert(remote, "remote cannot be nil")
-  local remote_uri
-  local p = job:new({
-    command = "git",
-    args = { "remote", "get-url", remote },
-  })
-  p:after_success(function(j)
-    remote_uri = j:result()[1]
-  end)
-  p:sync()
-  return remote_uri
+  return git({ "remote", "get-url", remote })[1]
 end
 
 local function get_rev(revspec)
-  local rev
-  local p = job:new({ command = "git", args = { "rev-parse", revspec } })
-  p:after_success(function(j)
-    rev = j:result()[1]
-  end)
-  p:sync()
-  return rev
+  return git({ "rev-parse", revspec })[1]
 end
 
 local function get_rev_name(revspec)
-  local rev
-  local p = job:new({
-    command = "git",
-    args = { "rev-parse", "--abbrev-ref", revspec },
-  })
-  p:after_success(function(j)
-    rev = j:result()[1]
-  end)
-  p:sync()
-  return rev
+  return git({ "rev-parse", "--abbrev-ref", revspec })[1]
 end
 
 function M.is_file_in_rev(file, revspec)
-  local is_in_rev = false
-  local p = job:new({
-    command = "git",
-    args = { "cat-file", "-e", revspec .. ":" .. file },
-  })
-  p:after_success(function()
-    is_in_rev = true
-  end)
-  p:sync()
-  return is_in_rev
+  if git({ "cat-file", "-e", revspec .. ":" .. file }) then
+    return true
+  end
+  return false
 end
 
 function M.has_file_changed(file, rev)
-  local has_changed = false
-  local p = job:new({
-    command = "git",
-    args = { "diff", "--exit-code", rev, "--", file },
-  })
-  p:after_failure(function()
-    has_changed = true
-  end)
-  p:sync()
-  return has_changed
+  if git({ "diff", rev, "--", file }) then
+    return false
+  end
+  return true
 end
 
 local function is_rev_in_remote(revspec, remote)
   assert(remote, "remote cannot be nil")
   local is_in_remote = false
-  local p = job:new({
-    command = "git",
-    args = { "branch", "--remotes", "--contains", revspec },
-  })
-  p:after_success(function(j)
-    local output = j:result()
-    for _, rbranch in ipairs(output) do
-      if rbranch:match(remote) then
-        is_in_remote = true
-        return
-      end
+  local output = git({ "branch", "--remotes", "--contains", revspec })
+  for _, rbranch in ipairs(output) do
+    if rbranch:match(remote) then
+      is_in_remote = true
+      return
     end
-  end)
-  p:sync()
+  end
   return is_in_remote
 end
 
@@ -259,16 +225,7 @@ function M.get_repo_data(remote)
 end
 
 function M.get_git_root()
-  local root
-  local p = job:new({
-    command = "git",
-    args = { "rev-parse", "--show-toplevel" },
-  })
-  p:after_success(function(j)
-    root = j:result()[1]
-  end)
-  p:sync()
-  return root
+  return git({ "rev-parse", "--show-toplevel" })[1]
 end
 
 function M.get_branch_remote()
