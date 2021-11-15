@@ -11,7 +11,7 @@ local function set_keymap(mode, keys, mapping_opts)
   api.nvim_set_keymap(
     mode,
     keys,
-    ":lua require'gitlinker'.get_buf_range_url('" .. mode .. "')<cr>",
+    "<cmd>lua require'gitlinker'.get_buf_range_url('" .. mode .. "')<cr>",
     mapping_opts
   )
 end
