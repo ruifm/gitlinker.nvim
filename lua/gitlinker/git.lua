@@ -147,7 +147,7 @@ end
 local function parse_repo_path(stripped_uri, host, port, errs)
   assert(host)
 
-  local pathChars = "[/_%-%w%.]+"
+  local pathChars = "[~/_%-%w%.]+"
   -- base of path capture
   local path_capture = "[:/](" .. pathChars .. ")$"
 
