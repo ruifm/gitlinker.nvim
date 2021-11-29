@@ -197,18 +197,18 @@ local function parse_uri(uri, errs)
 end
 
 function M.get_closest_remote_compatible_rev(remote)
+  -- try upstream branch HEAD (a.k.a @{u})
+  local upstream_rev = get_rev("@{u}")
+  if upstream_rev then
+    return upstream_rev
+  end
+
   -- try HEAD
   if is_rev_in_remote("HEAD", remote) then
     local head_rev = get_rev("HEAD")
     if head_rev then
       return head_rev
     end
-  end
-
-  -- try upstream branch HEAD (a.k.a @{u})
-  local upstream_rev = get_rev("@{u}")
-  if upstream_rev then
-    return upstream_rev
   end
 
   -- try last 50 parent commits
