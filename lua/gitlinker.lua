@@ -71,20 +71,23 @@ local function get_buf_range_url_data(mode, user_opts)
     return nil
   end
 
-  local range = {}
-
   local buf_path = buffer.get_relative_path()
-  if not git.has_file_changed(buf_path, rev) then
-    range = buffer.get_range(mode, user_opts.add_current_line_on_normal_mode)
-  elseif mode == "v" or user_opts.add_current_line_on_normal_mode then
+  if
+    git.has_file_changed(buf_path, rev)
+    and (mode == "v" or user_opts.add_current_line_on_normal_mode)
+  then
     vim.notify(
       string.format(
-        "No line numbers were computed because '%s' has changes",
+        "Computed Line numbers are probably wrong because '%s' has changes",
         buf_path
       ),
       vim.log.levels.WARN
     )
   end
+  local range = buffer.get_range(
+    mode,
+    user_opts.add_current_line_on_normal_mode
+  )
 
   return vim.tbl_extend("force", repo_url_data, {
     rev = rev,
