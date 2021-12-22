@@ -60,7 +60,7 @@ end
 local function get_buf_range_url_data(mode, user_opts)
   local git_root = git.get_git_root()
   if not git_root then
-    vim.notify("Not in a git repository", vim.log.levels.Error)
+    vim.notify("Not in a git repository", vim.log.levels.ERROR)
     return nil
   end
   mode = mode or "n"
@@ -79,7 +79,7 @@ local function get_buf_range_url_data(mode, user_opts)
   if not git.is_file_in_rev(buf_repo_path, rev) then
     vim.notify(
       string.format("'%s' does not exist in remote '%s'", buf_repo_path, remote),
-      vim.log.levels.Error
+      vim.log.levels.ERROR
     )
     return nil
   end
@@ -95,7 +95,7 @@ local function get_buf_range_url_data(mode, user_opts)
         "No line numbers were computed because '%s' has changes",
         buf_path
       ),
-      vim.log.levels.Warning
+      vim.log.levels.WARN
     )
   end
 
