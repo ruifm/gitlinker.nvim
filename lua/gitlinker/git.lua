@@ -3,22 +3,23 @@ local M = {}
 local job = require("plenary.job")
 local path = require("plenary.path")
 
--- wrap the git command to do the rigth thing alwasy
+-- wrap the git command to do the right thing always
 local function git(args)
-  vim.list_extend(args,
-    { '-C', tostring(path:new(vim.api.nvim_buf_get_name(0)):parent()) })
-
-  local results
-  local p = job:new({ command = "git", args = args })
+  local output
+  local p = job:new({
+    command = "git",
+    args = args,
+    cwd = tostring(path:new(vim.api.nvim_buf_get_name(0)):parent()),
+  })
   p:after_success(function(j)
-    results = j:result()
+    output = j:result()
   end)
   p:sync()
-  return results
+  return output or {}
 end
 
 local function get_remotes()
-  return git({ 'remote' })
+  return git({ "remote" })
 end
 
 local function get_remote_uri(remote)
@@ -42,7 +43,7 @@ function M.is_file_in_rev(file, revspec)
 end
 
 function M.has_file_changed(file, rev)
-  if git({ "diff", rev, "--", file }) then
+  if git({ "diff", rev, "--exit-code", "--", file })[1] then
     return false
   end
   return true
@@ -50,15 +51,13 @@ end
 
 local function is_rev_in_remote(revspec, remote)
   assert(remote, "remote cannot be nil")
-  local is_in_remote = false
   local output = git({ "branch", "--remotes", "--contains", revspec })
   for _, rbranch in ipairs(output) do
     if rbranch:match(remote) then
-      is_in_remote = true
-      return
+      return true
     end
   end
-  return is_in_remote
+  return false
 end
 
 local allowed_chars = "[_%-%w%.]+"
@@ -240,17 +239,6 @@ function M.get_branch_remote()
 
   local upstream_branch = get_rev_name("@{u}")
   if not upstream_branch then
-    vim.notify(
-      [[
-      Multiple remotes available and all of them can be used.
-      Either set up a tracking remote tracking branch by creating one your
-      current branch (git push -u) or set an existing one
-      (git branch --set-upstream-to=<remote>/<branch>).
-      Otherwise, choose one of them using
-      require'gitlinker'.setup({opts={remote='<remotename>'}}).
-    ]],
-      vim.log.levels.WARN
-    )
     return nil
   end
 

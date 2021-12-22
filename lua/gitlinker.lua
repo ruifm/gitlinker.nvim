@@ -44,19 +44,6 @@ function M.setup(config)
   end
 end
 
-local function get_repo_url_data(remote)
-  remote = remote or git.get_branch_remote()
-  if not remote then
-    return nil
-  end
-
-  local repo = git.get_repo_data(remote)
-  if not repo or vim.tbl_isempty(repo) then
-    return nil
-  end
-  return repo
-end
-
 local function get_buf_range_url_data(mode, user_opts)
   local git_root = git.get_git_root()
   if not git_root then
@@ -64,8 +51,8 @@ local function get_buf_range_url_data(mode, user_opts)
     return nil
   end
   mode = mode or "n"
-  local remote = user_opts.remote or git.get_branch_remote()
-  local repo_url_data = get_repo_url_data(remote)
+  local remote = git.get_branch_remote() or user_opts.remote
+  local repo_url_data = git.get_repo_data(remote)
   if not repo_url_data then
     return nil
   end
@@ -147,7 +134,9 @@ end
 function M.get_repo_url(user_opts)
   user_opts = vim.tbl_deep_extend("force", opts.get(), user_opts or {})
 
-  local repo_url_data = get_repo_url_data(user_opts.remote)
+  local repo_url_data = git.get_repo_data(
+    git.get_branch_remote() or user_opts.remote
+  )
   if not repo_url_data then
     return nil
   end
