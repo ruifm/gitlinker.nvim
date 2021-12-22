@@ -6,7 +6,11 @@ local path = require("plenary.path")
 -- wrap the git command to do the right thing always
 local function git(args)
   local output
-  local p = job:new({ command = "git", args = args, cwd = tostring(path:new(vim.api.nvim_buf_get_name(0)):parent()) })
+  local p = job:new({
+    command = "git",
+    args = args,
+    cwd = tostring(path:new(vim.api.nvim_buf_get_name(0)):parent()),
+  })
   p:after_success(function(j)
     output = j:result()
   end)
@@ -15,7 +19,7 @@ local function git(args)
 end
 
 local function get_remotes()
-  return git({ 'remote' })
+  return git({ "remote" })
 end
 
 local function get_remote_uri(remote)
@@ -47,15 +51,13 @@ end
 
 local function is_rev_in_remote(revspec, remote)
   assert(remote, "remote cannot be nil")
-  local is_in_remote = false
   local output = git({ "branch", "--remotes", "--contains", revspec })
   for _, rbranch in ipairs(output) do
     if rbranch:match(remote) then
-      is_in_remote = true
-      return
+      return true
     end
   end
-  return is_in_remote
+  return false
 end
 
 local allowed_chars = "[_%-%w%.]+"

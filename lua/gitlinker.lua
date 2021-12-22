@@ -134,7 +134,9 @@ end
 function M.get_repo_url(user_opts)
   user_opts = vim.tbl_deep_extend("force", opts.get(), user_opts or {})
 
-  local repo_url_data = git.get_repo_data(git.get_branch_remote() or user_opts.remote)
+  local repo_url_data = git.get_repo_data(
+    git.get_branch_remote() or user_opts.remote
+  )
   if not repo_url_data then
     return nil
   end
