@@ -4,12 +4,12 @@ local job = require("plenary.job")
 local path = require("plenary.path")
 
 -- wrap the git command to do the right thing always
-local function git(args)
+local function git(args, cwd)
   local output
   local p = job:new({
     command = "git",
     args = args,
-    cwd = tostring(path:new(vim.api.nvim_buf_get_name(0)):parent()),
+    cwd = cwd or M.get_git_root(),
   })
   p:after_success(function(j)
     output = j:result()
@@ -43,10 +43,10 @@ function M.is_file_in_rev(file, revspec)
 end
 
 function M.has_file_changed(file, rev)
-  if git({ "diff", rev, "--exit-code", "--", file })[1] then
-    return false
+  if git({ "diff", rev, "--", file })[1] then
+    return true
   end
-  return true
+  return false
 end
 
 local function is_rev_in_remote(revspec, remote)
@@ -224,7 +224,10 @@ function M.get_repo_data(remote)
 end
 
 function M.get_git_root()
-  return git({ "rev-parse", "--show-toplevel" })[1]
+  return git(
+    { "rev-parse", "--show-toplevel" },
+    tostring(path:new(vim.api.nvim_buf_get_name(0)):parent())
+  )[1]
 end
 
 function M.get_branch_remote()
