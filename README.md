@@ -243,6 +243,29 @@ which opens the url in your preferred browser using `xdg-open` (linux only).
 
 You can define your own action callback.
 
+For example, to copy the url over a remote SSH session with an
+[OSC52][osc52]-compatible terminal, you can integrate gitlinker with
+[ojroques/vim-oscyank](oscyank) and use its `OSCYankString` function:
+
+```lua
+require'gitlinker'.setup{
+  opts = {
+    action_callback = function(url)
+      -- yank to unnamed register
+      vim.api.nvim_command('let @" = \'' .. url .. '\'')
+      -- copy to the system clipboard using OSC52
+      vim.fn.OSCYankString(url)
+    end,
+  },
+}
+```
+
+For the above setup, make sure that [ojroques/vim-oscyank](oscyank) is also
+installed.
+
+[osc52]: https://invisible-island.net/xterm/ctlseqs/ctlseqs.html#h3-Operating-System-Commands
+[oscyank]: https://github.com/ojroques/vim-oscyank
+
 - `print_url`
 
 If `true`, then print the url before performing the configured action.
