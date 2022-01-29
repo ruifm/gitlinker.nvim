@@ -165,13 +165,14 @@ end
 
 --- Gets a matching callback for a given host
 --
--- @param target_host the host to get the matching callback from
+-- @param target_host the host to get the matching callback from.
+-- this can be either a verbatim match or a lua string.match pattern.
 --
 -- @returns the host's callback
 function M.get_matching_callback(target_host)
   local matching_callback
   for host, callback in pairs(M.callbacks) do
-    if target_host:match(host) then
+    if target_host == host or target_host:match(host) then
       matching_callback = callback
       break
     end
