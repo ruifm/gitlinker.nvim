@@ -2,6 +2,7 @@ local M = {}
 
 local job = require("plenary.job")
 local path = require("plenary.path")
+local ssh = require("gitlinker.ssh")
 
 -- wrap the git command to do the right thing always
 local function git(args, cwd)
@@ -69,6 +70,8 @@ local function strip_protocol(uri, errs)
 
   local stripped_uri = uri:match(protocol_schema .. "(.+)$")
     or uri:match(ssh_schema .. "(.+)$")
+    or ssh.fix_hostname(uri)
+
   if not stripped_uri then
     table.insert(
       errs,
