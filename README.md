@@ -260,7 +260,7 @@ require'gitlinker'.setup{
 }
 ```
 
-For the above setup, make sure that [ojroques/vim-oscyank](oscyank) is also
+For the above setup, make sure that [ojroques/vim-oscyank][oscyank] is also
 installed.
 
 [osc52]: https://invisible-island.net/xterm/ctlseqs/ctlseqs.html#h3-Operating-System-Commands
