@@ -245,7 +245,7 @@ You can define your own action callback.
 
 For example, to copy the url over a remote SSH session with an
 [OSC52][osc52]-compatible terminal, you can integrate gitlinker with
-[ojroques/vim-oscyank](oscyank) and use its `OSCYankString` function:
+[ojroques/vim-oscyank][oscyank] and use its `OSCYankString` function:
 
 ```lua
 require'gitlinker'.setup{
@@ -260,7 +260,7 @@ require'gitlinker'.setup{
 }
 ```
 
-For the above setup, make sure that [ojroques/vim-oscyank](oscyank) is also
+For the above setup, make sure that [ojroques/vim-oscyank][oscyank] is also
 installed.
 
 [osc52]: https://invisible-island.net/xterm/ctlseqs/ctlseqs.html#h3-Operating-System-Commands
