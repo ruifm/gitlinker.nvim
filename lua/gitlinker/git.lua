@@ -112,7 +112,7 @@ end
 local function parse_repo_path(stripped_uri, host, port, errs)
   assert(host)
 
-  local pathChars = "[~/_%-%w%.]+"
+  local pathChars = "[~/_%-%w%.%s]+"
   -- base of path capture
   local path_capture = "[:/](" .. pathChars .. ")$"
 
@@ -125,7 +125,10 @@ local function parse_repo_path(stripped_uri, host, port, errs)
   path_capture = allowed_chars .. path_capture
 
   -- parse repo path
-  local repo_path = stripped_uri:match(path_capture)
+  local repo_path = stripped_uri
+    :gsub("%%20", " ") -- decode the space character
+    :match(path_capture)
+    :gsub(" ", "%%20") -- encode the space character
   if not repo_path then
     table.insert(
       errs,
