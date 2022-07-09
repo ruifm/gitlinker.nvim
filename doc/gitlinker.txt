@@ -124,6 +124,9 @@ Here’s all the options with their defaults:
       action_callback = require"gitlinker.actions".copy_to_clipboard,
       -- print the url after performing the action
       print_url = true,
+      -- highlights the linked line(s) by the time in ms
+      -- disable highlight by setting a value equal or less than 0
+      highlight_duration = 100,
       -- mapping to call url generation
       mappings = "<leader>gy"
     },
