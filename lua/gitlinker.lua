@@ -124,6 +124,11 @@ function M.get_buf_range_url(mode, user_opts)
 
   local url = matching_callback(url_data)
 
+  if user_opts.highlight_duration >= 0 then
+    buffer.highlight_range(url_data)
+    vim.defer_fn(buffer.clear_highlights, user_opts.highlight_duration)
+  end
+
   if user_opts.action_callback then
     user_opts.action_callback(url)
   end
