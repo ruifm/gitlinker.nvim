@@ -30,30 +30,26 @@ that already exist in gitlinker! See [callbacks](#callbacks)
 
 ## Installation
 
-Install it like any other vim plugin, just make sure
-[plenary.nvim](https://github.com/nvim-lua/plenary.nvim) is also installed.
+Install it like any other vim plugin.
 
 - [packer.nvim](https://github.com/wbthomason/packer.nvim)
 
 ``` lua
 use {
     'ruifm/gitlinker.nvim',
-    requires = 'nvim-lua/plenary.nvim',
 }
 ```
 
 - [vim-plug](https://github.com/junegunn/vim-plug)
 
 ``` vim
-Plug 'nvim-lua/plenary.nvim'
 Plug 'ruifm/gitlinker.nvim'
 ```
 
 ### Requirements
 
 - git
-- neovim 0.5
-- [plenary.nvim](https://github.com/nvim-lua/plenary.nvim)
+- neovim 0.8
 
 ## Usage
 

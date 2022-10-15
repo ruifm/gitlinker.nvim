@@ -18,7 +18,6 @@ require("packer").startup(
       use 'wbthomason/packer.nvim'
       use {
           'ruifm/gitlinker.nvim',
-          requires = 'nvim-lua/plenary.nvim',
       }
     end,
     config = {package_root = '/tmp/nvim/site/pack'}

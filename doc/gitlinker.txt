@@ -30,22 +30,19 @@ Supported git web hosts                                   *gitlinker-supported*
 ==============================================================================
 Installation                                           *gitlinker-installation*
 
-Install it like any other vim plugin, just make sure plenary.nvim is also
-installed.
+Install it like any other vim plugin.
 
 * packer.nvim
 
 >
   use {
       'ruifm/gitlinker.nvim',
-      requires = 'nvim-lua/plenary.nvim',
   }
 <
 
 * vim-plug
 
 >
-Plug 'nvim-lua/plenary.nvim'
 Plug 'ruifm/gitlinker.nvim'
 <
 
