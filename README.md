@@ -128,11 +128,11 @@ require"gitlinker".setup({
     print_url = true,
   },
   callbacks = {
-        ["github.com"] = require"gitlinker.hosts".get_github_type_url,
-        ["gitlab.com"] = require"gitlinker.hosts".get_gitlab_type_url,
+        ["github.*"] = require"gitlinker.hosts".get_github_type_url,
+        ["gitlab.*"] = require"gitlinker.hosts".get_gitlab_type_url,
         ["try.gitea.io"] = require"gitlinker.hosts".get_gitea_type_url,
         ["codeberg.org"] = require"gitlinker.hosts".get_gitea_type_url,
-        ["bitbucket.org"] = require"gitlinker.hosts".get_bitbucket_type_url,
+        ["bitbucket.*"] = require"gitlinker.hosts".get_bitbucket_type_url,
         ["try.gogs.io"] = require"gitlinker.hosts".get_gogs_type_url,
         ["git.sr.ht"] = require"gitlinker.hosts".get_srht_type_url,
         ["git.launchpad.net"] = require"gitlinker.hosts".get_launchpad_type_url,
@@ -167,6 +167,9 @@ url_data = {
   lend = 57, -- the line end of the selected range
 }
 ```
+
+`host` supports wildcards (`*`) for pattern matching. `<host.tld>` takes
+precedence over `<host.*>`.
 
 `port` will always be `nil` except when the remote URI configured locally is
 http(s) **and specifies a port** (e.g. `http://localhost:3000/user/repo.git`),
