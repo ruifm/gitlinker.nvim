@@ -122,6 +122,8 @@ require"gitlinker".setup({
     action_callback = require"gitlinker.actions".copy_to_clipboard,
     -- print the url after performing the action
     print_url = true,
+    -- os-specific command to open url, default to Unix: `xdg-open`, Mac: `open`, Windows: `explorer`
+    open_cmd = '',
   },
   callbacks = {
         ["github.com"] = require"gitlinker.hosts".get_github_type_url,
@@ -136,7 +138,8 @@ require"gitlinker".setup({
         ["git.kernel.org"] = require"gitlinker.hosts".get_cgit_type_url,
         ["git.savannah.gnu.org"] = require"gitlinker.hosts".get_cgit_type_url
   },
--- default mapping to call url generation with action_callback
+  -- default mapping to call url generation with action_callback
+  -- to disable the default mappings, set it to empty string
   mappings = "<leader>gy"
 })
 ```
@@ -235,7 +238,11 @@ default set to `require"gitlinker.actions".copy_to_clipboard` which copies to
 generated url to your system clipboard.
 
 An alternative callback `require"gitlinker.actions".open_in_browser` is provided
-which opens the url in your preferred browser using `xdg-open` (linux only).
+which opens the url in your preferred browser using os-specific command:
+
+- Unix: `xdg-open`
+- Mac: `open`
+- Windows: `explorer`
 
 You can define your own action callback.
 
