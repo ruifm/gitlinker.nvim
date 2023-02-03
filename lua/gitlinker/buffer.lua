@@ -15,8 +15,10 @@ function M.get_range(mode, add_current_line_on_normal_mode)
   local lstart
   local lend
   if mode == "v" then
-    lstart = vim.fn.getpos("v")[2]
-    lend = vim.fn.getcurpos()[2]
+    local pos1 = vim.fn.getpos("v")[2]
+    local pos2 = vim.fn.getcurpos()[2]
+    lstart = math.min(pos1, pos2)
+    lend = math.max(pos1, pos2)
   elseif add_current_line_on_normal_mode == true then
     lstart = M.get_curr_line()
   end
