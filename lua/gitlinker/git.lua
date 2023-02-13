@@ -206,6 +206,31 @@ function M.get_closest_remote_compatible_rev(remote)
   return nil
 end
 
+local function get_remote_branch(remote)
+  local errs = {
+    string.format("Failed to retrieve remote branch for remote '%s'", remote),
+  }
+  local symRef
+  local p = job:new({
+    command = "git",
+    args = { "symbolic-ref", "-q", "HEAD" },
+  })
+  p:after_success(function(j)
+    symRef = j:result()[1]
+  end)
+  p:sync()
+  local trackingBranch
+  local p = job:new({
+    command = 'git',
+    args = { 'for-each-ref', '--format=%(upstream:short)', symRef },
+  })
+  p:after_success(function(j)
+    trackingBranch = (j:result()[1]):match(remote .. '/(.+)$')
+  end)
+  p:sync()
+  return trackingBranch or 'origin/master'
+end
+
 function M.get_repo_data(remote)
   local errs = {
     string.format("Failed to retrieve repo data for remote '%s'", remote),
@@ -223,6 +248,12 @@ function M.get_repo_data(remote)
   if not repo or vim.tbl_isempty(repo) then
     vim.notify(table.concat(errs), vim.log.levels.ERROR)
   end
+
+  local branch = get_remote_branch(remote)
+  if branch then
+    repo.rev = branch
+  end
+
   return repo
 end
 

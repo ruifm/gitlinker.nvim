@@ -11,8 +11,11 @@ end
 --- Constructs a github style url
 function M.get_github_type_url(url_data)
   local url = M.get_base_https_url(url_data)
-  if not url_data.file or not url_data.rev then
+  if not url_data.file and not url_data.rev then
     return url
+  end
+  if not url_data.file and url_data.rev then
+    return url .. "/tree/" .. url_data.rev
   end
   url = url .. "/blob/" .. url_data.rev .. "/" .. url_data.file
 
