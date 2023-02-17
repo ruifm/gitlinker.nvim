@@ -8,6 +8,9 @@ local function set_keymap(mode, keys, mapping_opts)
     { noremap = true, silent = true },
     mapping_opts or {}
   )
+  if vim.fn.has('nvim-0.7.0') == 1 then
+    mapping_opts.desc = "Generate shareable permalink"
+  end
   api.nvim_set_keymap(
     mode,
     keys,
