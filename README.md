@@ -75,7 +75,7 @@ When used, it will copy the generated url to your clipboard and print it in
 - In normal mode, it will add the current line number to the url
 - In visual mode , it will add the line range of the visual selection to the url
 
-**To disable the default mappings** just set `mappings = nil` in the `setup()`
+**To disable the default mappings** just set `mappings = ''` in the `setup()`
 function (see [Configuration](#Configuration))
 
 If you want to disable mappings and set them on your own, the function you are
