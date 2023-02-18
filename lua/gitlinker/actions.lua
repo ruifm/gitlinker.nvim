@@ -15,8 +15,15 @@ end
 -- Uses xdg-open
 -- @param url the url string
 function M.open_in_browser(url)
-  local command = vim.loop.os_uname().sysname == "Darwin" and "open"
-    or "xdg-open"
+  local command = "xdg-open"
+  local sysname = vim.loop.os_uname().sysname
+  if sysname == "Darwin" then
+    command = "open"
+  elseif
+      string.len(sysname) >= 7 and string.sub(sysname, 1, 7) == "windows"
+  then
+    command = "explorer"
+  end
   job:new({ command = command, args = { url } }):start()
 end
 
