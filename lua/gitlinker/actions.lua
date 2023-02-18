@@ -20,7 +20,8 @@ function M.open_in_browser(url)
   if sysname == "Darwin" then
     command = "open"
   elseif
-      string.len(sysname) >= 7 and string.sub(sysname, 1, 7) == "windows"
+    string.len(sysname) >= 7
+    and string.sub(string.lower(sysname), 1, 7) == "windows"
   then
     command = "explorer"
   end
