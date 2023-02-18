@@ -18,8 +18,10 @@ end
 
 function M.set(mappings)
   mappings = mappings or "<leader>gy"
-  set_keymap("n", mappings)
-  set_keymap("v", mappings, { silent = false })
+  if string.len(mappings) > 0 then
+    set_keymap("n", mappings)
+    set_keymap("v", mappings, { silent = false })
+  end
 end
 
 return M
