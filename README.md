@@ -1,5 +1,8 @@
 # gitlinker.nvim
 
+> This is a maintained fork of [ruifm's gitlinker.nvim](https://github.com/ruifm/gitlinker.nvim).
+> Focused on bug fix and feature enhancements.
+
 A lua [neovim](https://github.com/neovim/neovim) plugin to generate shareable
 file permalinks (with line ranges) for several git web frontend hosts. Inspired
 by [tpope/vim-fugitive](https://github.com/tpope/vim-fugitive)'s `:GBrowse`
@@ -28,6 +31,12 @@ callbacks. It's even easier if your host is just an enterprise/self-hosted
 github/gitlab/gitea/gogs/cgit instance since you can just use the same callbacks
 that already exist in gitlinker! See [callbacks](#callbacks)
 
+### Requirements
+
+- git
+- neovim 0.5
+- [plenary.nvim](https://github.com/nvim-lua/plenary.nvim)
+
 ## Installation
 
 Install it like any other vim plugin, just make sure
@@ -35,31 +44,55 @@ Install it like any other vim plugin, just make sure
 
 - [packer.nvim](https://github.com/wbthomason/packer.nvim)
 
-``` lua
+```lua
 use {
     'ruifm/gitlinker.nvim',
     requires = 'nvim-lua/plenary.nvim',
+    branch = 'main',
+    config = function()
+        require('gitlinker').setup()
+    end,
 }
 ```
 
 - [vim-plug](https://github.com/junegunn/vim-plug)
 
-``` vim
+```vim
 Plug 'nvim-lua/plenary.nvim'
-Plug 'ruifm/gitlinker.nvim'
+Plug 'ruifm/gitlinker.nvim', { 'branch': 'master' }
 ```
 
-### Requirements
+- [lazy.nvim](https://github.com/folke/lazy.nvim)
 
-- git
-- neovim 0.5
-- [plenary.nvim](https://github.com/nvim-lua/plenary.nvim)
+```lua
+{
+    'linrongbin16/gitlinker.nvim',
+    dependencies = 'nvim-lua/plenary.nvim',
+    branch = 'master',
+    config = function()
+        require('gitlinker').setup()
+    end,
+},
+```
 
-## Usage
+## Config
+
+> Notice
+>
+> In this section, vim mode is specified with:
+>
+> - `"n"`: normal mode.
+> - `"x"`: visual mode.
+> - `"v"`: both visual and select mode.
+>
+> Please check:
+>
+> - <https://vi.stackexchange.com/q/4891/6600>
+> - <https://vi.stackexchange.com/q/24895/6600>
 
 In your `init.lua` or in a lua-here-doc in your `init.vim`:
 
-``` lua
+```lua
 require"gitlinker".setup()
 ```
 
@@ -67,30 +100,29 @@ require"gitlinker".setup()
 
 **By default, the following mappings are defined:**
 
-- `<leader>gy` for normal and visual mode
+- `<leader>gy` for normal and visual/select mode
 
 When used, it will copy the generated url to your clipboard and print it in
 `:messages`.
 
-- In normal mode, it will add the current line number to the url
-- In visual mode , it will add the line range of the visual selection to the url
+- In normal mode, it will add the current line number to the url.
+- In visual/select mode , it will add the line range of the selected code to the url.
 
-**To disable the default mappings** just set `mappings = nil` in the `setup()`
-function (see [Configuration](#Configuration))
+**To disable the default mappings** just set `mappings = false` or `mappings = ''` in the `setup()` function (see [Configuration](#configuration)).
 
 If you want to disable mappings and set them on your own, the function you are
 looking for is `require"gitlinker".get_buf_range_url(mode, user_opts)` where:
 
-- `mode` is the either `"n"` (normal) or `"v"` (visual)
+- `mode` is the either `"n"` (normal) or `"v"` (visual/select).
 
 - `user_opts` is a table of options that override the ones set in `setup()` (see
-  [Configuration](#Configuration)). Because it just overrides, you do not need
+  [Configuration](#configuration)). Because it just overrides, you do not need
   to pass this parameter, only if you want to change something.
 
   Example for setting extra mappings for an alternative `action_callback` (in
   this case, open in browser):
 
-  ``` lua
+  ```lua
   vim.api.nvim_set_keymap('n', '<leader>gb', '<cmd>lua require"gitlinker".get_buf_range_url("n", {action_callback = require"gitlinker.actions".open_in_browser})<cr>', {silent = true})
   vim.api.nvim_set_keymap('v', '<leader>gb', '<cmd>lua require"gitlinker".get_buf_range_url("v", {action_callback = require"gitlinker.actions".open_in_browser})<cr>', {})
   ```
@@ -101,10 +133,10 @@ For convenience, the function
 `require"gitlinker".get_buf_range_url(mode, user_opts)` allows one to generate
 the url for the repository homepage. You can map it like so:
 
-  ``` lua
-  vim.api.nvim_set_keymap('n', '<leader>gY', '<cmd>lua require"gitlinker".get_repo_url()<cr>', {silent = true})
-  vim.api.nvim_set_keymap('n', '<leader>gB', '<cmd>lua require"gitlinker".get_repo_url({action_callback = require"gitlinker.actions".open_in_browser})<cr>', {silent = true})
-  ```
+```lua
+vim.api.nvim_set_keymap('n', '<leader>gY', '<cmd>lua require"gitlinker".get_repo_url()<cr>', {silent = true})
+vim.api.nvim_set_keymap('n', '<leader>gB', '<cmd>lua require"gitlinker".get_repo_url({action_callback = require"gitlinker.actions".open_in_browser})<cr>', {silent = true})
+```
 
 And use `<leader>gY` to copy the repo's homepage to your clipboard or
 `<leader>gB` to open it in your browser.
@@ -116,7 +148,7 @@ To configure `gitlinker.nvim`, call `require"gitlinker".setup(config)` in your
 
 Here's all the options with their defaults:
 
-``` lua
+```lua
 require"gitlinker".setup({
   opts = {
     remote = nil, -- force the use of a specific remote
@@ -156,7 +188,7 @@ support for other git web hosts or self-hosted and enterprise instances.
 In the key, place a string with the hostname and in value a callback function
 that constructs the url and receives:
 
-``` lua
+```lua
 url_data = {
   host = "<host.tld>",
   port = "3000" or nil,
@@ -179,7 +211,7 @@ in your callback.
 As an example, here is the callback for github (**you don't need this, it's
 already builtin**, it's just an example):
 
-``` lua
+```lua
 callbacks = {
   ["github.com"] = function(url_data)
       local url = require"gitlinker.hosts".get_base_https_url(url_data) ..
@@ -195,7 +227,7 @@ callbacks = {
 
 If you want to add support for your company's gitlab instance:
 
-``` lua
+```lua
 callbacks = {
   ["git.seriouscompany.com"] = require"gitlinker.hosts".get_gitlab_type_url
 }
@@ -205,7 +237,7 @@ Here is my personal configuration for my personal self-hosted gitea instance for
 which the `host` is a local one (since I can only access it from my LAN) and but
 the web interface is public:
 
-``` lua
+```lua
 callbacks = {
   ["192.168.1.2"] = function(url_data)
       url_data.host = "git.ruimarques.xyz"
