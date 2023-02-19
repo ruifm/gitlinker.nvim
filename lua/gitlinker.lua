@@ -33,6 +33,7 @@ local function get_buf_range_url_data(user_opts)
   local mode = vim.api.nvim_get_mode().mode
   local remote = user_opts.remote or git.get_branch_remote()
   local repo_url_data = git.get_repo_data(remote)
+  log.debug(string.format())
   if not repo_url_data then
     return nil
   end
@@ -52,8 +53,8 @@ local function get_buf_range_url_data(user_opts)
 
   local buf_path = buffer.get_relative_path()
   if
-      git.has_file_changed(buf_path, rev)
-      and (mode == "v" or user_opts.add_current_line_on_normal_mode)
+    git.has_file_changed(buf_path, rev)
+    and (mode == "v" or user_opts.add_current_line_on_normal_mode)
   then
     log.error(
       string.format(
@@ -63,7 +64,7 @@ local function get_buf_range_url_data(user_opts)
     )
   end
   local range =
-      buffer.get_range(mode, user_opts.add_current_line_on_normal_mode)
+    buffer.get_range(mode, user_opts.add_current_line_on_normal_mode)
 
   return vim.tbl_extend("force", repo_url_data, {
     rev = rev,
@@ -116,7 +117,7 @@ function M.get_repo_url(user_opts)
   user_opts = vim.tbl_deep_extend("force", opts.get(), user_opts or {})
 
   local repo_url_data =
-      git.get_repo_data(git.get_branch_remote() or user_opts.remote)
+    git.get_repo_data(git.get_branch_remote() or user_opts.remote)
   if not repo_url_data then
     return nil
   end

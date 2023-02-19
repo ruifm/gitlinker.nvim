@@ -1,18 +1,29 @@
 local M = {}
 
-local log_level = vim.log.levels.ERROR
+local echohl = {
+  ["ERROR"] = "ErrorMsg",
+  ["WARN"] = "ErrorMsg",
+  ["INFO"] = "None",
+  ["DEBUG"] = "Comment",
+}
+local log_level = "ERROR"
 
 function M.setup(debug)
   if debug then
-    log_level = vim.log.levels.DEBUG
+    log_level = "DEBUG"
   end
 end
 
 local function log(level, msg)
-  if level < log_level then
+  if vim.log.levels[level] < vim.log.levels[log_level] then
     return
   end
-  vim.notify(msg, level)
+  local split_msg = vim.split(msg, "\n")
+  vim.fn.echohl(echohl[level])
+  for _, m in ipairs(split_msg) do
+    vim.fn.echo(vim.fn.escape(m, '"'))
+  end
+  vim.fn.echohl("None")
 end
 
 function M.debug(msg)
