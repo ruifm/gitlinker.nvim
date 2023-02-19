@@ -1,5 +1,0 @@
-*gitlinker.txt*                                             Maintained fork of gitlinker.nvim.
-*gitlinker.nvim*
-
-Author: Lin Rongbin <linrongbin16@outlook.com>
-Home: https://github.com/linrongbin16/gitlinker.nvim
