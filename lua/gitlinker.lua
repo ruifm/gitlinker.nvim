@@ -9,32 +9,9 @@ local opts = require("gitlinker.opts")
 M.hosts = require("gitlinker.hosts")
 M.actions = require("gitlinker.actions")
 
---- Setup the plugin configuration
---
--- Sets the options
--- Sets the hosts callbacks
--- Sets the mappings
---
--- @param config table with the schema
--- {
---   opts = {
---    remote = "<remotename>", -- force the use of a specific remote
---    add_current_line_on_normal_mode = true/false, -- add the line nr to the url
---    url_callback = <func> -- what to do with the url
---   }, -- check gitlinker/opts for the default values
---  callbacks = {
---    ["githostname.tld"] = <func> -- where <func> is a function that takes a
---    url_data table and returns the url
---   },
---  mappings = "<keys>"-- keys for normal and visual mode keymaps
--- }
--- @param user_opts a table to override options passed in M.setup()
+--- Setup plugin option and key mapping
 function M.setup(config)
-  opts.setup(config.opts)
-  if config then
-    M.hosts.callbacks =
-        vim.tbl_deep_extend("force", M.hosts.callbacks, config.callbacks or {})
-  end
+  opts.setup(config)
   mappings.setup()
 end
 
