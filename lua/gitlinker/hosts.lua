@@ -26,24 +26,6 @@ function M.get_github_type_url(url_data)
   return url
 end
 
---- Constructs a gitea style url
-function M.get_gitea_type_url(url_data)
-  local url = M.get_base_https_url(url_data)
-  if not url_data.file or not url_data.rev then
-    return url
-  end
-  url = url .. "/src/commit/" .. url_data.rev .. "/" .. url_data.file
-
-  if not url_data.lstart then
-    return url
-  end
-  url = url .. "#L" .. url_data.lstart
-  if url_data.lend then
-    url = url .. "-L" .. url_data.lend
-  end
-  return url
-end
-
 --- Constructs a gitlab style url
 function M.get_gitlab_type_url(url_data)
   local url = M.get_base_https_url(url_data)
@@ -78,88 +60,6 @@ function M.get_bitbucket_type_url(url_data)
     url = url .. ":" .. url_data.lend
   end
 
-  return url
-end
-
---- Constructs a gogs style url
-function M.get_gogs_type_url(url_data)
-  local url = M.get_base_https_url(url_data)
-  if not url_data.file or not url_data.rev then
-    return url
-  end
-  url = url .. "/src/" .. url_data.rev .. "/" .. url_data.file
-
-  if not url_data.lstart then
-    return url
-  end
-  url = url .. "#L" .. url_data.lstart
-  if url_data.lend then
-    url = url .. "-L" .. url_data.lend
-  end
-
-  return url
-end
-
---- Constructs a cgit style url
-function M.get_cgit_type_url(url_data)
-  if url_data.repo then
-    url_data.repo = url_data.repo .. ".git/"
-  end
-
-  local url = "https://" .. url_data.host
-  if url_data.port then
-    url = url .. ":" .. url_data.port
-  end
-  url = url .. "/tree/" .. url_data.file .. "?id=" .. url_data.rev
-  if url_data.lstart then
-    url = url .. "#n" .. url_data.lstart
-  end
-  return url
-end
-
---- Constructs a sourcehut style url
-function M.get_srht_type_url(url_data)
-  local url = M.get_base_https_url(url_data)
-  if not url_data.file or not url_data.rev then
-    return url
-  end
-  url = url .. "/tree/" .. url_data.rev .. "/item/" .. url_data.file
-
-  if not url_data.lstart then
-    return url
-  end
-  url = url .. "#L" .. url_data.lstart
-  if url_data.lend then
-    url = url .. "-" .. url_data.lend
-  end
-
-  return url
-end
-
---- Constructs a launchpad style url
-function M.get_launchpad_type_url(url_data)
-  local url = M.get_base_https_url(url_data)
-  if not url_data.file or not url_data.rev then
-    return url
-  end
-  url = url .. "/tree/" .. url_data.file .. "?id=" .. url_data.rev
-
-  if url_data.lstart then
-    url = url .. "#n" .. url_data.lstart
-  end
-  return url
-end
-
---- Constructs a repo.or.cz style url
-function M.get_repoorcz_type_url(url_data)
-  local url = M.get_base_https_url(url_data)
-  if not url_data.file or not url_data.rev then
-    return url
-  end
-  url = url .. "/blob/" .. url_data.rev .. ":/" .. url_data.file
-  if url_data.lstart then
-    url = url .. "#l" .. url_data.lstart
-  end
   return url
 end
 

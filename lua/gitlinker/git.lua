@@ -2,6 +2,7 @@ local M = {}
 
 local job = require("plenary.job")
 local path = require("plenary.path")
+local log = require("gitlinker.log")
 
 -- wrap the git command to do the right thing always
 local function git(args, cwd)
@@ -18,7 +19,7 @@ local function git(args, cwd)
   return output or {}
 end
 
-local function get_remotes()
+local function remote()
   return git({ "remote" })
 end
 
@@ -196,12 +197,9 @@ function M.get_closest_remote_compatible_rev(remote)
     return remote_rev
   end
 
-  vim.notify(
-    string.format(
-      "Failed to get closest revision in that exists in remote '%s'",
-      remote
-    ),
-    vim.log.levels.ERROR
+  log.error(
+    "Failed to get closest revision in that exists in remote '%s'",
+    remote
   )
   return nil
 end
@@ -221,7 +219,7 @@ function M.get_repo_data(remote)
 
   local repo = parse_uri(remote_uri, errs)
   if not repo or vim.tbl_isempty(repo) then
-    vim.notify(table.concat(errs), vim.log.levels.ERROR)
+    log.error(table.concat(errs))
   end
   return repo
 end
@@ -234,9 +232,9 @@ function M.get_git_root()
 end
 
 function M.get_branch_remote()
-  local remotes = get_remotes()
+  local remotes = remote()
   if #remotes == 0 then
-    vim.notify("Git repo has no remote", vim.log.levels.ERROR)
+    log.error("Git repo has no remote")
     return nil
   end
   if #remotes == 1 then
@@ -248,9 +246,8 @@ function M.get_branch_remote()
     return nil
   end
 
-  local remote_from_upstream_branch = upstream_branch:match(
-    "^(" .. allowed_chars .. ")%/"
-  )
+  local remote_from_upstream_branch =
+    upstream_branch:match("^(" .. allowed_chars .. ")%/")
   if not remote_from_upstream_branch then
     error(
       string.format(

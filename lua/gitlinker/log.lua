@@ -15,20 +15,20 @@ local function log(level, msg)
   vim.notify(msg, level)
 end
 
-function M.debug(msg)
-  log(vim.log.levels.DEBUG, msg)
+function M.debug(fmt, ...)
+  log(vim.log.levels.DEBUG, string.format(fmt, unpack(arg)))
 end
 
-function M.info(msg)
-  log(vim.log.levels.INFO, msg)
+function M.info(fmt, ...)
+  log(vim.log.levels.INFO, string.format(fmt, unpack(arg)))
 end
 
-function M.warn(msg)
-  log(vim.log.levels.WARN, msg)
+function M.warn(fmt, ...)
+  log(vim.log.levels.WARN, string.format(fmt, unpack(arg)))
 end
 
-function M.error(msg)
-  log(vim.log.levels.error, msg)
+function M.error(fmt, ...)
+  log(vim.log.levels.ERROR, string.format(fmt, unpack(arg)))
 end
 
 return M
