@@ -27,19 +27,19 @@ local function log(level, msg)
 end
 
 function M.debug(msg)
-  log(vim.log.levels.DEBUG, msg)
+  log("DEBUG", msg)
 end
 
 function M.info(msg)
-  log(vim.log.levels.INFO, msg)
+  log("INFO", msg)
 end
 
 function M.warn(msg)
-  log(vim.log.levels.WARN, msg)
+  log("WARN", msg)
 end
 
 function M.error(msg)
-  log(vim.log.levels.ERROR, msg)
+  log("ERROR", msg)
 end
 
 return M
