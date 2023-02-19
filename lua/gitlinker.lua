@@ -44,22 +44,26 @@ local function get_buf_range_url_data(user_opts)
 
   local buf_repo_path = buffer.get_relative_path(git_root)
   if not git.is_file_in_rev(buf_repo_path, rev) then
-    log.error("'%s' does not exist in remote '%s'", buf_repo_path, remote)
+    log.error(
+      string.format("'%s' does not exist in remote '%s'", buf_repo_path, remote)
+    )
     return nil
   end
 
   local buf_path = buffer.get_relative_path()
   if
-    git.has_file_changed(buf_path, rev)
-    and (mode == "v" or user_opts.add_current_line_on_normal_mode)
+      git.has_file_changed(buf_path, rev)
+      and (mode == "v" or user_opts.add_current_line_on_normal_mode)
   then
     log.error(
-      "Computed Line numbers are probably wrong because '%s' has changes",
-      buf_path
+      string.format(
+        "Computed Line numbers are probably wrong because '%s' has changes",
+        buf_path
+      )
     )
   end
   local range =
-    buffer.get_range(mode, user_opts.add_current_line_on_normal_mode)
+      buffer.get_range(mode, user_opts.add_current_line_on_normal_mode)
 
   return vim.tbl_extend("force", repo_url_data, {
     rev = rev,
@@ -82,9 +86,9 @@ end
 --
 -- @returns The url string
 function M.get_buf_range_url(user_opts)
-  log.debug("user_opts1:%s", vim.inspect(user_opts))
+  log.debug("user_opts1:" .. vim.inspect(user_opts))
   user_opts = vim.tbl_deep_extend("force", opts.get(), user_opts or {})
-  log.debug("user_opts2:%s", vim.inspect(user_opts))
+  log.debug("user_opts2:" .. vim.inspect(user_opts))
 
   local url_data = get_buf_range_url_data(user_opts)
   if not url_data then
@@ -112,7 +116,7 @@ function M.get_repo_url(user_opts)
   user_opts = vim.tbl_deep_extend("force", opts.get(), user_opts or {})
 
   local repo_url_data =
-    git.get_repo_data(git.get_branch_remote() or user_opts.remote)
+      git.get_repo_data(git.get_branch_remote() or user_opts.remote)
   if not repo_url_data then
     return nil
   end

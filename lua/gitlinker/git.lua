@@ -69,7 +69,7 @@ local function strip_protocol(uri, errs)
   local ssh_schema = allowed_chars .. "@"
 
   local stripped_uri = uri:match(protocol_schema .. "(.+)$")
-    or uri:match(ssh_schema .. "(.+)$")
+      or uri:match(ssh_schema .. "(.+)$")
   if not stripped_uri then
     table.insert(
       errs,
@@ -127,9 +127,9 @@ local function parse_repo_path(stripped_uri, host, port, errs)
 
   -- parse repo path
   local repo_path = stripped_uri
-    :gsub("%%20", " ") -- decode the space character
-    :match(path_capture)
-    :gsub(" ", "%%20") -- encode the space character
+      :gsub("%%20", " ") -- decode the space character
+      :match(path_capture)
+      :gsub(" ", "%%20") -- encode the space character
   if not repo_path then
     table.insert(
       errs,
@@ -198,8 +198,10 @@ function M.get_closest_remote_compatible_rev(remote)
   end
 
   log.error(
-    "Failed to get closest revision in that exists in remote '%s'",
-    remote
+    string.format(
+      "Failed to get closest revision in that exists in remote '%s'",
+      remote
+    )
   )
   return nil
 end
@@ -226,9 +228,9 @@ end
 
 function M.get_git_root()
   return git(
-    { "rev-parse", "--show-toplevel" },
-    tostring(path:new(vim.api.nvim_buf_get_name(0)):parent())
-  )[1]
+        { "rev-parse", "--show-toplevel" },
+        tostring(path:new(vim.api.nvim_buf_get_name(0)):parent())
+      )[1]
 end
 
 function M.get_branch_remote()
@@ -247,7 +249,7 @@ function M.get_branch_remote()
   end
 
   local remote_from_upstream_branch =
-    upstream_branch:match("^(" .. allowed_chars .. ")%/")
+      upstream_branch:match("^(" .. allowed_chars .. ")%/")
   if not remote_from_upstream_branch then
     error(
       string.format(
