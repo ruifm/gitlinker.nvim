@@ -62,6 +62,8 @@ Plug 'nvim-lua/plenary.nvim'
 Plug 'ruifm/gitlinker.nvim', { 'branch': 'master' }
 ```
 
+Then add `require('gitlinker').setup()` to your `init.lua`.
+
 - [lazy.nvim](https://github.com/folke/lazy.nvim)
 
 ```lua
@@ -75,7 +77,7 @@ Plug 'ruifm/gitlinker.nvim', { 'branch': 'master' }
 },
 ```
 
-## Config
+## Usage
 
 > In this section, vim mode is specified with:
 >
@@ -88,25 +90,16 @@ Plug 'ruifm/gitlinker.nvim', { 'branch': 'master' }
 > - <https://vi.stackexchange.com/q/4891/6600>
 > - <https://vi.stackexchange.com/q/24895/6600>
 
-In your `init.lua` or in a lua-here-doc in your `init.vim`:
+### Defaults
 
-```lua
-require"gitlinker".setup()
-```
+By default, the following key mapping is defined to open git link in browser:
 
-### buffer url with (optional line range)
+- `<leader>gl` (normal mode): Open in browser and print in command line. It will add the current line to url.
+- `<leader>gl` (visual/select mode): Open in browser and print command line. It will add the range of selected lines to url.
 
-**By default, the following mappings are defined:**
+To disable the default key mapping, set `mappings = false` or `mappings = ''` in the `setup()` function (see [Configuration](#configuration)).
 
-- `<leader>gy` for normal and visual/select mode
-
-When used, it will copy the generated url to your clipboard and print it in
-`:messages`.
-
-- In normal mode, it will add the current line number to the url.
-- In visual/select mode , it will add the line range of the selected code to the url.
-
-**To disable the default mappings** just set `mappings = false` or `mappings = ''` in the `setup()` function (see [Configuration](#configuration)).
+### Api
 
 If you want to disable mappings and set them on your own, the function you are
 looking for is `require"gitlinker".get_buf_range_url(mode, user_opts)` where:
@@ -141,10 +134,7 @@ And use `<leader>gY` to copy the repo's homepage to your clipboard or
 
 ## Configuration
 
-To configure `gitlinker.nvim`, call `require"gitlinker".setup(config)` in your
-`init.lua` or in a lua-here-doc in your `init.vim`.
-
-Here's all the options with their defaults:
+Here's all the default options passed to `setup()` function:
 
 ```lua
 require"gitlinker".setup({
@@ -152,10 +142,12 @@ require"gitlinker".setup({
     remote = nil, -- force the use of a specific remote
     -- adds current line nr in the url for normal mode
     add_current_line_on_normal_mode = true,
-    -- callback for what to do with the url
-    action_callback = require"gitlinker.actions".copy_to_clipboard,
+    -- default action
+    action_callback = require"gitlinker.actions".open_in_browser,
     -- print the url after performing the action
     print_url = true,
+    -- default key mapping
+    mappings = '<leader>gl',
   },
   callbacks = {
         ["github.com"] = require"gitlinker.hosts".get_github_type_url,
@@ -170,8 +162,6 @@ require"gitlinker".setup({
         ["git.kernel.org"] = require"gitlinker.hosts".get_cgit_type_url,
         ["git.savannah.gnu.org"] = require"gitlinker.hosts".get_cgit_type_url
   },
--- default mapping to call url generation with action_callback
-  mappings = "<leader>gy"
 })
 ```
 

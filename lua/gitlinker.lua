@@ -30,18 +30,12 @@ M.actions = require("gitlinker.actions")
 -- }
 -- @param user_opts a table to override options passed in M.setup()
 function M.setup(config)
+  opts.setup(config.opts)
   if config then
-    opts.setup(config.opts)
-    M.hosts.callbacks = vim.tbl_deep_extend(
-      "force",
-      M.hosts.callbacks,
-      config.callbacks or {}
-    )
-    mappings.set(config.mappings)
-  else
-    opts.setup()
-    mappings.set()
+    M.hosts.callbacks =
+        vim.tbl_deep_extend("force", M.hosts.callbacks, config.callbacks or {})
   end
+  mappings.setup()
 end
 
 local function get_buf_range_url_data(mode, user_opts)
@@ -73,8 +67,8 @@ local function get_buf_range_url_data(mode, user_opts)
 
   local buf_path = buffer.get_relative_path()
   if
-    git.has_file_changed(buf_path, rev)
-    and (mode == "v" or user_opts.add_current_line_on_normal_mode)
+      git.has_file_changed(buf_path, rev)
+      and (mode == "v" or user_opts.add_current_line_on_normal_mode)
   then
     vim.notify(
       string.format(
@@ -84,10 +78,8 @@ local function get_buf_range_url_data(mode, user_opts)
       vim.log.levels.WARN
     )
   end
-  local range = buffer.get_range(
-    mode,
-    user_opts.add_current_line_on_normal_mode
-  )
+  local range =
+      buffer.get_range(mode, user_opts.add_current_line_on_normal_mode)
 
   return vim.tbl_extend("force", repo_url_data, {
     rev = rev,
@@ -137,9 +129,8 @@ end
 function M.get_repo_url(user_opts)
   user_opts = vim.tbl_deep_extend("force", opts.get(), user_opts or {})
 
-  local repo_url_data = git.get_repo_data(
-    git.get_branch_remote() or user_opts.remote
-  )
+  local repo_url_data =
+      git.get_repo_data(git.get_branch_remote() or user_opts.remote)
   if not repo_url_data then
     return nil
   end
