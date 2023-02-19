@@ -17,8 +17,10 @@ local function set_keymap(mode, keys, mapping_opts)
 end
 
 function M.set(mappings)
-  mappings = mappings or "<leader>gy"
-  if string.len(mappings) > 0 then
+  if mappings == nil then
+    mappings = "<leader>gy"
+  end
+  if mappings and string.len(mappings) > 0 then
     set_keymap("n", mappings)
     set_keymap("v", mappings, { silent = false })
   end
