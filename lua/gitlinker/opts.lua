@@ -19,6 +19,7 @@ local defaults = {
     ["git.kernel.org"] = M.get_cgit_type_url,
     ["git.savannah.gnu.org"] = M.get_cgit_type_url,
   },
+  debug = false,
 }
 
 local opts

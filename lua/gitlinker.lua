@@ -3,6 +3,7 @@ local M = {}
 local git = require("gitlinker.git")
 local buffer = require("gitlinker.buffer")
 local opts = require("gitlinker.opts")
+local log = require("gitlinker.log")
 
 -- public
 M.hosts = require("gitlinker.hosts")
@@ -11,6 +12,7 @@ M.actions = require("gitlinker.actions")
 --- Setup plugin option and key mapping
 function M.setup(config)
   opts.setup(config)
+  log.setup(opts.get().debug)
   local mappings = opts.get().mappings
   if mappings and string.len(mappings) > 0 then
     vim.api.nvim_set_keymap(
@@ -86,6 +88,7 @@ end
 --
 -- @returns The url string
 function M.get_buf_range_url(user_opts)
+  log.debug("user_opts:", vim.inspect(user_opts))
   user_opts = vim.tbl_deep_extend("force", opts.get(), user_opts or {})
 
   local url_data = get_buf_range_url_data(user_opts)

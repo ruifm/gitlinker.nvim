@@ -131,8 +131,47 @@ And use `<leader>gY` to copy the repo's homepage to your clipboard or
 
 ## Configuration
 
-Override the specific options, while other options will stay with defaults.
-Please checkout [defaults in opts.lua](https://github.com/ruifm/gitlinker.nvim/blob/master/lua/gitlinker/opts.lua).
+To customize configs, speicify options in `setup()` function:
+
+```lua
+require('gitlinker').setup({
+  -- Force the use of a specific remote
+  -- By default nil, handled by plugin itself.
+  remote = nil,
+
+  -- If true adds the line number in the url for normal mode.
+  add_current_line_on_normal_mode = true,
+
+  -- By default open git link in browser.
+  action_callback = require("gitlinker.actions").open_in_browser,
+
+  -- Print the url after action.
+  print_url = true,
+
+  -- key mappings
+  mappings = "<leader>gl",
+
+  -- Remote url translate rules.
+  callbacks = {
+    ["github.com"] = M.get_github_type_url,
+    ["gitlab.com"] = M.get_gitlab_type_url,
+    ["try.gitea.io"] = M.get_gitea_type_url,
+    ["codeberg.org"] = M.get_gitea_type_url,
+    ["bitbucket.org"] = M.get_bitbucket_type_url,
+    ["try.gogs.io"] = M.get_gogs_type_url,
+    ["git.sr.ht"] = M.get_srht_type_url,
+    ["git.launchpad.net"] = M.get_launchpad_type_url,
+    ["repo.or.cz"] = M.get_repoorcz_type_url,
+    ["git.kernel.org"] = M.get_cgit_type_url,
+    ["git.savannah.gnu.org"] = M.get_cgit_type_url,
+  },
+
+  -- Enable debug
+  debug = false,
+})
+```
+
+User options can override the default options, while the `nil` fields will stay with default value.
 
 ### callbacks
 
