@@ -1,31 +1,31 @@
 local M = {}
 
-local api = vim.api
-local job = require("plenary.job")
+local pjob = require("plenary.job")
+local os = vim.loop.os_uname().sysname
 
---- copies the url to clipboard
+-- Copy url to clipboard
 --
 -- @param url the url string
 function M.copy_to_clipboard(url)
-  api.nvim_command("let @+ = '" .. url .. "'")
+  vim.api.nvim_command("let @+ = '" .. url .. "'")
 end
 
---- opens the url in your default browser
+-- Open url in browser
 --
--- Uses xdg-open
+-- Use urlview.nvim's system implementation.
+-- Please check: https://github.com/axieax/urlview.nvim/blob/main/lua/urlview/actions.lua#L38
+--
 -- @param url the url string
 function M.open_in_browser(url)
-  local command = "xdg-open"
-  local sysname = vim.loop.os_uname().sysname
-  if sysname == "Darwin" then
-    command = "open"
-  elseif
-    string.len(sysname) >= 7
-    and string.sub(string.lower(sysname), 1, 7) == "windows"
-  then
-    command = "explorer"
+  local j
+  if os == "Darwin" then
+    j = pjob:new({ command = "open", args = { url } })
+  elseif os:match("Windows") then
+    j = pjob:new({ command = "cmd", args = { "/C", "start", url } })
+  else
+    j = pjob:new({ command = "xdg-open", args = { url } })
   end
-  job:new({ command = command, args = { url } }):start()
+  j:start()
 end
 
 return M
