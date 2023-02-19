@@ -1,6 +1,6 @@
 # gitlinker.nvim
 
-> This is a maintained fork of [ruifm's gitlinker.nvim](https://github.com/ruifm/gitlinker.nvim).
+> Maintained fork of [ruifm's gitlinker.nvim](https://github.com/ruifm/gitlinker.nvim).
 > Focused on bug fix and feature enhancements.
 
 A lua [neovim](https://github.com/neovim/neovim) plugin to generate shareable
@@ -29,7 +29,7 @@ co-workers.
 **You can easily configure support for more hosts** by defining your own host
 callbacks. It's even easier if your host is just an enterprise/self-hosted
 github/gitlab/gitea/gogs/cgit instance since you can just use the same callbacks
-that already exist in gitlinker! See [callbacks](#callbacks)
+that already exist in gitlinker! See [callbacks](#callbacks).
 
 ### Requirements
 
@@ -77,8 +77,6 @@ Plug 'ruifm/gitlinker.nvim', { 'branch': 'master' }
 
 ## Config
 
-> Notice
->
 > In this section, vim mode is specified with:
 >
 > - `"n"`: normal mode.
