@@ -39,10 +39,7 @@ that already exist in gitlinker! See [callbacks](#callbacks).
 
 ## Installation
 
-Install it like any other vim plugin, just make sure
-[plenary.nvim](https://github.com/nvim-lua/plenary.nvim) is also installed.
-
-- [packer.nvim](https://github.com/wbthomason/packer.nvim)
+### [packer.nvim](https://github.com/wbthomason/packer.nvim)
 
 ```lua
 use {
@@ -55,7 +52,7 @@ use {
 }
 ```
 
-- [vim-plug](https://github.com/junegunn/vim-plug)
+### [vim-plug](https://github.com/junegunn/vim-plug)
 
 ```vim
 Plug 'nvim-lua/plenary.nvim'
@@ -64,7 +61,7 @@ Plug 'ruifm/gitlinker.nvim', { 'branch': 'master' }
 
 Then add `require('gitlinker').setup()` to your `init.lua`.
 
-- [lazy.nvim](https://github.com/folke/lazy.nvim)
+### [lazy.nvim](https://github.com/folke/lazy.nvim)
 
 ```lua
 {
