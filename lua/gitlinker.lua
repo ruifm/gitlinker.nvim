@@ -2,7 +2,6 @@ local M = {}
 
 local git = require("gitlinker.git")
 local buffer = require("gitlinker.buffer")
-local mappings = require("gitlinker.mappings")
 local opts = require("gitlinker.opts")
 
 -- public
@@ -12,16 +11,24 @@ M.actions = require("gitlinker.actions")
 --- Setup plugin option and key mapping
 function M.setup(config)
   opts.setup(config)
-  mappings.setup()
+  local mappings = opts.get().mappings
+  if mappings and string.len(mappings) > 0 then
+    vim.api.nvim_set_keymap(
+      { "n", "v" },
+      keys,
+      "<cmd>lua require('gitlinker').get_buf_range_url()<cr>",
+      { noremap = true, silent = true }
+    )
+  end
 end
 
-local function get_buf_range_url_data(mode, user_opts)
+local function get_buf_range_url_data(user_opts)
   local git_root = git.get_git_root()
   if not git_root then
     vim.notify("Not in a git repository", vim.log.levels.ERROR)
     return nil
   end
-  mode = mode or "n"
+  local mode = vim.api.nvim_get_mode().mode
   local remote = git.get_branch_remote() or user_opts.remote
   local repo_url_data = git.get_repo_data(remote)
   if not repo_url_data then
@@ -78,10 +85,10 @@ end
 -- @param user_opts a table to override options passed
 --
 -- @returns The url string
-function M.get_buf_range_url(mode, user_opts)
+function M.get_buf_range_url(user_opts)
   user_opts = vim.tbl_deep_extend("force", opts.get(), user_opts or {})
 
-  local url_data = get_buf_range_url_data(mode, user_opts)
+  local url_data = get_buf_range_url_data(user_opts)
   if not url_data then
     return nil
   end

@@ -1,6 +1,6 @@
 local M = {}
 
-local pjob = require("plenary.job")
+local job = require("plenary.job")
 local os = vim.loop.os_uname().sysname
 
 -- Copy url to clipboard
@@ -19,11 +19,11 @@ end
 function M.open_in_browser(url)
   local j
   if os == "Darwin" then
-    j = pjob:new({ command = "open", args = { url } })
+    j = job:new({ command = "open", args = { url } })
   elseif os:match("Windows") then
-    j = pjob:new({ command = "cmd", args = { "/C", "start", url } })
+    j = job:new({ command = "cmd", args = { "/C", "start", url } })
   else
-    j = pjob:new({ command = "xdg-open", args = { url } })
+    j = job:new({ command = "xdg-open", args = { url } })
   end
   j:start()
 end
