@@ -1,10 +1,13 @@
-*gitlinker.txt*
+*gitlinker.txt*                                             Maintained fork of gitlinker.nvim.
+*gitlinker.nvim*
 
 Author:   Lin Rongbin <linrongbin16@outlook.com>
 Homepage: <https://github.com/linrongbin16/gitlinker.nvim>
 License:  GPLv3
 
+CONTENTS                                        *gitlinker-contents*
+Introduction                                    |gitlinker-introduction|
 ==============================================================================
-Introduction                                                  *gitlinker-intro*
+INTRODUCTION                                    *gitlinker-introduction*
 
-Please check: https://github.com/linrongbin16/gitlinker.nvim.
+Please checkout: https://github.com/linrongbin16/gitlinker.nvim.
