@@ -15,7 +15,7 @@ function M.setup(config)
   if mappings and string.len(mappings) > 0 then
     vim.api.nvim_set_keymap(
       { "n", "v" },
-      keys,
+      mappings,
       "<cmd>lua require('gitlinker').get_buf_range_url()<cr>",
       { noremap = true, silent = true }
     )
