@@ -27,7 +27,7 @@ end
 local function get_buf_range_url_data(user_opts)
   local git_root = git.get_git_root()
   if not git_root then
-    vim.notify("Not in a git repository", vim.log.levels.ERROR)
+    log.error("Not in a git repository")
     return nil
   end
   local mode = vim.api.nvim_get_mode().mode
@@ -88,7 +88,7 @@ end
 --
 -- @returns The url string
 function M.get_buf_range_url(user_opts)
-  log.debug("user_opts:", vim.inspect(user_opts))
+  log.debug("user_opts:" .. vim.inspect(user_opts))
   user_opts = vim.tbl_deep_extend("force", opts.get(), user_opts or {})
 
   local url_data = get_buf_range_url_data(user_opts)
