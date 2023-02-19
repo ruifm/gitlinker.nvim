@@ -134,39 +134,8 @@ And use `<leader>gY` to copy the repo's homepage to your clipboard or
 
 ## Configuration
 
-Here's all the default options passed to `setup()` function:
-
-```lua
-require"gitlinker".setup({
-  opts = {
-    remote = nil, -- force the use of a specific remote
-    -- adds current line nr in the url for normal mode
-    add_current_line_on_normal_mode = true,
-    -- default action
-    action_callback = require"gitlinker.actions".open_in_browser,
-    -- print the url after performing the action
-    print_url = true,
-    -- default key mapping
-    mappings = '<leader>gl',
-  },
-  callbacks = {
-        ["github.com"] = require"gitlinker.hosts".get_github_type_url,
-        ["gitlab.com"] = require"gitlinker.hosts".get_gitlab_type_url,
-        ["try.gitea.io"] = require"gitlinker.hosts".get_gitea_type_url,
-        ["codeberg.org"] = require"gitlinker.hosts".get_gitea_type_url,
-        ["bitbucket.org"] = require"gitlinker.hosts".get_bitbucket_type_url,
-        ["try.gogs.io"] = require"gitlinker.hosts".get_gogs_type_url,
-        ["git.sr.ht"] = require"gitlinker.hosts".get_srht_type_url,
-        ["git.launchpad.net"] = require"gitlinker.hosts".get_launchpad_type_url,
-        ["repo.or.cz"] = require"gitlinker.hosts".get_repoorcz_type_url,
-        ["git.kernel.org"] = require"gitlinker.hosts".get_cgit_type_url,
-        ["git.savannah.gnu.org"] = require"gitlinker.hosts".get_cgit_type_url
-  },
-})
-```
-
-When configuring `gitlinker.nvim`, **you don't need to copy-paste the above, you
-just need to override/add what you want.**
+Override the specific options, while other options will stay with defaults.
+Please checkout [defaults in opts.lua](https://github.com/ruifm/gitlinker.nvim/blob/master/lua/gitlinker/opts.lua).
 
 ### callbacks
 
