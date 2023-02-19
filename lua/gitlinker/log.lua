@@ -19,11 +19,11 @@ local function log(level, msg)
     return
   end
   local split_msg = vim.split(msg, "\n")
-  vim.fn.echohl(echohl[level])
+  vim.api.nvim_command("echohl " .. echohl[level])
   for _, m in ipairs(split_msg) do
-    vim.fn.echo(vim.fn.escape(m, '"'))
+    vim.api.nvim_command(string.format('echom "%s"', vim.fn.escape(m, '"')))
   end
-  vim.fn.echohl("None")
+  vim.api.nvim_command("echohl None")
 end
 
 function M.debug(msg)
