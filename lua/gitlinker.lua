@@ -33,7 +33,13 @@ local function get_buf_range_url_data(user_opts)
   local mode = vim.api.nvim_get_mode().mode
   local remote = user_opts.remote or git.get_branch_remote()
   local repo_url_data = git.get_repo_data(remote)
-  log.debug(string.format())
+  log.debug(
+    string.format(
+      "remote: %s, repo_url_data: %s",
+      vim.inspect(remote),
+      vim.inspect(repo_url_data)
+    )
+  )
   if not repo_url_data then
     return nil
   end
