@@ -63,7 +63,7 @@ local function get_buf_range_url_data(user_opts)
     git.has_file_changed(buf_path, rev)
     and (mode == "v" or user_opts.add_current_line_on_normal_mode)
   then
-    log.error(
+    log.warn(
       string.format(
         "Computed Line numbers are probably wrong because '%s' has changes",
         buf_path
