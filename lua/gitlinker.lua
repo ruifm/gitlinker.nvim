@@ -51,6 +51,13 @@ local function get_buf_range_url_data(user_opts)
   end
 
   local buf_repo_path = buffer.get_relative_path(git_root)
+  log.debug(
+    string.format(
+      "buf_repo_path: %s, git_root: %s",
+      vim.inspect(buf_repo_path),
+      vim.inspect(git_root)
+    )
+  )
   if not git.is_file_in_rev(buf_repo_path, rev) then
     log.error(
       string.format("'%s' does not exist in remote '%s'", buf_repo_path, remote)
