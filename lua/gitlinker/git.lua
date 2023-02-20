@@ -198,10 +198,8 @@ function M.get_closest_remote_compatible_rev(remote)
   end
 
   log.error(
-    string.format(
-      "Failed to get closest revision in that exists in remote '%s'",
-      remote
-    )
+    "Failed to get closest revision in that exists in remote '%s'",
+    remote
   )
   return nil
 end

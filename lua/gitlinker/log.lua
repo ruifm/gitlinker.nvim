@@ -26,20 +26,20 @@ local function log(level, msg)
   vim.api.nvim_command("echohl None")
 end
 
-function M.debug(msg)
-  log("DEBUG", msg)
+function M.debug(fmt, ...)
+  log("DEBUG", string.format(fmt, ...))
 end
 
-function M.info(msg)
-  log("INFO", msg)
+function M.info(fmt, ...)
+  log("INFO", string.format(fmt, ...))
 end
 
-function M.warn(msg)
-  log("WARN", msg)
+function M.warn(fmt, ...)
+  log("WARN", string.format(fmt, ...))
 end
 
-function M.error(msg)
-  log("ERROR", msg)
+function M.error(fmt, ...)
+  log("ERROR", string.format(fmt, ...))
 end
 
 return M
