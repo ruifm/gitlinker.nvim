@@ -231,7 +231,7 @@ function M.get_git_root()
     { "rev-parse", "--show-toplevel" },
     tostring(path:new(vim.api.nvim_buf_get_name(0)):parent())
   )[1]
-  return type(root) == "string" and root:lower() or root
+  return root
 end
 
 function M.get_branch_remote()
