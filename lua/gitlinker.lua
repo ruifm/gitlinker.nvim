@@ -25,7 +25,7 @@ function M.setup(config)
 end
 
 local function get_buf_range_url_data(user_opts)
-  local git_root = git.get_git_root()
+  local git_root = git.root()
   log.debug(string.format("git_root: %s", vim.inspect(git_root)))
   if not git_root then
     log.error("Not in a git repository")

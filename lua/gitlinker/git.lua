@@ -10,7 +10,7 @@ local function git(args, cwd)
   local p = job:new({
     command = "git",
     args = args,
-    cwd = cwd or M.get_git_root(),
+    cwd = cwd or M.root(),
   })
   p:after_success(function(j)
     output = j:result()
@@ -226,7 +226,7 @@ function M.get_repo_data(remote)
   return repo
 end
 
-function M.get_git_root()
+function M.root()
   local root = git(
     { "rev-parse", "--show-toplevel" },
     tostring(path:new(vim.api.nvim_buf_get_name(0)):parent())
