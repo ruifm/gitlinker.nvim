@@ -13,7 +13,7 @@ function M.get_relative_path(cwd)
     vim.inspect(buf_path),
     vim.inspect(cwd),
     vim.inspect(relative_path),
-    vim.inspect(normalized_relative_path),
+    vim.inspect(normalized_relative_path)
   )
   return relative_path
 end
