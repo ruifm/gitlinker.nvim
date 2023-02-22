@@ -34,7 +34,7 @@ that already exist in gitlinker! See [callbacks](#callbacks).
 ### Requirements
 
 - git
-- neovim 0.5
+- neovim 0.8
 - [plenary.nvim](https://github.com/nvim-lua/plenary.nvim)
 
 ## Installation
