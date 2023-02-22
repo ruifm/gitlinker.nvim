@@ -2,9 +2,18 @@ local M = {}
 
 local api = vim.api
 local path = require("plenary.path")
+local log = require("gitlinker.log")
 
 function M.get_relative_path(cwd)
-  return path:new(api.nvim_buf_get_name(0)):make_relative(cwd)
+  local buf_path = path:new(api.nvim_buf_get_name(0))
+  local relative_path = buf_path:make_relative(cwd)
+  log.debug(
+    "buf_path:%s, cwd:%s, relative_path:%s",
+    vim.inspect(buf_path),
+    vim.inspect(cwd),
+    vim.inspect(relative_path)
+  )
+  return relative_path
 end
 
 function M.get_curr_line()
