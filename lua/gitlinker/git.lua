@@ -3,6 +3,7 @@ local M = {}
 local job = require("plenary.job")
 local path = require("plenary.path")
 local log = require("gitlinker.log")
+local util = require("gitlinker.util")
 
 -- wrap the git command to do the right thing always
 local function git(args, cwd)
@@ -225,10 +226,16 @@ function M.get_repo_data(remote)
 end
 
 function M.root()
-  local root = git(
-    { "rev-parse", "--show-toplevel" },
+  local current_folder =
     tostring(path:new(vim.api.nvim_buf_get_name(0)):parent())
-  )[1]
+  local normalized = util.normalize_path(current_folder)
+  local root = git({ "rev-parse", "--show-toplevel" }, normalized)[1]
+  log.debug(
+    "[git.root] current_folder:%s, normalized:%s, root:%s",
+    current_folder,
+    normalized,
+    root
+  )
   return root
 end
 

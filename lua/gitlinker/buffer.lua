@@ -1,14 +1,18 @@
 local M = {}
 
-local api = vim.api
 local path = require("plenary.path")
 local log = require("gitlinker.log")
+local util = require("gitlinker.util")
 
 function M.get_relative_path(cwd)
-  local buf_path = path:new(api.nvim_buf_get_name(0))
+  local buf_name = vim.api.nvim_buf_get_name(0)
+  local normalized_buf_name = util.normalize_path(buf_name)
+  local buf_path = path:new(normalized_buf_name)
   local relative_path = buf_path:make_relative(cwd)
   log.debug(
-    "[get_relative_path] buf_path:%s, cwd:%s, relative_path:%s",
+    "[buffer.get_relative_path] buf_name:%s, normalized_buf_name:%s buf_path:%s, cwd:%s, relative_path:%s",
+    vim.inspect(buf_name),
+    vim.inspect(normalized_buf_name),
     vim.inspect(buf_path),
     vim.inspect(cwd),
     vim.inspect(relative_path)
@@ -17,7 +21,7 @@ function M.get_relative_path(cwd)
 end
 
 function M.get_curr_line()
-  return api.nvim_win_get_cursor(0)[1]
+  return vim.api.nvim_win_get_cursor(0)[1]
 end
 
 function M.get_range(mode, add_current_line_on_normal_mode)

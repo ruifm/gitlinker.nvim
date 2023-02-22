@@ -31,7 +31,7 @@ end
 
 local function get_buf_range_url_data(user_opts)
   local git_root = git.root()
-  log.debug("[get_buf_range_url_data] git_root: %s", vim.inspect(git_root))
+  log.debug("[init.get_buf_range_url_data] git_root: %s", vim.inspect(git_root))
   if not git_root then
     log.error("Not in a git repository")
     return nil
@@ -40,7 +40,7 @@ local function get_buf_range_url_data(user_opts)
   local remote = user_opts.remote or git.get_branch_remote()
   local repo_url_data = git.get_repo_data(remote)
   log.debug(
-    "[get_buf_range_url_data] remote: %s, repo_url_data: %s",
+    "[init.get_buf_range_url_data] remote: %s, repo_url_data: %s",
     vim.inspect(remote),
     vim.inspect(repo_url_data)
   )
@@ -55,7 +55,7 @@ local function get_buf_range_url_data(user_opts)
 
   local buf_repo_path = buffer.get_relative_path(git_root)
   log.debug(
-    "[get_buf_range_url_data] buf_repo_path: %s, git_root: %s",
+    "[init.get_buf_range_url_data] buf_repo_path: %s, git_root: %s",
     vim.inspect(buf_repo_path),
     vim.inspect(git_root)
   )
@@ -65,7 +65,7 @@ local function get_buf_range_url_data(user_opts)
   end
 
   local buf_path = buffer.get_relative_path()
-  log.debug("[get_buf_range_url_data] buf_path: %s", vim.inspect(buf_path))
+  log.debug("[init.get_buf_range_url_data] buf_path: %s", vim.inspect(buf_path))
   if
     git.has_file_changed(buf_path, rev)
     and (mode == "v" or user_opts.add_current_line_on_normal_mode)
@@ -99,9 +99,15 @@ end
 --
 -- @returns The url string
 function M.get_buf_range_url(user_opts)
-  log.debug("[get_buf_range_url_data] user_opts1: %s", vim.inspect(user_opts))
+  log.debug(
+    "[init.get_buf_range_url_data] user_opts1: %s",
+    vim.inspect(user_opts)
+  )
   user_opts = vim.tbl_deep_extend("force", opts.get(), user_opts or {})
-  log.debug("[get_buf_range_url_data] user_opts2: %s", vim.inspect(user_opts))
+  log.debug(
+    "[init.get_buf_range_url_data] user_opts2: %s",
+    vim.inspect(user_opts)
+  )
 
   local url_data = get_buf_range_url_data(user_opts)
   if not url_data then
