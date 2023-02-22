@@ -7,16 +7,14 @@ local util = require("gitlinker.util")
 function M.get_relative_path(cwd)
   local buf_path = path:new(vim.api.nvim_buf_get_name(0))
   if cwd ~= nil then
-    cwd = util.normalize_path(cwd)
+    cwd = util.to_backslash_path(cwd)
   end
   local relative_path = buf_path:make_relative(cwd)
-  local normalized_relative_path = util.normalize_path(relative_path)
   log.debug(
-    "[buffer.get_relative_path] buf_path:%s, cwd:%s, relative_path:%s, normalized_relative_path:%s",
+    "[buffer.get_relative_path] buf_path:%s, cwd:%s, relative_path:%s",
     vim.inspect(buf_path),
     vim.inspect(cwd),
     vim.inspect(relative_path),
-    vim.inspect(normalized_relative_path)
   )
   return relative_path
 end

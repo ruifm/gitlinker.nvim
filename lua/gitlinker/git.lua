@@ -228,7 +228,6 @@ end
 function M.root()
   local current_folder =
     tostring(path:new(vim.api.nvim_buf_get_name(0)):parent())
-  -- local normalized = util.normalize_path(current_folder)
   local root = git({ "rev-parse", "--show-toplevel" }, current_folder)[1]
   log.debug("[git.root] current_folder:%s, root:%s", current_folder, root)
   return root
