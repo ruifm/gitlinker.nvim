@@ -45,7 +45,7 @@ local function selected_line_range(mode, add_current_line_on_normal_mode)
     lstart = math.min(pos1, pos2)
     lend = math.max(pos1, pos2)
   elseif add_current_line_on_normal_mode == true then
-    lstart = M.get_curr_line()
+    lstart = cursor_line_number()
   end
 
   return { lstart = lstart, lend = lend }
