@@ -36,7 +36,6 @@ local function get_buf_range_url_data(user_opts)
     log.error("Not in a git repository")
     return nil
   end
-  local mode = vim.api.nvim_get_mode().mode
   local remote = user_opts.remote or git.get_branch_remote()
   local repo_url_data = git.get_repo_data(remote)
   log.debug(
@@ -66,17 +65,13 @@ local function get_buf_range_url_data(user_opts)
 
   local buf_path = util.relative_path()
   log.debug("[init.get_buf_range_url_data] buf_path: %s", vim.inspect(buf_path))
-  if
-    git.has_file_changed(buf_path, rev)
-    and (mode == "v" or user_opts.add_current_line_on_normal_mode)
-  then
-    log.warn(
+  if git.has_file_changed(buf_path, rev) then
+    log.info(
       "Computed Line numbers are probably wrong because '%s' has changes",
       buf_path
     )
   end
-  local range =
-    util.selected_line_range(mode, user_opts.add_current_line_on_normal_mode)
+  local range = util.selected_line_range()
 
   return vim.tbl_extend("force", repo_url_data, {
     rev = rev,
@@ -99,15 +94,9 @@ end
 --
 -- @returns The url string
 function M.get_buf_range_url(user_opts)
-  log.debug(
-    "[init.get_buf_range_url_data] user_opts1: %s",
-    vim.inspect(user_opts)
-  )
+  log.debug("[init.get_buf_range_url] user_opts1: %s", vim.inspect(user_opts))
   user_opts = vim.tbl_deep_extend("force", opts.get(), user_opts or {})
-  log.debug(
-    "[init.get_buf_range_url_data] user_opts2: %s",
-    vim.inspect(user_opts)
-  )
+  log.debug("[init.get_buf_range_url] user_opts2: %s", vim.inspect(user_opts))
 
   local url_data = get_buf_range_url_data(user_opts)
   if not url_data then

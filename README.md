@@ -139,9 +139,6 @@ require('gitlinker').setup({
   -- By default nil, handled by plugin itself.
   remote = nil,
 
-  -- If true adds the line number in the url for normal mode.
-  add_current_line_on_normal_mode = true,
-
   -- By default open git link in browser.
   action_callback = require("gitlinker.actions").open_in_browser,
 
@@ -197,10 +194,6 @@ url_data = {
 http(s) **and specifies a port** (e.g. `http://localhost:3000/user/repo.git`),
 in which case the generated url permalink also needs the right port.
 
-`lstart` and `lend` can be `nil` in case normal mode was used or
-`opts.add_current_line_on_normal_mode = false`. Do not forget to check for that
-in your callback.
-
 As an example, here is the callback for github (**you don't need this, it's
 already builtin**, it's just an example):
 
@@ -251,11 +244,6 @@ escaped as `%-`.
 If `remote = nil` (default), the relevant remote will be auto-detected. If you
 have multiple git remotes configured and want to use a specific one
 (e.g. `myfork`), do `remote = "myfork"`.
-
-- `add_current_line_on_normal_mode`
-
-If `true`, when invoking the mapping/command in normal mode, it adds the current
-line to the url.
 
 - `action_callback`
 

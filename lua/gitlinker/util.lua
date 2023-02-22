@@ -22,32 +22,36 @@ local function relative_path(cwd)
   if cwd ~= nil then
     cwd = to_backslash_path(cwd)
   end
-  local relative_path = buf_path:make_relative(cwd)
+  local relpath = buf_path:make_relative(cwd)
   log.debug(
-    "[buffer.get_relative_path] buf_path:%s, cwd:%s, relative_path:%s",
+    "[util.get_relative_path] buf_path:%s, cwd:%s, relpath:%s",
     vim.inspect(buf_path),
     vim.inspect(cwd),
-    vim.inspect(relative_path)
+    vim.inspect(relpath)
   )
-  return relative_path
+  return relpath
 end
 
-local function cursor_line_number()
-  return vim.api.nvim_win_get_cursor(0)[1]
-end
-
-local function selected_line_range(mode, add_current_line_on_normal_mode)
-  local lstart
-  local lend
-  if mode == "v" then
-    local pos1 = vim.fn.getpos("v")[2]
-    local pos2 = vim.fn.getcurpos()[2]
-    lstart = math.min(pos1, pos2)
-    lend = math.max(pos1, pos2)
-  elseif add_current_line_on_normal_mode == true then
-    lstart = cursor_line_number()
-  end
-
+local function selected_line_range()
+  -- local lstart
+  -- local lend
+  -- local mode = vim.api.nvim_get_mode().mode
+  -- if mode:lower() == "v" or mode:lower() == "x" then
+  local pos1 = vim.fn.getpos("v")[2]
+  local pos2 = vim.fn.getcurpos()[2]
+  local lstart = math.min(pos1, pos2)
+  local lend = math.max(pos1, pos2)
+  --   log.debug(
+  --     "[util.selected_line_range] mode:%s, pos1:%d, pos2:%d",
+  --     mode,
+  --     pos1,
+  --     pos2
+  --   )
+  -- else
+  --   lstart = vim.api.nvim_win_get_cursor(0)[1]
+  --   log.debug("[util.selected_line_range] mode:%s, lstart:%d", mode, lstart)
+  -- end
+  --
   return { lstart = lstart, lend = lend }
 end
 
@@ -55,7 +59,6 @@ local M = {
   to_slash_path = to_slash_path,
   to_backslash_path = to_backslash_path,
   relative_path = relative_path,
-  cursor_line_number = cursor_line_number,
   selected_line_range = selected_line_range,
 }
 
