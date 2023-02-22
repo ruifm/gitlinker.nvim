@@ -14,7 +14,7 @@ function M.get_relative_path(cwd)
     "[buffer.get_relative_path] buf_path:%s, cwd:%s, relative_path:%s",
     vim.inspect(buf_path),
     vim.inspect(cwd),
-    vim.inspect(relative_path),
+    vim.inspect(relative_path)
   )
   return relative_path
 end
