@@ -1,6 +1,5 @@
 local path = require("plenary.path")
 local log = require("gitlinker.log")
-local util = require("gitlinker.util")
 
 -- \\ to /
 local function to_slash_path(p)
