@@ -8,7 +8,7 @@ function M.get_relative_path(cwd)
   local buf_path = path:new(api.nvim_buf_get_name(0))
   local relative_path = buf_path:make_relative(cwd)
   log.debug(
-    "buf_path:%s, cwd:%s, relative_path:%s",
+    "[get_relative_path] buf_path:%s, cwd:%s, relative_path:%s",
     vim.inspect(buf_path),
     vim.inspect(cwd),
     vim.inspect(relative_path)

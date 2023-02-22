@@ -25,10 +25,13 @@ local function log(level, msg)
     return
   end
 
+  local traceinfo = debug.getinfo(2, "Sl")
+
   local function log_format(s)
     return string.format(
-      "[lsp-progress] %s (%s): %s",
+      "[gitlinker] %s %s [%s]: %s",
       os.date("%Y-%m-%d %H:%M:%S"),
+      traceinfo.short_src,
       level,
       s
     )
