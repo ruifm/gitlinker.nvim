@@ -17,7 +17,7 @@ function M.setup(debug, console_log, file_log, file_log_name)
   end
   use_console = console_log
   use_file = file_log
-  filename = file_log_name
+  filename = string.format("%s/%s", vim.fn.stdpath("data"), file_log_name)
 end
 
 local function log(level, msg)

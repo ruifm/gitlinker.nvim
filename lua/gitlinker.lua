@@ -65,6 +65,7 @@ local function get_buf_range_url_data(user_opts)
   end
 
   local buf_path = buffer.get_relative_path()
+  log.debug("buf_path: %s", vim.inspect(buf_path))
   if
     git.has_file_changed(buf_path, rev)
     and (mode == "v" or user_opts.add_current_line_on_normal_mode)
