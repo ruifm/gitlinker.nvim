@@ -1,9 +1,9 @@
 local M = {}
 
 local git = require("gitlinker.git")
-local buffer = require("gitlinker.buffer")
 local opts = require("gitlinker.opts")
 local log = require("gitlinker.log")
+local util = require("gitlinker.util")
 
 -- public
 M.hosts = require("gitlinker.hosts")
@@ -53,7 +53,7 @@ local function get_buf_range_url_data(user_opts)
     return nil
   end
 
-  local buf_repo_path = buffer.get_relative_path(git_root)
+  local buf_repo_path = util.relative_path(git_root)
   log.debug(
     "[init.get_buf_range_url_data] buf_repo_path: %s, git_root: %s",
     vim.inspect(buf_repo_path),
@@ -64,7 +64,7 @@ local function get_buf_range_url_data(user_opts)
     return nil
   end
 
-  local buf_path = buffer.get_relative_path()
+  local buf_path = util.relative_path()
   log.debug("[init.get_buf_range_url_data] buf_path: %s", vim.inspect(buf_path))
   if
     git.has_file_changed(buf_path, rev)
@@ -76,7 +76,7 @@ local function get_buf_range_url_data(user_opts)
     )
   end
   local range =
-    buffer.get_range(mode, user_opts.add_current_line_on_normal_mode)
+    util.selected_line_range(mode, user_opts.add_current_line_on_normal_mode)
 
   return vim.tbl_extend("force", repo_url_data, {
     rev = rev,
