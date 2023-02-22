@@ -14,6 +14,9 @@ local defaults = {
     ["bitbucket.org"] = hosts.get_bitbucket_type_url,
   },
   debug = false,
+  console_log = true,
+  file_log = false,
+  file_log_name = "gitlinker.log",
 }
 
 local opts

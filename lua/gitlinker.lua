@@ -1,9 +1,9 @@
 local M = {}
 
 local git = require("gitlinker.git")
-local buffer = require("gitlinker.buffer")
 local opts = require("gitlinker.opts")
 local log = require("gitlinker.log")
+local util = require("gitlinker.util")
 
 -- public
 M.hosts = require("gitlinker.hosts")
@@ -12,7 +12,12 @@ M.actions = require("gitlinker.actions")
 --- Setup plugin option and key mapping
 function M.setup(config)
   opts.setup(config)
-  log.setup(opts.get().debug)
+  log.setup(
+    opts.get().debug,
+    opts.get().console_log,
+    opts.get().file_log,
+    opts.get().file_log_name
+  )
   local mappings = opts.get().mappings
   if mappings and string.len(mappings) > 0 then
     vim.api.nvim_set_keymap(
@@ -26,7 +31,7 @@ end
 
 local function get_buf_range_url_data(user_opts)
   local git_root = git.root()
-  log.debug("git_root: %s", vim.inspect(git_root))
+  log.debug("[init.get_buf_range_url_data] git_root: %s", vim.inspect(git_root))
   if not git_root then
     log.error("Not in a git repository")
     return nil
@@ -35,7 +40,7 @@ local function get_buf_range_url_data(user_opts)
   local remote = user_opts.remote or git.get_branch_remote()
   local repo_url_data = git.get_repo_data(remote)
   log.debug(
-    "remote: %s, repo_url_data: %s",
+    "[init.get_buf_range_url_data] remote: %s, repo_url_data: %s",
     vim.inspect(remote),
     vim.inspect(repo_url_data)
   )
@@ -48,9 +53,9 @@ local function get_buf_range_url_data(user_opts)
     return nil
   end
 
-  local buf_repo_path = buffer.get_relative_path(git_root)
+  local buf_repo_path = util.relative_path(git_root)
   log.debug(
-    "buf_repo_path: %s, git_root: %s",
+    "[init.get_buf_range_url_data] buf_repo_path: %s, git_root: %s",
     vim.inspect(buf_repo_path),
     vim.inspect(git_root)
   )
@@ -59,7 +64,8 @@ local function get_buf_range_url_data(user_opts)
     return nil
   end
 
-  local buf_path = buffer.get_relative_path()
+  local buf_path = util.relative_path()
+  log.debug("[init.get_buf_range_url_data] buf_path: %s", vim.inspect(buf_path))
   if
     git.has_file_changed(buf_path, rev)
     and (mode == "v" or user_opts.add_current_line_on_normal_mode)
@@ -70,7 +76,7 @@ local function get_buf_range_url_data(user_opts)
     )
   end
   local range =
-    buffer.get_range(mode, user_opts.add_current_line_on_normal_mode)
+    util.selected_line_range(mode, user_opts.add_current_line_on_normal_mode)
 
   return vim.tbl_extend("force", repo_url_data, {
     rev = rev,
@@ -93,9 +99,15 @@ end
 --
 -- @returns The url string
 function M.get_buf_range_url(user_opts)
-  log.debug("user_opts1: %s", vim.inspect(user_opts))
+  log.debug(
+    "[init.get_buf_range_url_data] user_opts1: %s",
+    vim.inspect(user_opts)
+  )
   user_opts = vim.tbl_deep_extend("force", opts.get(), user_opts or {})
-  log.debug("user_opts2: %s", vim.inspect(user_opts))
+  log.debug(
+    "[init.get_buf_range_url_data] user_opts2: %s",
+    vim.inspect(user_opts)
+  )
 
   local url_data = get_buf_range_url_data(user_opts)
   if not url_data then
