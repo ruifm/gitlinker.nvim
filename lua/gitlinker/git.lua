@@ -10,7 +10,7 @@ local function git(args, cwd)
   local p = job:new({
     command = "git",
     args = args,
-    cwd = cwd or M.root(),
+    cwd = cwd or M.root_path(),
   })
   p:after_success(function(j)
     output = j:result()
@@ -224,12 +224,12 @@ function M.get_repo_data(remote)
   return repo
 end
 
-function M.root()
-  local current_folder =
-    tostring(path:new(vim.api.nvim_buf_get_name(0)):parent())
+function M.root_path()
+  local buf_path = path:new(vim.api.nvim_buf_get_name(0))
+  local current_folder = tostring(buf_path:parent())
   local root = git({ "rev-parse", "--show-toplevel" }, current_folder)[1]
   log.debug("[git.root] current_folder:%s, root:%s", current_folder, root)
-  return root
+  return tostring(path:new(root))
 end
 
 function M.get_branch_remote()

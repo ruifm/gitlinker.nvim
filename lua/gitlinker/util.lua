@@ -1,27 +1,9 @@
 local path = require("plenary.path")
 local log = require("gitlinker.log")
-
--- \\ to /
-local function to_slash_path(p)
-  if p == nil then
-    return p
-  end
-  return string.gsub(p, "\\", "/")
-end
-
--- / to \\
-local function to_backslash_path(p)
-  if p == nil then
-    return p
-  end
-  return string.gsub(p, "/", "\\")
-end
+-- local path_separator = path:new().path.sep
 
 local function relative_path(cwd)
   local buf_path = path:new(vim.api.nvim_buf_get_name(0))
-  if cwd ~= nil then
-    cwd = to_backslash_path(cwd)
-  end
   local relpath = buf_path:make_relative(cwd)
   log.debug(
     "[util.get_relative_path] buf_path:%s, cwd:%s, relpath:%s",
