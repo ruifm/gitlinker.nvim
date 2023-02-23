@@ -15,7 +15,7 @@ local defaults = {
   rule = function()
     local regex_rules = {
       -- github.com
-      ["^(git@|http://|https://)github\\.([%w%p]*):\\.git$"] = "https://github\\.",
+      ["^(git@|http://|https://)github\\.([%w-_.]*):\\.git$"] = "https://github\\.",
     }
   end,
   debug = false,
