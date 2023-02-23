@@ -11,13 +11,13 @@ local use_console = nil
 local use_file = nil
 local filename = nil
 
-function M.setup(debug, console_log, file_log, file_log_name)
-  if debug then
+function M.setup(opts)
+  if opts.debug then
     log_level = "DEBUG"
   end
-  use_console = console_log
-  use_file = file_log
-  filename = string.format("%s/%s", vim.fn.stdpath("data"), file_log_name)
+  use_console = opts.console_log
+  use_file = opts.file_log
+  filename = string.format("%s/%s", vim.fn.stdpath("data"), opts.file_log_name)
 end
 
 local function log(level, msg)
@@ -36,13 +36,11 @@ local function log(level, msg)
 
   local split_msg = vim.split(msg, "\n")
   if use_console then
-    vim.api.nvim_command("echohl " .. echohl[level])
+    vim.cmd("echohl " .. echohl[level])
     for _, m in ipairs(split_msg) do
-      vim.api.nvim_command(
-        string.format('echom "%s"', vim.fn.escape(log_format(m), '"'))
-      )
+      vim.cmd(string.format('echom "%s"', vim.fn.escape(log_format(m), '"')))
     end
-    vim.api.nvim_command("echohl None")
+    vim.cmd("echohl None")
   end
   if use_file then
     local fp = io.open(filename, "a")

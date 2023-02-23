@@ -12,6 +12,12 @@ local defaults = {
     ["gitlab.com"] = hosts.get_gitlab_type_url,
     ["bitbucket.org"] = hosts.get_bitbucket_type_url,
   },
+  rule = function()
+    local regex_rules = {
+      -- github.com
+      ["^(git@|http://|https://)github\\.([%w%p]*):\\.git$"] = "https://github\\.",
+    }
+  end,
   debug = false,
   console_log = true,
   file_log = false,

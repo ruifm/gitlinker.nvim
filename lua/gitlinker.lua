@@ -12,12 +12,7 @@ M.actions = require("gitlinker.actions")
 --- Setup plugin option and key mapping
 function M.setup(config)
   opts.setup(config)
-  log.setup(
-    opts.get().debug,
-    opts.get().console_log,
-    opts.get().file_log,
-    opts.get().file_log_name
-  )
+  log.setup(opts.get())
   local mappings = opts.get().mappings
   if mappings and string.len(mappings) > 0 then
     vim.api.nvim_set_keymap(
