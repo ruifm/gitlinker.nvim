@@ -3,7 +3,6 @@ local M = {}
 local job = require("plenary.job")
 local path = require("plenary.path")
 local log = require("gitlinker.log")
-local util = require("gitlinker.util")
 
 -- wrap the git command to do the right thing always
 local function git(args, cwd)
