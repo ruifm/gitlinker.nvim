@@ -85,7 +85,6 @@ local function make_linker_data()
   local remote = git.get_branch_remote()
   log.debug("[make_linker_data] remote: %s", vim.inspect(remote))
   if not remote then
-    log.error("Error! Not remote found in git repository")
     return nil
   end
 
@@ -97,10 +96,6 @@ local function make_linker_data()
 
   local rev = git.get_closest_remote_compatible_rev(remote)
   if not rev then
-    log.error(
-      "Error! Failed to get closest revision in that exists in remote '%s'",
-      remote
-    )
     return nil
   end
 

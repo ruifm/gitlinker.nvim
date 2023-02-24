@@ -96,6 +96,10 @@ local function get_closest_remote_compatible_rev(remote)
     return remote_rev
   end
 
+  log.error(
+    "Error! Failed to get closest revision in that exists in remote '%s'",
+    remote
+  )
   return nil
 end
 
@@ -112,7 +116,7 @@ local function get_branch_remote()
   local remotes = get_remote()
 
   if #remotes == 0 then
-    log.error("Error! Git repo '%s' has no remote", get_root())
+    log.error("Error! Git repository has no remote")
     return nil
   end
 
