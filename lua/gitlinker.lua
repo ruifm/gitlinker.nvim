@@ -72,16 +72,16 @@ local function setup(configs)
   keys.setup(opts.mapping)
 end
 
-local function make_linker_data()
+local function make_link_data()
   local root = git.get_root()
-  log.debug("[make_linker_data] root: %s", vim.inspect(root))
+  log.debug("[make_link_data] root: %s", vim.inspect(root))
   if not root then
     log.error("Error! Not in a git repository")
     return nil
   end
 
   local remote = git.get_branch_remote()
-  log.debug("[make_linker_data] remote: %s", vim.inspect(remote))
+  log.debug("[make_link_data] remote: %s", vim.inspect(remote))
   if not remote then
     return nil
   end
@@ -99,7 +99,7 @@ local function make_linker_data()
 
   local buf_path_on_root = util.relative_path(root)
   log.debug(
-    "[make_linker_data] buf_path_on_root: %s, git_root: %s",
+    "[make_link_data] buf_path_on_root: %s, git_root: %s",
     vim.inspect(buf_path_on_root),
     vim.inspect(root)
   )
@@ -115,7 +115,7 @@ local function make_linker_data()
   local buf_path_on_cwd = util.relative_path()
   local range = util.line_range()
   log.debug(
-    "[make_linker_data] buf_path_on_cwd:%s, range:%s",
+    "[make_link_data] buf_path_on_cwd:%s, range:%s",
     vim.inspect(buf_path_on_cwd),
     vim.inspect(range)
   )
@@ -169,7 +169,15 @@ local function map_remote_to_host(remote_url)
   return nil
 end
 
-local function make_git_link_url(host_url, url_data)
+local function make_sharable_permalinks(host_url, url_data)
+  -- In Windows, the url_data.file(relative file path) contains '\\'
+  -- Here we translate backslash '\\' to slash '/'
+  if url_data.file and util.is_windows() then
+    if url_data.file:find("\\") then
+      url_data.file = url_data.file:gsub("\\", "/")
+    end
+  end
+
   local url = host_url .. url_data.rev .. "/" .. url_data.file
   if not url_data.lstart then
     return url
@@ -182,12 +190,12 @@ local function make_git_link_url(host_url, url_data)
 end
 
 --- Get the url for the buffer with selected lines
-local function make_link(user_opts)
+local function link(user_opts)
   log.debug("[make_link] before merge, user_opts: %s", vim.inspect(user_opts))
   user_opts = vim.tbl_deep_extend("force", opts, user_opts or {})
   log.debug("[make_link] after merge, user_opts: %s", vim.inspect(user_opts))
 
-  local url_data = make_linker_data()
+  local url_data = make_link_data()
   if not url_data then
     return
   end
@@ -202,7 +210,7 @@ local function make_link(user_opts)
     return
   end
 
-  local url = make_git_link_url(host_url, url_data)
+  local url = make_sharable_permalinks(host_url, url_data)
 
   if user_opts.action then
     user_opts.action(url)
@@ -214,7 +222,7 @@ end
 
 local M = {
   setup = setup,
-  make_link = make_link,
+  link = link,
   map_remote_to_host = map_remote_to_host,
 }
 
