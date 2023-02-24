@@ -1,8 +1,6 @@
-local opts = require("gitlinker.opts")
+local map = require("gitlinker").map_remote_url_to_host
 
 -- Run unit tests in nvim: `lua require('gitlinker.test.test_rule')`
-
-local rule = opts.get().rule
 
 -- test data:
 --  input data: `git remote get-url origin/upstream/etc`
@@ -10,7 +8,7 @@ local rule = opts.get().rule
 local test_cases = {
   {
     "git@github.com:linrongbin16/gitlinker.nvim.git",
-    "https://github.com/linrongbin16/gitlinker.nvim.git",
+    "https://github.com/linrongbin16/gitlinker.nvim",
   },
   {
     "git@github.com:linrongbin16/gitlinker.nvim",
@@ -18,10 +16,6 @@ local test_cases = {
   },
   {
     "https://github.com/ruifm/gitlinker.nvim.git",
-    "https://github.com/ruifm/gitlinker.nvim.git",
-  },
-  {
-    "https://github.com/ruifm/gitlinker.nvim",
     "https://github.com/ruifm/gitlinker.nvim",
   },
   {
@@ -30,7 +24,7 @@ local test_cases = {
   },
   {
     "git@github.enterprise.io:organization/repository.git",
-    "https://github.enterprise.io/organization/repository.git",
+    "https://github.enterprise.io/organization/repository",
   },
   {
     "git@github.enterprise.io:organization/repository",
@@ -38,7 +32,7 @@ local test_cases = {
   },
   {
     "https://github.enterprise.io/organization/repository.git",
-    "https://github.enterprise.io/organization/repository.git",
+    "https://github.enterprise.io/organization/repository",
   },
   {
     "https://github.enterprise.io/organization/repository",
@@ -47,7 +41,7 @@ local test_cases = {
 }
 
 for i, case in ipairs(test_cases) do
-  local actual = rule(case[1])
+  local actual = map(case[1])
   local expect = case[2]
   assert(
     actual == expect,

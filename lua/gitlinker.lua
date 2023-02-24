@@ -5,10 +5,6 @@ local opts = require("gitlinker.opts")
 local log = require("gitlinker.log")
 local util = require("gitlinker.util")
 
--- public
-M.hosts = require("gitlinker.hosts")
-M.actions = require("gitlinker.actions")
-
 --- Setup plugin option and key mapping
 function M.setup(config)
   opts.setup(config)
@@ -85,7 +81,28 @@ local function get_buf_range_url_data(user_opts)
   }
 end
 
-local function make_git_link_url(host_url, url_data)
+function M.map_remote_url_to_host(remote_url)
+  local host_url
+
+  local custom_rules = opts.get().custom_rules
+  if type(custom_rules) == "function" then
+    host_url = custom_rules(remote_url)
+  else
+    local pattern_rules = opts.get().pattern_rules
+    for _, group in ipairs(pattern_rules) do
+      for pattern, replace in pairs(group) do
+        if string.match(remote_url, pattern) then
+          host_url = string.gsub(remote_url, pattern, replace)
+          break
+        end
+      end
+    end
+  end
+
+  return host_url
+end
+
+function M.make_git_link_url(host_url, url_data)
   local url = host_url .. url_data.rev .. "/" .. url_data.file
   if not url_data.lstart then
     return url
@@ -120,19 +137,7 @@ function M.get_buf_range_url(user_opts)
     return nil
   end
 
-  local host_url
-  local custom_rules = opts.get().custom_rules
-  if type(custom_rules) == "function" then
-    host_url = custom_rules(url_data.remote_url)
-  else
-    local pattern_rules = opts.get().pattern_rules
-    for pattern, replace in pairs(pattern_rules) do
-      if string.match(url_data.remote_url, pattern) then
-        host_url = string.gsub(url_data.remote_url, pattern, replace)
-        break
-      end
-    end
-  end
+  local host_url = M.map_remote_url_to_host(url_data.remote_url)
 
   if host_url == nil or string.len(host_url) <= 0 then
     log.error(
@@ -142,7 +147,7 @@ function M.get_buf_range_url(user_opts)
     return nil
   end
 
-  local url = make_git_link_url(host_url, url_data)
+  local url = M.make_git_link_url(host_url, url_data)
 
   if user_opts.action_callback then
     user_opts.action_callback(url)
