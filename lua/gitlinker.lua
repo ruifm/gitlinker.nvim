@@ -102,55 +102,24 @@ function M.get_buf_range_url(user_opts)
     return nil
   end
 
-  local matching_callback = M.hosts.get_matching_callback(url_data.host)
-  if not matching_callback then
-    return nil
-  end
-
-  local url = matching_callback(url_data)
-
-  if user_opts.action_callback then
-    user_opts.action_callback(url)
-  end
-  if user_opts.print_url then
-    log.info(url)
-  end
-
-  return url
-end
-
-function M.get_repo_url(user_opts)
-  user_opts = vim.tbl_deep_extend("force", opts.get(), user_opts or {})
-
-  local repo_url_data =
-      git.get_repo_data(git.get_branch_remote() or user_opts.remote)
-  if not repo_url_data then
-    return nil
-  end
-
-  -- local matching_callback = M.hosts.get_matching_callback(repo_url_data.host)
-  -- if not matching_callback then
-  --   return nil
-  -- end
-
   local url
   local custom_rules = opts.get().custom_rules
   if custom_rules ~= nil then
-    url = custom_rules(repo_url_data.host)
+    url = custom_rules(url_data.host)
   else
     local pattern_rules = opts.get().pattern_rules
     for pattern, replace in pairs(pattern_rules) do
-      if string.match(repo_url_data.host, pattern) then
-        url = string.gsub(repo_url_data.host, pattern, replace)
+      if string.match(url_data.host, pattern) then
+        url = string.gsub(url_data.host, pattern, replace)
         break
       end
     end
   end
 
-  if url == nil then
+  if url == nil or string.len(url) <= 0 then
     log.error(
       "Error! Cannot generate git link from remote url:%s",
-      repo_url_data.host
+      url_data.host
     )
     return nil
   end
