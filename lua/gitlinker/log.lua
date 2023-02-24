@@ -25,27 +25,30 @@ local function log(level, msg)
     return
   end
 
-  local function log_format(s)
-    return string.format(
-      "[gitlinker] %s [%s]: %s",
-      os.date("%Y-%m-%d %H:%M:%S"),
-      level,
-      s
-    )
-  end
-
   local split_msg = vim.split(msg, "\n")
   if use_console then
     vim.cmd("echohl " .. echohl[level])
     for _, m in ipairs(split_msg) do
-      vim.cmd(string.format('echom "%s"', vim.fn.escape(log_format(m), '"')))
+      vim.cmd(
+        string.format(
+          'echom "%s"',
+          vim.fn.escape(string.format("[gitlinker] %s", m), '"')
+        )
+      )
     end
     vim.cmd("echohl None")
   end
   if use_file then
     local fp = io.open(filename, "a")
     for _, m in ipairs(split_msg) do
-      fp:write(log_format(m) .. "\n")
+      fp:write(
+        string.format(
+          "[gitlinker] %s [%s]: %s\n",
+          os.date("%Y-%m-%d %H:%M:%S"),
+          level,
+          m
+        )
+      )
     end
     fp:close()
   end
