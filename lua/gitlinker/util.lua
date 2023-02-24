@@ -19,6 +19,7 @@ local function relative_path(cwd)
   -- But git root command will give us path with '/' separator
   -- This will lead us to the wrong relative path because plenary.path don't recoginize them
   -- So here we replace '/' to '\\' for plenary.path
+  log.debug("[util.get_relative_path] cwd:%s", vim.inspect(cwd))
   if cwd ~= nil and is_windows() then
     if cwd:find("/") then
       cwd = cwd:gsub("/", "\\")
