@@ -214,8 +214,8 @@ end
 
 local M = {
   setup = setup,
-  map_remote_to_host = map_remote_to_host,
   make_link = make_link,
+  map_remote_to_host = map_remote_to_host,
 }
 
 return M
