@@ -1,34 +1,33 @@
-local M = {}
-
-local echohl = {
+local ECHO_HL = {
   ["ERROR"] = "ErrorMsg",
   ["WARN"] = "ErrorMsg",
   ["INFO"] = "None",
   ["DEBUG"] = "Comment",
 }
-local log_level = "INFO"
-local use_console = nil
-local use_file = nil
-local filename = nil
+local LOG_LEVEL = "INFO"
+local USE_CONSOLE = nil
+local USE_FILE = nil
+local FILENAME = nil
 
-function M.setup(opts)
-  if opts.debug then
-    log_level = "DEBUG"
+local function setup(option)
+  if option.debug then
+    LOG_LEVEL = "DEBUG"
   end
-  use_console = opts.console_log
-  use_file = opts.file_log
-  filename = string.format("%s/%s", vim.fn.stdpath("data"), opts.file_log_name)
+  USE_CONSOLE = option.console_log
+  USE_FILE = option.file_log
+  FILENAME =
+      string.format("%s/%s", vim.fn.stdpath("data"), option.file_log_name)
 end
 
 local function log(level, msg)
-  if vim.log.levels[level] < vim.log.levels[log_level] then
+  if vim.log.levels[level] < vim.log.levels[LOG_LEVEL] then
     return
   end
 
-  local split_msg = vim.split(msg, "\n")
-  if use_console then
-    vim.cmd("echohl " .. echohl[level])
-    for _, m in ipairs(split_msg) do
+  local splited_msg = vim.split(msg, "\n")
+  if USE_CONSOLE then
+    vim.cmd("echohl " .. ECHO_HL[level])
+    for _, m in ipairs(splited_msg) do
       vim.cmd(
         string.format(
           'echom "%s"',
@@ -38,9 +37,9 @@ local function log(level, msg)
     end
     vim.cmd("echohl None")
   end
-  if use_file then
-    local fp = io.open(filename, "a")
-    for _, m in ipairs(split_msg) do
+  if USE_FILE then
+    local fp = io.open(FILENAME, "a")
+    for _, m in ipairs(splited_msg) do
       fp:write(
         string.format(
           "[gitlinker] %s [%s]: %s\n",
@@ -54,20 +53,28 @@ local function log(level, msg)
   end
 end
 
-function M.debug(fmt, ...)
+function debug(fmt, ...)
   log("DEBUG", string.format(fmt, ...))
 end
 
-function M.info(fmt, ...)
+function info(fmt, ...)
   log("INFO", string.format(fmt, ...))
 end
 
-function M.warn(fmt, ...)
+function warn(fmt, ...)
   log("WARN", string.format(fmt, ...))
 end
 
-function M.error(fmt, ...)
+function error(fmt, ...)
   log("ERROR", string.format(fmt, ...))
 end
+
+local M = {
+  setup = setup,
+  debug = debug,
+  info = info,
+  warn = warn,
+  error = error,
+}
 
 return M
