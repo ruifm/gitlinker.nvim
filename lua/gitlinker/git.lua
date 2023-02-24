@@ -59,7 +59,7 @@ local function is_file_in_rev(file, revspec)
     vim.inspect(file),
     vim.inspect(cats)
   )
-  return cats.stderr and string.len(cats.stderr) > 0
+  return cats.stderr and #cats.stderr > 0
 end
 
 -- local function string_split(s, sep)
