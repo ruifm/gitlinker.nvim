@@ -69,7 +69,7 @@ local function strip_protocol(uri, errs)
   local ssh_schema = allowed_chars .. "@"
 
   local stripped_uri = uri:match(protocol_schema .. "(.+)$")
-    or uri:match(ssh_schema .. "(.+)$")
+      or uri:match(ssh_schema .. "(.+)$")
   if not stripped_uri then
     table.insert(
       errs,
@@ -127,9 +127,9 @@ local function parse_repo_path(stripped_uri, host, port, errs)
 
   -- parse repo path
   local repo_path = stripped_uri
-    :gsub("%%20", " ") -- decode the space character
-    :match(path_capture)
-    :gsub(" ", "%%20") -- encode the space character
+      :gsub("%%20", " ") -- decode the space character
+      :match(path_capture)
+      :gsub(" ", "%%20") -- encode the space character
   if not repo_path then
     table.insert(
       errs,
@@ -198,7 +198,7 @@ function M.get_closest_remote_compatible_rev(remote)
   end
 
   log.error(
-    "Failed to get closest revision in that exists in remote '%s'",
+    "Error! Failed to get closest revision in that exists in remote '%s'",
     remote
   )
   return nil
@@ -219,9 +219,13 @@ function M.get_repo_data(remote)
 
   local repo = parse_uri(remote_uri, errs)
   if not repo or vim.tbl_isempty(repo) then
-    log.error(table.concat(errs))
+    log.error("Error! %s", table.concat(errs))
   end
   return repo
+end
+
+function M.get_remote_url(remote)
+  return get_remote_uri(remote)
 end
 
 function M.root_path()
@@ -233,43 +237,46 @@ function M.root_path()
 end
 
 function M.get_branch_remote()
+  -- origin/upstream
   local remotes = remote()
+
   if #remotes == 0 then
-    log.error("Git repo has no remote")
+    log.error("Error! Git repo '%s' has no remote", M.root_path())
     return nil
   end
+
   if #remotes == 1 then
     return remotes[1]
   end
 
+  -- origin/linrongbin16/add-rule2
   local upstream_branch = get_rev_name("@{u}")
   if not upstream_branch then
     return nil
   end
 
+  -- origin
   local remote_from_upstream_branch =
-    upstream_branch:match("^(" .. allowed_chars .. ")%/")
+      upstream_branch:match("^(" .. allowed_chars .. ")%/")
+
   if not remote_from_upstream_branch then
-    error(
-      string.format(
-        "Could not parse remote name from remote branch '%s'",
-        upstream_branch
-      )
+    log.error(
+      "Error! Cannot parse remote name from remote branch '%s'",
+      upstream_branch
     )
     return nil
   end
+
   for _, remote in ipairs(remotes) do
     if remote_from_upstream_branch == remote then
       return remote
     end
   end
 
-  error(
-    string.format(
-      "Parsed remote '%s' from remote branch '%s' is not a valid remote",
-      remote_from_upstream_branch,
-      upstream_branch
-    )
+  log.error(
+    "Error! Parsed remote '%s' from remote branch '%s' is not a valid remote",
+    remote_from_upstream_branch,
+    upstream_branch
   )
   return nil
 end
