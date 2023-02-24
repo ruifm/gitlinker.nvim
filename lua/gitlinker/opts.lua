@@ -3,7 +3,6 @@ local M = {}
 local hosts = require("gitlinker.hosts")
 
 local defaults = {
-  remote = "origin", -- force the use of a specific remote
   action_callback = require("gitlinker.actions").open_in_browser, -- callback for what to do with the url
   print_url = true, -- print the url after action
   mappings = "<leader>gl", -- key mappings
@@ -15,27 +14,28 @@ local defaults = {
   -- use regex to match remote url and generate git link url
   pattern_rules = {
     -- git@github.(com|*):linrongbin16/gitlinker.nvim(.git)? -> https://github.com/linrongbin16/gitlinker.nvim(.git)?
-    ["^git@github%.([_%.%-%w]+):([%.%-%w]+)/([%.%-%w]+)$"] = "https://github.%1/%2/%3",
+    ["^git@github%.([_%.%-%w]+):([%.%-%w]+)/([%.%-%w]+)$"] = "https://github.%1/%2/%3/blob/",
     -- http(s)://github.(com|*)/linrongbin16/gitlinker.nvim(.git)? -> https://github.com/linrongbin16/gitlinker.nvim(.git)?
-    ["^https://github%.([_%.%-%w]+)/([%.%-%w]+)/([%.%-%w]+)$"] = "https://github.%1/%2/%3",
+    ["^https://github%.([_%.%-%w]+)/([%.%-%w]+)/([%.%-%w]+)$"] = "https://github.%1/%2/%3/blob/",
   },
   -- use custom rules to generate git link url
-  custom_rules = function(remote_url)
-    local pattern_rules = {
-      -- git@github.(com|*):linrongbin16/gitlinker.nvim(.git)? -> https://github.com/linrongbin16/gitlinker.nvim(.git)?
-      ["^git@github%.([_%.%-%w]+):([%.%-%w]+)/([%.%-%w]+)$"] = "https://github.%1/%2/%3",
-      -- http(s)://github.(com|*)/linrongbin16/gitlinker.nvim(.git)? -> https://github.com/linrongbin16/gitlinker.nvim(.git)?
-      ["^https://github%.([_%.%-%w]+)/([%.%-%w]+)/([%.%-%w]+)$"] = "https://github.%1/%2/%3",
-    }
-    for pattern, replace in pairs(pattern_rules) do
-      if string.match(remote_url, pattern) then
-        local result = string.gsub(remote_url, pattern, replace)
-        return result
-      end
-    end
-    print("result: nil")
-    return nil
-  end,
+  -- custom_rules = function(remote_url)
+  --   local pattern_rules = {
+  --     -- git@github.(com|*):linrongbin16/gitlinker.nvim(.git)? -> https://github.com/linrongbin16/gitlinker.nvim(.git)?
+  --     ["^git@github%.([_%.%-%w]+):([%.%-%w]+)/([%.%-%w]+)$"] = "https://github.%1/%2/%3/blob/",
+  --     -- http(s)://github.(com|*)/linrongbin16/gitlinker.nvim(.git)? -> https://github.com/linrongbin16/gitlinker.nvim(.git)?
+  --     ["^https://github%.([_%.%-%w]+)/([%.%-%w]+)/([%.%-%w]+)$"] = "https://github.%1/%2/%3/blob/",
+  --   }
+  --   for pattern, replace in pairs(pattern_rules) do
+  --     if string.match(remote_url, pattern) then
+  --       local result = string.gsub(remote_url, pattern, replace)
+  --       return result
+  --     end
+  --   end
+  --   print("result: nil")
+  --   return nil
+  -- end,
+  custom_rules = nil,
   debug = false,
   console_log = true,
   file_log = false,

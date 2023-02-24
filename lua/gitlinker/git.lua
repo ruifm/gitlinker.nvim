@@ -224,6 +224,10 @@ function M.get_repo_data(remote)
   return repo
 end
 
+function M.get_remote_url(remote)
+  return get_remote_uri(remote)
+end
+
 function M.root_path()
   local buf_path = path:new(vim.api.nvim_buf_get_name(0))
   local current_folder = tostring(buf_path:parent())
@@ -233,43 +237,46 @@ function M.root_path()
 end
 
 function M.get_branch_remote()
+  -- origin/upstream
   local remotes = remote()
+
   if #remotes == 0 then
-    log.error("Error! Git repo:%s has no remote", M.root_path())
+    log.error("Error! Git repo '%s' has no remote", M.root_path())
     return nil
   end
+
   if #remotes == 1 then
     return remotes[1]
   end
 
+  -- origin/linrongbin16/add-rule2
   local upstream_branch = get_rev_name("@{u}")
   if not upstream_branch then
     return nil
   end
 
+  -- origin
   local remote_from_upstream_branch =
       upstream_branch:match("^(" .. allowed_chars .. ")%/")
+
   if not remote_from_upstream_branch then
-    error(
-      string.format(
-        "Could not parse remote name from remote branch '%s'",
-        upstream_branch
-      )
+    log.error(
+      "Error! Cannot parse remote name from remote branch '%s'",
+      upstream_branch
     )
     return nil
   end
+
   for _, remote in ipairs(remotes) do
     if remote_from_upstream_branch == remote then
       return remote
     end
   end
 
-  error(
-    string.format(
-      "Parsed remote '%s' from remote branch '%s' is not a valid remote",
-      remote_from_upstream_branch,
-      upstream_branch
-    )
+  log.error(
+    "Error! Parsed remote '%s' from remote branch '%s' is not a valid remote",
+    remote_from_upstream_branch,
+    upstream_branch
   )
   return nil
 end
