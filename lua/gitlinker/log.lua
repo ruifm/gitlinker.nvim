@@ -6,7 +6,7 @@ local echohl = {
   ["INFO"] = "None",
   ["DEBUG"] = "Comment",
 }
-local log_level = "ERROR"
+local log_level = "INFO"
 local use_console = nil
 local use_file = nil
 local filename = nil
