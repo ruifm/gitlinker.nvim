@@ -43,18 +43,84 @@ local function is_file_in_rev(file, revspec)
   return false
 end
 
+local function string_split(s, sep)
+  -- by default, split by whitespace
+  if sep == nil then
+    sep = "%s"
+  end
+  local splits = {}
+  for i in string.gmatch(s, "([^" .. sep .. "]+)") do
+    table.insert(splits, i)
+  end
+  return splits
+end
+
+local function to_positive(n)
+  if n < 0 then
+    return -n
+  else
+    return n
+  end
+end
+
+local function has_intersection(range1, range2)
+  if range1.lend < range2.lstart then
+    return false
+  end
+  if range1.start > range2.lend then
+    return false
+  end
+  return true
+end
+
 local function has_file_changed(file, rev, lstart, lend)
-  local diff = cmd({ "diff", rev, "--", file })
+  local diffs = cmd({ "diff", rev, "--", file })
   log.debug(
-    "[git.has_file_changed] file:%s, rev:%s, lstart:%s, lend:%s, diff:%s",
+    "[git.has_file_changed] file:%s, rev:%s, lstart:%s, lend:%s, diffs:%s",
     vim.inspect(file),
     vim.inspect(rev),
     vim.inspect(lstart),
     vim.inspect(lend),
-    vim.inspect(diff)
+    vim.inspect(diffs)
   )
-  if cmd({ "diff", rev, "--", file })[1] then
-    return true
+  if #diffs >= 5 then
+    local diff = diffs[5]
+    -- The 5th line is line diff info, for example:
+    -- `@@ -44,17 +44,22 @@ local function is_file_in_rev(file, revspec)`
+    if diff and string.len(diff) > 0 then
+      local splits = string_split(diff)
+      local old = splits[2] -- -44,17
+      local new = splits[3] -- +44,22
+      local old_splits = string_split(old, ",")
+      local new_splits = string_split(new, ",")
+      local old_start = to_positive(tonumber(old_splits[1]))
+      local old_end = old_start + to_positive(tonumber(old_splits[2]))
+      local new_start = to_positive(tonumber(new_splits[1]))
+      local new_end = new_start + to_positive(tonumber(new_splits[2]))
+      local diff_start = math.min(old_start, new_start)
+      local diff_end = math.max(old_end, new_end)
+      local diff_range = {
+        lstart = diff_start,
+        lend = diff_end,
+      }
+      local line_range = {
+        lstart = lstart,
+        lend = lend,
+      }
+      log.debug(
+        "[git.has_file_changed] splits:%s, old:%s, new:%s, old_splits:%s, new_splits:%s, diff_range:%s, line_range:%s",
+        vim.inspect(splits),
+        vim.inspect(old),
+        vim.inspect(new),
+        vim.inspect(old_splits),
+        vim.inspect(new_splits),
+        vim.inspect(diff_range),
+        vim.inspect(line_range)
+      )
+      if has_intersection(diff_range, line_range) then
+        return true
+      end
+    end
   end
   return false
 end
