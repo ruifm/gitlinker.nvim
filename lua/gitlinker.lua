@@ -1,5 +1,3 @@
-local M = {}
-
 local git = require("gitlinker.git")
 local log = require("gitlinker.log")
 local util = require("gitlinker.util")
@@ -67,7 +65,7 @@ local DEFAULTS = {
 local opts = {}
 
 --- Setup configs
-function M.setup(configs)
+local function setup(configs)
   opts = vim.tbl_deep_extend("force", DEFAULTS, configs or {})
   log.debug("[setup] opts: %s", vim.inspect(opts))
   log.setup(opts.debug, opts.console_log, opts.file_log, opts.file_log_name)
@@ -138,7 +136,7 @@ local function make_linker_data()
   }
 end
 
-function M.map_remote_to_host(remote_url)
+local function map_remote_to_host(remote_url)
   local custom_rules = opts.custom_rules
   if type(custom_rules) == "function" then
     return custom_rules(remote_url)
@@ -171,7 +169,7 @@ function M.map_remote_to_host(remote_url)
   return nil
 end
 
-function M.make_git_link_url(host_url, url_data)
+local function make_git_link_url(host_url, url_data)
   local url = host_url .. url_data.rev .. "/" .. url_data.file
   if not url_data.lstart then
     return url
@@ -183,29 +181,18 @@ function M.make_git_link_url(host_url, url_data)
   return url
 end
 
---- Retrieves the url for the selected buffer range
---
--- Gets the url data elements
--- Passes it to the matching host callback
--- Retrieves the url from the host callback
--- Passes the url to the url callback
--- Prints the url
---
--- @param mode vim's mode this function was called on. Either 'v' or 'n'
--- @param user_opts a table to override options passed
---
--- @returns The url string
-function M.get_buf_range_url(user_opts)
-  log.debug("[get_buf_range_url] user_opts1: %s", vim.inspect(user_opts))
+--- Get the url for the buffer with selected lines
+local function make_link(user_opts)
+  log.debug("[make_link] before merge, user_opts: %s", vim.inspect(user_opts))
   user_opts = vim.tbl_deep_extend("force", opts, user_opts or {})
-  log.debug("[get_buf_range_url] user_opts2: %s", vim.inspect(user_opts))
+  log.debug("[make_link] after merge, user_opts: %s", vim.inspect(user_opts))
 
   local url_data = make_linker_data()
   if not url_data then
     return
   end
 
-  local host_url = M.map_remote_to_host(url_data.remote_url)
+  local host_url = map_remote_to_host(url_data.remote_url)
 
   if host_url == nil or string.len(host_url) <= 0 then
     log.error(
@@ -215,7 +202,7 @@ function M.get_buf_range_url(user_opts)
     return
   end
 
-  local url = M.make_git_link_url(host_url, url_data)
+  local url = make_git_link_url(host_url, url_data)
 
   if user_opts.action then
     user_opts.action(url)
@@ -224,5 +211,11 @@ function M.get_buf_range_url(user_opts)
     log.info(url)
   end
 end
+
+local M = {
+  setup = setup,
+  map_remote_to_host = map_remote_to_host,
+  make_link = make_link,
+}
 
 return M
