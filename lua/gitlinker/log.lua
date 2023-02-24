@@ -16,7 +16,7 @@ local function setup(option)
   USE_CONSOLE = option.console_log
   USE_FILE = option.file_log
   FILENAME =
-      string.format("%s/%s", vim.fn.stdpath("data"), option.file_log_name)
+    string.format("%s/%s", vim.fn.stdpath("data"), option.file_log_name)
 end
 
 local function log(level, msg)
@@ -53,19 +53,19 @@ local function log(level, msg)
   end
 end
 
-function debug(fmt, ...)
+local function debug(fmt, ...)
   log("DEBUG", string.format(fmt, ...))
 end
 
-function info(fmt, ...)
+local function info(fmt, ...)
   log("INFO", string.format(fmt, ...))
 end
 
-function warn(fmt, ...)
+local function warn(fmt, ...)
   log("WARN", string.format(fmt, ...))
 end
 
-function error(fmt, ...)
+local function error(fmt, ...)
   log("ERROR", string.format(fmt, ...))
 end
 
