@@ -75,18 +75,20 @@ function M.setup(configs)
 end
 
 local function make_linker_data()
-  local git_root = git.get_root()
-  log.debug("[make_linker_data] git_root: %s", vim.inspect(git_root))
-  if not git_root then
+  local root = git.get_root()
+  log.debug("[make_linker_data] root: %s", vim.inspect(root))
+  if not root then
     log.error("Error! Not in a git repository")
     return nil
   end
+
   local remote = git.get_branch_remote()
   log.debug("[make_linker_data] remote: %s", vim.inspect(remote))
   if not remote then
     log.error("Error! Not remote found in git repository")
     return nil
   end
+
   local remote_url = git.get_remote_url(remote)
   if not remote_url then
     return nil
@@ -97,11 +99,11 @@ local function make_linker_data()
     return nil
   end
 
-  local buf_repo_path = util.relative_path(git_root)
+  local buf_repo_path = util.relative_path(root)
   log.debug(
     "[make_linker_data] buf_repo_path: %s, git_root: %s",
     vim.inspect(buf_repo_path),
-    vim.inspect(git_root)
+    vim.inspect(root)
   )
   if not git.is_file_in_rev(buf_repo_path, rev) then
     log.error(
