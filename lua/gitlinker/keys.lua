@@ -1,5 +1,4 @@
-local function setup(opts)
-  local mapping = opts.mapping
+local function setup(mapping)
   if mapping and string.len(mapping) > 0 then
     vim.keymap.set(
       { "n", "v" },

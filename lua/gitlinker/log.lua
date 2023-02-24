@@ -9,13 +9,13 @@ local USE_CONSOLE = nil
 local USE_FILE = nil
 local FILENAME = nil
 
-local function setup(opts)
-  if opts.debug then
+local function setup(debug, console_log, file_log, file_log_name)
+  if debug then
     LOG_LEVEL = "DEBUG"
   end
-  USE_CONSOLE = opts.console_log
-  USE_FILE = opts.file_log
-  FILENAME = string.format("%s/%s", vim.fn.stdpath("data"), opts.file_log_name)
+  USE_CONSOLE = console_log
+  USE_FILE = file_log
+  FILENAME = string.format("%s/%s", vim.fn.stdpath("data"), file_log_name)
 end
 
 local function log(level, msg)

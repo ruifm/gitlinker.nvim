@@ -21,7 +21,7 @@ co-workers.
 Regex patterns are introduced to map git remote url to git host url. For now
 github.com (both git/http protocol, and github enterprise) are supported.
 
-Please checkout [opts.lua](https://github.com/linrongbin16/gitlinker.nvim/blob/master/lua/gitlinker/opts.lua)
+Please checkout [default options](https://github.com/linrongbin16/gitlinker.nvim/blob/master/lua/gitlinker.lua)
 for all regex patterns, or submit PR for other git hosts!
 
 ## Requirement
