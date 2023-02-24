@@ -3,7 +3,7 @@ local function setup(mapping)
     vim.keymap.set(
       { "n", "v" },
       mapping,
-      "<cmd>lua require('gitlinker').get_buf_range_url()<cr>",
+      "<cmd>lua require('gitlinker').link()<cr>",
       { noremap = true, silent = true, desc = "Open git link in browser" }
     )
   end
