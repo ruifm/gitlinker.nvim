@@ -89,10 +89,24 @@ function M.map_remote_url_to_host(remote_url)
     host_url = custom_rules(remote_url)
   else
     local pattern_rules = opts.get().pattern_rules
-    for _, group in ipairs(pattern_rules) do
+    for i, group in ipairs(pattern_rules) do
       for pattern, replace in pairs(group) do
+        log.debug(
+          "map group[%d], pattern:'%s', replace:'%s'",
+          i,
+          pattern,
+          replace
+        )
         if string.match(remote_url, pattern) then
           host_url = string.gsub(remote_url, pattern, replace)
+          log.debug(
+            "map group[%d] matched, pattern:'%s', replace:'%s', remote_url:'%s' => host_url:'%s'",
+            i,
+            pattern,
+            replace,
+            remote_url,
+            host_url
+          )
           break
         end
       end

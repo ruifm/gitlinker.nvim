@@ -1,6 +1,6 @@
 local map = require("gitlinker").map_remote_url_to_host
 
--- Run unit tests in nvim: `lua require('gitlinker.test.test_rule')`
+-- Run unit tests in nvim: `lua require('gitlinker.test.test_rules')`
 
 -- test data:
 --  input data: `git remote get-url origin/upstream/etc`
