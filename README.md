@@ -80,10 +80,7 @@ To custom key mappings, please use API `require"gitlinker".link(user_opts)`.
 The `user_opts` is a table of options that override the configured options(see [Configuration](#configuration)).
 
 ```lua
-vim.api.nvim_set_keymap('n', '<leader>gb',
-  '<cmd>lua require"gitlinker".link({action = require"gitlinker.actions".open_in_browser})<cr>',
-  { desc = "Open git link in browser" })
-vim.api.nvim_set_keymap('x', '<leader>gb',
+vim.keymap.set({ 'n', 'x' }, '<leader>gb',
   '<cmd>lua require"gitlinker".link({action = require"gitlinker.actions".open_in_browser})<cr>',
   { desc = "Open git link in browser" })
 ```
