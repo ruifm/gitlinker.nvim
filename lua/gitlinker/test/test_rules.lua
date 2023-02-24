@@ -8,35 +8,35 @@ local map = require("gitlinker").map_remote_url_to_host
 local test_cases = {
   {
     "git@github.com:linrongbin16/gitlinker.nvim.git",
-    "https://github.com/linrongbin16/gitlinker.nvim",
+    "https://github.com/linrongbin16/gitlinker.nvim/blob/",
   },
   {
     "git@github.com:linrongbin16/gitlinker.nvim",
-    "https://github.com/linrongbin16/gitlinker.nvim",
+    "https://github.com/linrongbin16/gitlinker.nvim/blob/",
   },
   {
     "https://github.com/ruifm/gitlinker.nvim.git",
-    "https://github.com/ruifm/gitlinker.nvim",
+    "https://github.com/ruifm/gitlinker.nvim/blob/",
   },
   {
     "https://github.com/ruifm/gitlinker.nvim",
-    "https://github.com/ruifm/gitlinker.nvim",
+    "https://github.com/ruifm/gitlinker.nvim/blob/",
   },
   {
     "git@github.enterprise.io:organization/repository.git",
-    "https://github.enterprise.io/organization/repository",
+    "https://github.enterprise.io/organization/repository/blob/",
   },
   {
     "git@github.enterprise.io:organization/repository",
-    "https://github.enterprise.io/organization/repository",
+    "https://github.enterprise.io/organization/repository/blob/",
   },
   {
     "https://github.enterprise.io/organization/repository.git",
-    "https://github.enterprise.io/organization/repository",
+    "https://github.enterprise.io/organization/repository/blob/",
   },
   {
     "https://github.enterprise.io/organization/repository",
-    "https://github.enterprise.io/organization/repository",
+    "https://github.enterprise.io/organization/repository/blob/",
   },
 }
 
