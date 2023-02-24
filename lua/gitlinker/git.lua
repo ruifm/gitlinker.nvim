@@ -19,6 +19,22 @@ local function cmd(args, cwd)
   return output or {}
 end
 
+local function cmd2(args, cwd)
+  local stdout
+  local stderr
+  local p = job:new({
+    command = "git",
+    args = args,
+    cwd = cwd or M.get_root(),
+  })
+  p:after_success(function(j)
+    stdout = j:result()
+    stderr = j:stderr_result()
+  end)
+  p:sync()
+  return { stdout = stdout, stderr = stderr }
+end
+
 local function get_remote()
   return cmd({ "remote" })
 end
@@ -37,16 +53,13 @@ local function get_rev_name(revspec)
 end
 
 local function is_file_in_rev(file, revspec)
-  local cats = cmd({ "cat-file", "-e", revspec .. ":" .. file })
+  local cats = cmd2({ "cat-file", "-e", revspec .. ":" .. file })
   log.debug(
     "[git.is_file_in_rev] file:%s, cats:%s",
     vim.inspect(file),
     vim.inspect(cats)
   )
-  if cmd({ "cat-file", "-e", revspec .. ":" .. file }) then
-    return true
-  end
-  return false
+  return cats.stderr and string.len(cats.stderr) > 0
 end
 
 -- local function string_split(s, sep)
