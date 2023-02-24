@@ -73,7 +73,7 @@ The default key mappings are defined to open git link in browser:
 
 - `<leader>gl` (normal/visual mode): Open in browser and print url in command line.
 
-To disable the default key mapping, set `mappings = false` in the `setup()`
+To disable the default key mapping, set `mapping = false` in the `setup()`
 function(see [Configuration](#configuration)).
 
 To custom key mappings, please use API `require"gitlinker".get_buf_range_url(user_opts)`.
@@ -81,10 +81,10 @@ The `user_opts` is a table of options that override the configured options(see [
 
 ```lua
 vim.api.nvim_set_keymap('n', '<leader>gb',
-  '<cmd>lua require"gitlinker".get_buf_range_url({action_callback = require"gitlinker.actions".open_in_browser})<cr>',
+  '<cmd>lua require"gitlinker".get_buf_range_url({action = require"gitlinker.actions".open_in_browser})<cr>',
   { desc = "Open git link in browser" })
 vim.api.nvim_set_keymap('x', '<leader>gb',
-  '<cmd>lua require"gitlinker".get_buf_range_url({action_callback = require"gitlinker.actions".open_in_browser})<cr>',
+  '<cmd>lua require"gitlinker".get_buf_range_url({action = require"gitlinker.actions".open_in_browser})<cr>',
   { desc = "Open git link in browser" })
 ```
 
@@ -95,13 +95,13 @@ Specified options in `setup()` function, they will override the default options:
 ```lua
 require('gitlinker').setup({
   -- open_in_browser/copy_to_clipboard
-  action_callback = require("gitlinker.actions").open_in_browser,
+  action = require("gitlinker.actions").open_in_browser,
 
-  -- print git host url in message
-  print_url = true,
+  -- print message(git host url) in command line
+  message = true,
 
   -- key mapping
-  mappings = "<leader>gl",
+  mapping = "<leader>gl",
 
   -- regex pattern based rules
   pattern_rules = {

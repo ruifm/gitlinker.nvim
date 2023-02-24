@@ -1,12 +1,10 @@
-local M = {}
-
-local defaults = {
+local DEFAULTS = {
   -- open_in_browser/copy_to_clipboard
-  action_callback = require("gitlinker.actions").open_in_browser,
-  -- print git host url in message
-  print_url = true,
+  action = require("gitlinker.actions").open_in_browser,
+  -- print message(git host url) in command line
+  message = true,
   -- key mapping
-  mappings = "<leader>gl",
+  mapping = "<leader>gl",
   -- regex pattern based rules
   pattern_rules = {
     -- git@github.(com|*):linrongbin16/gitlinker.nvim(.git)? -> https://github.com/linrongbin16/gitlinker.nvim(.git)?
@@ -27,7 +25,7 @@ local defaults = {
   -- here's an example of custom_rules:
   --
   -- custom_rules = function(remote_url)
-  --   local pattern_rules = {
+  --   local rules = {
   --     {
   --       ["^git@github%.([_%.%-%w]+):([%.%-%w]+)/([%.%-%w]+)%.git$"] = "https://github.%1/%2/%3/blob/",
   --       ["^https://github%.([_%.%-%w]+)/([%.%-%w]+)/([%.%-%w]+)%.git$"] = "https://github.%1/%2/%3/blob/",
@@ -38,7 +36,7 @@ local defaults = {
   --       ["^https://github%.([_%.%-%w]+)/([%.%-%w]+)/([%.%-%w]+)$"] = "https://github.%1/%2/%3/blob/",
   --     },
   --   }
-  --   for _, group in ipairs(pattern_rules) do
+  --   for _, group in ipairs(rules) do
   --     for pattern, replace in pairs(group) do
   --       if string.match(remote_url, pattern) then
   --         local result = string.gsub(remote_url, pattern, replace)
@@ -59,14 +57,50 @@ local defaults = {
   file_log_name = "gitlinker.log",
 }
 
-local opts
+local action = nil
+local message = nil
+local mapping = nil
+local pattern_rules = nil
+local custom_rules = nil
+local debug = nil
+local console_log = nil
+local file_log = nil
+local file_log_name = nil
 
-function M.setup(user_opts)
-  opts = vim.tbl_deep_extend("force", defaults, user_opts or {})
+local function setup(user_opts)
+  action = (user_opts and user_opts.action) and user_opts.action
+      or DEFAULTS.action
+  message = (user_opts and user_opts.message) and user_opts.message
+      or DEFAULTS.message
+  mapping = (user_opts and user_opts.mapping) and user_opts.mapping
+      or DEFAULTS.mapping
+  pattern_rules = (user_opts and user_opts.pattern_rules)
+      and user_opts.pattern_rules
+      or DEFAULTS.pattern_rules
+  custom_rules = (user_opts and user_opts.custom_rules)
+      and user_opts.custom_rules
+      or DEFAULTS.custom_rules
+  debug = (user_opts and user_opts.debug) and user_opts.debug or DEFAULTS.debug
+  console_log = (user_opts and user_opts.console_log) and user_opts.console_log
+      or DEFAULTS.console_log
+  file_log = (user_opts and user_opts.file_log) and user_opts.file_log
+      or DEFAULTS.file_log
+  file_log_name = (user_opts and user_opts.file_log_name)
+      and user_opts.file_log_name
+      or DEFAULTS.file_log_name
 end
 
-function M.get()
-  return opts
-end
+local M = {
+  setup = setup,
+  action = action,
+  message = message,
+  mapping = mapping,
+  pattern_rules = pattern_rules,
+  custom_rules = custom_rules,
+  debug = debug,
+  console_log = console_log,
+  file_log = file_log,
+  file_log_name = file_log_name,
+}
 
 return M

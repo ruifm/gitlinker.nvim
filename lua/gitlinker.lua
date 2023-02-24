@@ -4,25 +4,18 @@ local git = require("gitlinker.git")
 local opts = require("gitlinker.opts")
 local log = require("gitlinker.log")
 local util = require("gitlinker.util")
+local keys = require("gitlinker.keys")
 
 --- Setup plugin option and key mapping
 function M.setup(config)
   opts.setup(config)
-  log.setup(opts.get())
-  local mappings = opts.get().mappings
-  if mappings and string.len(mappings) > 0 then
-    vim.api.nvim_set_keymap(
-      { "n", "v" },
-      mappings,
-      "<cmd>lua require('gitlinker').get_buf_range_url()<cr>",
-      { noremap = true, silent = true }
-    )
-  end
+  log.setup(opts)
+  keys.setup(opts)
 end
 
 local function get_buf_range_url_data(user_opts)
   local git_root = git.root_path()
-  log.debug("[init.get_buf_range_url_data] git_root: %s", vim.inspect(git_root))
+  log.debug("[get_buf_range_url_data] git_root: %s", vim.inspect(git_root))
   if not git_root then
     log.error("Error! Not in a git repository")
     return nil
@@ -49,7 +42,7 @@ local function get_buf_range_url_data(user_opts)
 
   local buf_repo_path = util.relative_path(git_root)
   log.debug(
-    "[init.get_buf_range_url_data] buf_repo_path: %s, git_root: %s",
+    "[get_buf_range_url_data] buf_repo_path: %s, git_root: %s",
     vim.inspect(buf_repo_path),
     vim.inspect(git_root)
   )
@@ -63,7 +56,7 @@ local function get_buf_range_url_data(user_opts)
   end
 
   local buf_path = util.relative_path()
-  log.debug("[init.get_buf_range_url_data] buf_path: %s", vim.inspect(buf_path))
+  log.debug("[get_buf_range_url_data] buf_path: %s", vim.inspect(buf_path))
   if git.has_file_changed(buf_path, rev) then
     log.info(
       "Computed Line numbers are probably wrong because '%s' has changes",
@@ -81,16 +74,16 @@ local function get_buf_range_url_data(user_opts)
   }
 end
 
-function M.map_remote_url_to_host(remote_url)
-  local custom_rules = opts.get().custom_rules
+function M.map_remote_to_host(remote_url)
+  local custom_rules = opts.custom_rules
   if type(custom_rules) == "function" then
     return custom_rules(remote_url)
   else
-    local pattern_rules = opts.get().pattern_rules
+    local pattern_rules = opts.pattern_rules
     for i, group in ipairs(pattern_rules) do
       for pattern, replace in pairs(group) do
         log.debug(
-          "map group[%d], pattern:'%s', replace:'%s'",
+          "[map_remote_to_host] map group[%d], pattern:'%s', replace:'%s'",
           i,
           pattern,
           replace
@@ -98,7 +91,7 @@ function M.map_remote_url_to_host(remote_url)
         if string.match(remote_url, pattern) then
           local host_url = string.gsub(remote_url, pattern, replace)
           log.debug(
-            "map group[%d] matched, pattern:'%s', replace:'%s', remote_url:'%s' => host_url:'%s'",
+            "[map_remote_to_host] map group[%d] matched, pattern:'%s', replace:'%s', remote_url:'%s' => host_url:'%s'",
             i,
             pattern,
             replace,
@@ -139,36 +132,34 @@ end
 --
 -- @returns The url string
 function M.get_buf_range_url(user_opts)
-  log.debug("[init.get_buf_range_url] user_opts1: %s", vim.inspect(user_opts))
-  user_opts = vim.tbl_deep_extend("force", opts.get(), user_opts or {})
-  log.debug("[init.get_buf_range_url] user_opts2: %s", vim.inspect(user_opts))
+  log.debug("[get_buf_range_url] user_opts1: %s", vim.inspect(user_opts))
+  user_opts = vim.tbl_deep_extend("force", opts, user_opts or {})
+  log.debug("[get_buf_range_url] user_opts2: %s", vim.inspect(user_opts))
 
   local url_data = get_buf_range_url_data(user_opts)
   if not url_data then
     log.warn("Warn! No remote found in git repository '%s'!", git.root_path())
-    return nil
+    return
   end
 
-  local host_url = M.map_remote_url_to_host(url_data.remote_url)
+  local host_url = M.map_remote_to_host(url_data.remote_url)
 
   if host_url == nil or string.len(host_url) <= 0 then
     log.error(
       "Error! Cannot generate git link from remote url:%s",
       url_data.remote_url
     )
-    return nil
+    return
   end
 
   local url = M.make_git_link_url(host_url, url_data)
 
-  if user_opts.action_callback then
-    user_opts.action_callback(url)
+  if user_opts.action then
+    user_opts.action(url)
   end
-  if user_opts.print_url then
+  if user_opts.message then
     log.info(url)
   end
-
-  return url
 end
 
 return M
