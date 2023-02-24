@@ -59,7 +59,7 @@ local function is_file_in_rev(file, revspec)
     vim.inspect(file),
     vim.inspect(cats)
   )
-  return cats.stderr and #cats.stderr > 0
+  return cats.stdout ~= nil and cats.stderr ~= nil
 end
 
 -- local function string_split(s, sep)
@@ -169,7 +169,7 @@ local function get_branch_remote()
 
   -- origin
   local remote_from_upstream_branch =
-    upstream_branch:match("^(" .. allowed_chars .. ")%/")
+      upstream_branch:match("^(" .. allowed_chars .. ")%/")
 
   if not remote_from_upstream_branch then
     log.error(
