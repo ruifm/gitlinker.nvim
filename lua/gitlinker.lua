@@ -142,7 +142,7 @@ function M.get_buf_range_url(user_opts)
     return nil
   end
 
-  local url = make_git_link_url(host_url)
+  local url = make_git_link_url(url_data)
 
   if user_opts.action_callback then
     user_opts.action_callback(url)
