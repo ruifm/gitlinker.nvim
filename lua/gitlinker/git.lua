@@ -63,23 +63,12 @@ local function to_positive(n)
   end
 end
 
-local function has_intersection(range1, range2)
-  if range1.lend < range2.lstart then
-    return false
-  end
-  if range1.start > range2.lend then
-    return false
-  end
-  return true
-end
-
-local function has_file_changed(file, rev, lstart, lend)
+local function has_file_changed(file, rev, lend)
   local diffs = cmd({ "diff", rev, "--", file })
   log.debug(
-    "[git.has_file_changed] file:%s, rev:%s, lstart:%s, lend:%s, diffs:%s",
+    "[git.has_file_changed] file:%s, rev:%s, lend:%s, diffs:%s",
     vim.inspect(file),
     vim.inspect(rev),
-    vim.inspect(lstart),
     vim.inspect(lend),
     vim.inspect(diffs)
   )
@@ -94,30 +83,19 @@ local function has_file_changed(file, rev, lstart, lend)
       local old_splits = string_split(old, ",")
       local new_splits = string_split(new, ",")
       local old_start = to_positive(tonumber(old_splits[1]))
-      local old_end = old_start + to_positive(tonumber(old_splits[2]))
       local new_start = to_positive(tonumber(new_splits[1]))
-      local new_end = new_start + to_positive(tonumber(new_splits[2]))
       local diff_start = math.min(old_start, new_start)
-      local diff_end = math.max(old_end, new_end)
-      local diff_range = {
-        lstart = diff_start,
-        lend = diff_end,
-      }
-      local line_range = {
-        lstart = lstart,
-        lend = lend,
-      }
       log.debug(
-        "[git.has_file_changed] splits:%s, old:%s, new:%s, old_splits:%s, new_splits:%s, diff_range:%s, line_range:%s",
+        "[git.has_file_changed] splits:%s, old:%s, new:%s, old_splits:%s, new_splits:%s, diff_start:%s, lend:%s",
         vim.inspect(splits),
         vim.inspect(old),
         vim.inspect(new),
         vim.inspect(old_splits),
         vim.inspect(new_splits),
-        vim.inspect(diff_range),
-        vim.inspect(line_range)
+        vim.inspect(diff_start),
+        vim.inspect(lend)
       )
-      if has_intersection(diff_range, line_range) then
+      if diff_start < lend then
         return true
       end
     end
