@@ -74,23 +74,15 @@ function M.setup(configs)
   keys.setup(opts.mapping)
 end
 
-local function make_linker_data(user_opts)
+local function make_linker_data()
   local git_root = git.get_root()
   log.debug("[make_linker_data] git_root: %s", vim.inspect(git_root))
   if not git_root then
     log.error("Error! Not in a git repository")
     return nil
   end
-  local remote = user_opts.remote or git.branch_remote()
-  -- local repo_url_data = git.get_repo_data(remote)
-  -- log.debug(
-  --   "[make_linker_data] remote: %s, repo_url_data: %s",
-  --   vim.inspect(remote),
-  --   vim.inspect(repo_url_data)
-  -- )
-  -- if not repo_url_data then
-  --   return nil
-  -- end
+  local remote = git.get_branch_remote()
+  log.debug("[make_linker_data] git_root: %s", vim.inspect(git_root))
   local remote_url = git.get_remote_url(remote)
   if not remote_url then
     return nil
@@ -197,7 +189,7 @@ function M.get_buf_range_url(user_opts)
   user_opts = vim.tbl_deep_extend("force", opts, user_opts or {})
   log.debug("[get_buf_range_url] user_opts2: %s", vim.inspect(user_opts))
 
-  local url_data = make_linker_data(user_opts)
+  local url_data = make_linker_data()
   if not url_data then
     log.warn("Warn! No remote found in git repository '%s'!", git.get_root())
     return
