@@ -51,7 +51,6 @@ local function has_file_changed(file, rev)
 end
 
 local function is_rev_in_remote(revspec, remote)
-  assert(remote, "remote cannot be nil")
   local output = cmd({ "branch", "--remotes", "--contains", revspec })
   for _, rbranch in ipairs(output) do
     if rbranch:match(remote) then
@@ -64,6 +63,8 @@ end
 local allowed_chars = "[_%-%w%.]+"
 
 local function get_closest_remote_compatible_rev(remote)
+  assert(remote, "remote cannot be nil")
+
   -- try upstream branch HEAD (a.k.a @{u})
   local upstream_rev = get_rev("@{u}")
   if upstream_rev then
@@ -95,10 +96,6 @@ local function get_closest_remote_compatible_rev(remote)
     return remote_rev
   end
 
-  log.error(
-    "Error! Failed to get closest revision in that exists in remote '%s'",
-    remote
-  )
   return nil
 end
 

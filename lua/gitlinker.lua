@@ -91,11 +91,16 @@ local function make_linker_data()
 
   local remote_url = git.get_remote_url(remote)
   if not remote_url then
+    log.error("Error! Failed to get remote url by remote '%s'", remote)
     return nil
   end
 
   local rev = git.get_closest_remote_compatible_rev(remote)
   if not rev then
+    log.error(
+      "Error! Failed to get closest revision in that exists in remote '%s'",
+      remote
+    )
     return nil
   end
 
