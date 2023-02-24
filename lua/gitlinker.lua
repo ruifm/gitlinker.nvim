@@ -197,7 +197,6 @@ function M.get_buf_range_url(user_opts)
 
   local url_data = make_linker_data()
   if not url_data then
-    log.warn("Warn! No remote found in git repository '%s'!", git.get_root())
     return
   end
 
