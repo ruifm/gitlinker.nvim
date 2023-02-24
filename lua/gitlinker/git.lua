@@ -43,7 +43,16 @@ local function is_file_in_rev(file, revspec)
   return false
 end
 
-local function has_file_changed(file, rev)
+local function has_file_changed(file, rev, lstart, lend)
+  local diff = cmd({ "diff", rev, "--", file })
+  log.debug(
+    "[git.has_file_changed] file:%s, rev:%s, lstart:%s, lend:%s, diff:%s",
+    vim.inspect(file),
+    vim.inspect(rev),
+    vim.inspect(lstart),
+    vim.inspect(lend),
+    vim.inspect(diff)
+  )
   if cmd({ "diff", rev, "--", file })[1] then
     return true
   end

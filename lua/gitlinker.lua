@@ -99,35 +99,40 @@ local function make_linker_data()
     return nil
   end
 
-  local buf_repo_path = util.relative_path(root)
+  local buf_path_on_root = util.relative_path(root)
   log.debug(
-    "[make_linker_data] buf_repo_path: %s, git_root: %s",
-    vim.inspect(buf_repo_path),
+    "[make_linker_data] buf_path_on_root: %s, git_root: %s",
+    vim.inspect(buf_path_on_root),
     vim.inspect(root)
   )
-  if not git.is_file_in_rev(buf_repo_path, rev) then
+  if not git.is_file_in_rev(buf_path_on_root, rev) then
     log.error(
       "Error! '%s' does not exist in remote '%s'",
-      buf_repo_path,
+      buf_path_on_root,
       remote
     )
     return nil
   end
 
-  local buf_path = util.relative_path()
-  log.debug("[make_linker_data] buf_path: %s", vim.inspect(buf_path))
-  if git.has_file_changed(buf_path, rev) then
+  local buf_path_on_cwd = util.relative_path()
+  local range = util.line_range()
+  log.debug(
+    "[make_linker_data] buf_path_on_cwd:%s, range:%s",
+    vim.inspect(buf_path_on_cwd),
+    vim.inspect(range)
+  )
+
+  if git.has_file_changed(buf_path_on_cwd, rev, range.lstart, range.lend) then
     log.info(
       "Computed Line numbers are probably wrong because '%s' has changes",
-      buf_path
+      buf_path_on_cwd
     )
   end
-  local range = util.selected_line_range()
 
   return {
     remote_url = remote_url,
     rev = rev,
-    file = buf_repo_path,
+    file = buf_path_on_root,
     lstart = range.lstart,
     lend = range.lend,
   }

@@ -36,7 +36,7 @@ local function relative_path(cwd)
   return relpath
 end
 
-local function selected_line_range()
+local function line_range()
   -- local lstart
   -- local lend
   -- local mode = vim.api.nvim_get_mode().mode
@@ -63,7 +63,7 @@ local M = {
   is_macos = is_macos,
   is_windows = is_windows,
   relative_path = relative_path,
-  selected_line_range = selected_line_range,
+  line_range = line_range,
 }
 
 return M
