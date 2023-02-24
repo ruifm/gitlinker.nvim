@@ -1,6 +1,6 @@
 # gitlinker.nvim
 
-> A fork of [ruifm's gitlinker.nvim](https://github.com/ruifm/gitlinker.nvim) with lots of rewrittens.
+> A fork of [ruifm's gitlinker.nvim](https://github.com/ruifm/gitlinker.nvim) with bug fix, enhancements and refactor.
 
 A lua [neovim](https://github.com/neovim/neovim) plugin to generate shareable
 file permalinks (with line ranges) for several git web frontend hosts. Inspired
