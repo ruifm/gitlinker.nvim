@@ -122,7 +122,7 @@ local function make_linker_data()
     vim.inspect(range)
   )
 
-  if git.has_file_changed(buf_path_on_cwd, rev, range.lstart, range.lend) then
+  if git.has_file_changed(buf_path_on_cwd, rev) then
     log.info(
       "Computed Line numbers are probably wrong because '%s' has changes",
       buf_path_on_cwd

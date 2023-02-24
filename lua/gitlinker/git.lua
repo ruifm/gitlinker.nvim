@@ -63,44 +63,9 @@ local function to_positive(n)
   end
 end
 
-local function has_file_changed(file, rev, lend)
+local function has_file_changed(file, rev)
   local diffs = cmd({ "diff", rev, "--", file })
-  log.debug(
-    "[git.has_file_changed] file:%s, rev:%s, lend:%s, diffs:%s",
-    vim.inspect(file),
-    vim.inspect(rev),
-    vim.inspect(lend),
-    vim.inspect(diffs)
-  )
-  if #diffs >= 5 then
-    local diff = diffs[5]
-    -- The 5th line is line diff info, for example:
-    -- `@@ -44,17 +44,22 @@ local function is_file_in_rev(file, revspec)`
-    if diff and string.len(diff) > 0 then
-      local splits = string_split(diff)
-      local old = splits[2] -- -44,17
-      local new = splits[3] -- +44,22
-      local old_splits = string_split(old, ",")
-      local new_splits = string_split(new, ",")
-      local old_start = to_positive(tonumber(old_splits[1]))
-      local new_start = to_positive(tonumber(new_splits[1]))
-      local diff_start = math.min(old_start, new_start)
-      log.debug(
-        "[git.has_file_changed] splits:%s, old:%s, new:%s, old_splits:%s, new_splits:%s, diff_start:%s, lend:%s",
-        vim.inspect(splits),
-        vim.inspect(old),
-        vim.inspect(new),
-        vim.inspect(old_splits),
-        vim.inspect(new_splits),
-        vim.inspect(diff_start),
-        vim.inspect(lend)
-      )
-      if diff_start < lend then
-        return true
-      end
-    end
-  end
-  return false
+  return #diffs > 0
 end
 
 local function is_rev_in_remote(revspec, remote)
