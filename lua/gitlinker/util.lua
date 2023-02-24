@@ -25,6 +25,7 @@ local function relative_path(cwd)
       cwd = cwd:gsub("/", "\\")
     end
   end
+
   local buf_path = path:new(vim.api.nvim_buf_get_name(0))
   local relpath = buf_path:make_relative(cwd)
   log.debug(
@@ -33,6 +34,13 @@ local function relative_path(cwd)
     vim.inspect(cwd),
     vim.inspect(relpath)
   )
+
+  -- Then we translate '\\' back to '/'
+  if relpath ~= nil and is_windows() then
+    if relpath:find("\\") then
+      relpath = relpath:gsub("\\", "/")
+    end
+  end
   return relpath
 end
 

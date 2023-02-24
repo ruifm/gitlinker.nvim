@@ -170,14 +170,6 @@ local function map_remote_to_host(remote_url)
 end
 
 local function make_sharable_permalinks(host_url, url_data)
-  -- In Windows, the url_data.file(relative file path) contains '\\'
-  -- Here we translate backslash '\\' to slash '/'
-  if url_data.file and util.is_windows() then
-    if url_data.file:find("\\") then
-      url_data.file = url_data.file:gsub("\\", "/")
-    end
-  end
-
   local url = host_url .. url_data.rev .. "/" .. url_data.file
   if not url_data.lstart then
     return url
