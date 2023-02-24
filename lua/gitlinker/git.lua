@@ -37,31 +37,37 @@ local function get_rev_name(revspec)
 end
 
 local function is_file_in_rev(file, revspec)
+  local cats = cmd({ "cat-file", "-e", revspec .. ":" .. file })
+  log.debug(
+    "[git.is_file_in_rev] file:%s, cats:%s",
+    vim.inspect(file),
+    vim.inspect(cats)
+  )
   if cmd({ "cat-file", "-e", revspec .. ":" .. file }) then
     return true
   end
   return false
 end
 
-local function string_split(s, sep)
-  -- by default, split by whitespace
-  if sep == nil then
-    sep = "%s"
-  end
-  local splits = {}
-  for i in string.gmatch(s, "([^" .. sep .. "]+)") do
-    table.insert(splits, i)
-  end
-  return splits
-end
-
-local function to_positive(n)
-  if n < 0 then
-    return -n
-  else
-    return n
-  end
-end
+-- local function string_split(s, sep)
+--   -- by default, split by whitespace
+--   if sep == nil then
+--     sep = "%s"
+--   end
+--   local splits = {}
+--   for i in string.gmatch(s, "([^" .. sep .. "]+)") do
+--     table.insert(splits, i)
+--   end
+--   return splits
+-- end
+--
+-- local function to_positive(n)
+--   if n < 0 then
+--     return -n
+--   else
+--     return n
+--   end
+-- end
 
 local function has_file_changed(file, rev)
   local diffs = cmd({ "diff", rev, "--", file })
