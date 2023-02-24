@@ -82,11 +82,9 @@ local function get_buf_range_url_data(user_opts)
 end
 
 function M.map_remote_url_to_host(remote_url)
-  local host_url
-
   local custom_rules = opts.get().custom_rules
   if type(custom_rules) == "function" then
-    host_url = custom_rules(remote_url)
+    return custom_rules(remote_url)
   else
     local pattern_rules = opts.get().pattern_rules
     for i, group in ipairs(pattern_rules) do
@@ -98,7 +96,7 @@ function M.map_remote_url_to_host(remote_url)
           replace
         )
         if string.match(remote_url, pattern) then
-          host_url = string.gsub(remote_url, pattern, replace)
+          local host_url = string.gsub(remote_url, pattern, replace)
           log.debug(
             "map group[%d] matched, pattern:'%s', replace:'%s', remote_url:'%s' => host_url:'%s'",
             i,
@@ -107,13 +105,13 @@ function M.map_remote_url_to_host(remote_url)
             remote_url,
             host_url
           )
-          break
+          return host_url
         end
       end
     end
   end
 
-  return host_url
+  return nil
 end
 
 function M.make_git_link_url(host_url, url_data)
