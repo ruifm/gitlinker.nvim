@@ -82,7 +82,11 @@ local function make_linker_data()
     return nil
   end
   local remote = git.get_branch_remote()
-  log.debug("[make_linker_data] git_root: %s", vim.inspect(git_root))
+  log.debug("[make_linker_data] remote: %s", vim.inspect(remote))
+  if not remote then
+    log.error("Error! Not remote found in git repository")
+    return nil
+  end
   local remote_url = git.get_remote_url(remote)
   if not remote_url then
     return nil

@@ -18,11 +18,11 @@ co-workers.
 - `^git@github%.([_%.%-%w]+):([%.%-%w]+)/([%.%-%w]+)%.git$` => `https://github.%1/%2/%3/blob/`
 - `^https?://github%.([_%.%-%w]+)/([%.%-%w]+)/([%.%-%w]+)%.git$` => `https://github.%1/%2/%3/blob/`
 
-Regex patterns are introduced to map git remote url to git host url. For now
-github.com (both git/http protocol, and github enterprise) are supported.
+Regex patterns are introduced to map remote url to host url. For now github.com
+(include both git/http protocols and github enterprise) are supported.
 
 Please checkout [default options](https://github.com/linrongbin16/gitlinker.nvim/blob/master/lua/gitlinker.lua)
-for all regex patterns, or submit PR for other git hosts!
+for all pattern rules, or submit PR for other git hosts!
 
 ## Requirement
 

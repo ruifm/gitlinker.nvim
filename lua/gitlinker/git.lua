@@ -115,7 +115,7 @@ local function get_branch_remote()
   local remotes = get_remote()
 
   if #remotes == 0 then
-    log.error("Error! Git repo '%s' has no remote", M.get_root())
+    log.error("Error! Git repo '%s' has no remote", get_root())
     return nil
   end
 
