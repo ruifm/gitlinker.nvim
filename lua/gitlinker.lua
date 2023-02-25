@@ -4,20 +4,18 @@ local util = require("gitlinker.util")
 local keys = require("gitlinker.keys")
 
 local DEFAULTS = {
-  -- open_in_browser/copy_to_clipboard
-  action = require("gitlinker.actions").open_in_browser,
+  -- system/clipboard
+  action = require("gitlinker.actions").system,
   -- print message(git host url) in command line
   message = true,
   -- key mapping
   mapping = "<leader>gl",
   -- regex pattern based rules
   pattern_rules = {
-    -- git@github.(com|*):linrongbin16/gitlinker.nvim(.git)? -> https://github.com/linrongbin16/gitlinker.nvim(.git)?
     {
       ["^git@github%.([_%.%-%w]+):([%.%-%w]+)/([%.%-%w]+)%.git$"] = "https://github.%1/%2/%3/blob/",
       ["^https?://github%.([_%.%-%w]+)/([%.%-%w]+)/([%.%-%w]+)%.git$"] = "https://github.%1/%2/%3/blob/",
     },
-    -- http(s)://github.(com|*)/linrongbin16/gitlinker.nvim(.git)? -> https://github.com/linrongbin16/gitlinker.nvim(.git)?
     {
       ["^git@github%.([_%.%-%w]+):([%.%-%w]+)/([%.%-%w]+)$"] = "https://github.%1/%2/%3/blob/",
       ["^https?://github%.([_%.%-%w]+)/([%.%-%w]+)/([%.%-%w]+)$"] = "https://github.%1/%2/%3/blob/",
