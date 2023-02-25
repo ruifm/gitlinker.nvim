@@ -65,21 +65,19 @@ local opts = {}
 --- Setup configs
 local function setup(configs)
   opts = vim.tbl_deep_extend("force", DEFAULTS, configs or {})
-  log.debug("[setup] opts: %s", vim.inspect(opts))
   log.setup(opts.debug, opts.console_log, opts.file_log, opts.file_log_name)
   keys.setup(opts.mapping)
+  log.debug("[setup] opts: %s", vim.inspect(opts))
 end
 
 local function make_link_data()
   local root = git.get_root()
-  log.debug("[make_link_data] root: %s", vim.inspect(root))
   if not root then
     log.error("Error! Not in a git repository")
     return nil
   end
 
   local remote = git.get_branch_remote()
-  log.debug("[make_link_data] remote: %s", vim.inspect(remote))
   if not remote then
     return nil
   end
@@ -118,12 +116,12 @@ local function make_link_data()
     vim.inspect(range)
   )
 
-  if git.has_file_changed(buf_path_on_cwd, rev) then
-    log.info(
-      "Computed Line numbers are probably wrong because '%s' has changes",
-      buf_path_on_cwd
-    )
-  end
+  -- if git.has_file_changed(buf_path_on_cwd, rev) then
+  --   log.info(
+  --     "Computed Line numbers are probably wrong because '%s' has changes",
+  --     buf_path_on_cwd
+  --   )
+  -- end
 
   return {
     remote_url = remote_url,
@@ -131,6 +129,7 @@ local function make_link_data()
     file = buf_path_on_root,
     lstart = range.lstart,
     lend = range.lend,
+    file_changed = git.has_file_changed(buf_path_on_cwd, rev),
   }
 end
 
@@ -206,7 +205,10 @@ local function link(user_opts)
     user_opts.action(url)
   end
   if user_opts.message then
-    log.info(url)
+    local msg = url_data.file_changed
+        and string.format("%s (lines can be wrong due to file change)", url)
+      or url
+    log.info(msg)
   end
 
   return url
