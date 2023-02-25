@@ -182,11 +182,11 @@ You can use this function to get the fully capabilities of url mapping.
 
 ### Code format
 
-Please use [stylua](https://github.com/JohnnyMorganz/StyLua) for code formatting.
+Use [stylua](https://github.com/JohnnyMorganz/StyLua) for code formatting.
 
 ### Test pattern rules
 
-Please test pattern rules before submit a PR:
+Run test cases:
 
 - [lua/gitlinker/test/test_patterns.lua](https://github.com/linrongbin16/gitlinker.nvim/blob/e73201d76686dc4e9fc160a0f20fe40fcbccd5a9/lua/gitlinker/test/test_patterns.lua#L1)
 - [lua/gitlinker/test/test_rules.lua](https://github.com/linrongbin16/gitlinker.nvim/blob/e73201d76686dc4e9fc160a0f20fe40fcbccd5a9/lua/gitlinker/test/test_rules.lua#L1)
