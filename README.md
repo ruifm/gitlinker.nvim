@@ -30,8 +30,8 @@ For now github.com(include both git/http protocols and github enterprise) are su
 - `git@github\.([_.+-\w]+):([.-\w]+)/([.-\w]+)(\.git)?` => `https://github.$1/$2/$3/blob/`
 - `https?://github\.([_.+-\w]+):([.-\w]+)/([.-\w]+)(\.git)?` => `https://github.$1/$2/$3/blob/`
 
-Notice above two rules are written with standard regex expressions, please see
-[Configuration](#configuration) for all embeded pattern rules.
+> Notice above two rules are written with standard regex expressions, please see
+> [Configuration](#configuration) for all embeded pattern rules.
 
 PRs are welcomed for other git host websites!
 
