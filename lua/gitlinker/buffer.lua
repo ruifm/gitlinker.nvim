@@ -1,10 +1,12 @@
 local M = {}
 
 local api = vim.api
-local path = require("plenary.path")
 
 function M.get_relative_path(cwd)
-  return path:new(api.nvim_buf_get_name(0)):make_relative(cwd)
+  return vim.fn.fnamemodify(
+    vim.fs.normalize(api.nvim_buf_get_name(0)),
+    ":s?" .. cwd .. "/" .. "??"
+  )
 end
 
 function M.get_curr_line()

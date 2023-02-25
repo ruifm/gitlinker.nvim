@@ -18,6 +18,9 @@ end
 
 function M.set(mappings)
   mappings = mappings or "<leader>gy"
+  if mappings == '' then
+    return
+  end
   set_keymap("n", mappings)
   set_keymap("v", mappings, { silent = false })
 end

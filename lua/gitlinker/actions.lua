@@ -1,7 +1,7 @@
 local M = {}
 
 local api = vim.api
-local job = require("plenary.job")
+local fn = vim.fn
 
 --- copies the url to clipboard
 --
@@ -12,12 +12,12 @@ end
 
 --- opens the url in your default browser
 --
--- Uses xdg-open
 -- @param url the url string
 function M.open_in_browser(url)
-  local command = vim.loop.os_uname().sysname == "Darwin" and "open"
-    or "xdg-open"
-  job:new({ command = command, args = { url } }):start()
+  fn.jobstart(
+    { require("gitlinker.opts").get().open_cmd, url },
+    { detach = true }
+  )
 end
 
 return M

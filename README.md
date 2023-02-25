@@ -30,30 +30,26 @@ that already exist in gitlinker! See [callbacks](#callbacks)
 
 ## Installation
 
-Install it like any other vim plugin, just make sure
-[plenary.nvim](https://github.com/nvim-lua/plenary.nvim) is also installed.
+Install it like any other vim plugin.
 
 - [packer.nvim](https://github.com/wbthomason/packer.nvim)
 
 ``` lua
 use {
     'ruifm/gitlinker.nvim',
-    requires = 'nvim-lua/plenary.nvim',
 }
 ```
 
 - [vim-plug](https://github.com/junegunn/vim-plug)
 
 ``` vim
-Plug 'nvim-lua/plenary.nvim'
 Plug 'ruifm/gitlinker.nvim'
 ```
 
 ### Requirements
 
 - git
-- neovim 0.5
-- [plenary.nvim](https://github.com/nvim-lua/plenary.nvim)
+- neovim 0.8
 
 ## Usage
 
@@ -126,6 +122,8 @@ require"gitlinker".setup({
     action_callback = require"gitlinker.actions".copy_to_clipboard,
     -- print the url after performing the action
     print_url = true,
+    -- os-specific command to open url, default to Unix: `xdg-open`, Mac: `open`, Windows: `explorer`
+    open_cmd = '',
   },
   callbacks = {
         ["github.com"] = require"gitlinker.hosts".get_github_type_url,
@@ -140,7 +138,8 @@ require"gitlinker".setup({
         ["git.kernel.org"] = require"gitlinker.hosts".get_cgit_type_url,
         ["git.savannah.gnu.org"] = require"gitlinker.hosts".get_cgit_type_url
   },
--- default mapping to call url generation with action_callback
+  -- default mapping to call url generation with action_callback
+  -- to disable the default mappings, set it to empty string
   mappings = "<leader>gy"
 })
 ```
@@ -239,7 +238,11 @@ default set to `require"gitlinker.actions".copy_to_clipboard` which copies to
 generated url to your system clipboard.
 
 An alternative callback `require"gitlinker.actions".open_in_browser` is provided
-which opens the url in your preferred browser using `xdg-open` (linux only).
+which opens the url in your preferred browser using os-specific command:
+
+- Unix: `xdg-open`
+- Mac: `open`
+- Windows: `explorer`
 
 You can define your own action callback.
 

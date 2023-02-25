@@ -1,20 +1,19 @@
 local M = {}
-
-local job = require("plenary.job")
-local path = require("plenary.path")
+local fn = vim.fn
 
 -- wrap the git command to do the right thing always
 local function git(args, cwd)
   local output
-  local p = job:new({
-    command = "git",
-    args = args,
+  -- output = fn.systemlist(vim.list_extend({ "git" }, args))
+  fn.jobstart(vim.list_extend({ "git" }, args), {
     cwd = cwd or M.get_git_root(),
+    on_stdout = function(_, data, _)
+      output = data
+    end,
   })
-  p:after_success(function(j)
-    output = j:result()
-  end)
-  p:sync()
+  vim.wait(200, function()
+    return output ~= nil
+  end, 20)
   return output or {}
 end
 
@@ -43,7 +42,8 @@ function M.is_file_in_rev(file, revspec)
 end
 
 function M.has_file_changed(file, rev)
-  if git({ "diff", rev, "--", file })[1] then
+  local output = git({ "diff", rev, "--", file })[1]
+  if output and output ~= "" then
     return true
   end
   return false
@@ -229,7 +229,7 @@ end
 function M.get_git_root()
   return git(
     { "rev-parse", "--show-toplevel" },
-    tostring(path:new(vim.api.nvim_buf_get_name(0)):parent())
+    vim.fs.dirname(vim.api.nvim_buf_get_name(0))
   )[1]
 end
 
@@ -248,9 +248,8 @@ function M.get_branch_remote()
     return nil
   end
 
-  local remote_from_upstream_branch = upstream_branch:match(
-    "^(" .. allowed_chars .. ")%/"
-  )
+  local remote_from_upstream_branch =
+    upstream_branch:match("^(" .. allowed_chars .. ")%/")
   if not remote_from_upstream_branch then
     error(
       string.format(
