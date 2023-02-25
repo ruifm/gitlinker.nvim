@@ -63,8 +63,8 @@ local DEFAULTS = {
 local configs = {}
 
 --- Setup configs
-local function setup(configs)
-  configs = vim.tbl_deep_extend("force", DEFAULTS, configs or {})
+local function setup(option)
+  configs = vim.tbl_deep_extend("force", DEFAULTS, option or {})
   log.setup(
     configs.debug,
     configs.console_log,
