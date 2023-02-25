@@ -189,7 +189,7 @@ local function link(user_opts)
 
   local url_data = make_link_data()
   if not url_data then
-    return
+    return nil
   end
 
   local host_url = map_remote_to_host(url_data.remote_url)
@@ -199,7 +199,7 @@ local function link(user_opts)
       "Error! Cannot generate git link from remote url:%s",
       url_data.remote_url
     )
-    return
+    return nil
   end
 
   local url = make_sharable_permalinks(host_url, url_data)
@@ -210,6 +210,8 @@ local function link(user_opts)
   if user_opts.message then
     log.info(url)
   end
+
+  return url
 end
 
 local M = {
