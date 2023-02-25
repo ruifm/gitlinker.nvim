@@ -68,27 +68,12 @@ local function error(fmt, ...)
   log("ERROR", string.format(fmt, ...))
 end
 
-local function inspect(value)
-  if type(value) == "table" then
-    local builder = {}
-    for i, v in ipairs(value) do
-      table.insert(builder, string.format("[%d] = %s", i, inspect(v)))
-    end
-    for k, v in pairs(value) do
-      table.insert(builder, string.format("[%s] = %s", inspect(k), inspect(v)))
-    end
-    return string.format("{ %s }", table.concat(builder, ", "))
-  end
-  return tostring(value)
-end
-
 local M = {
   setup = setup,
   debug = debug,
   info = info,
   warn = warn,
   error = error,
-  inspect = inspect,
 }
 
 return M
