@@ -16,14 +16,14 @@ co-workers.
 ## Break changes & updates
 
 1. Cross-platform support: windows is supported now.
-2. Git remote to host url mapping engine changed: from hard code to pattern based rules.
+2. The url mapping engine changed: from hard code to pattern based rules.
 3. Rewrittens: API re-designed, logger added, code base re-structured.
 
 ## Lua pattern based rules
 
 [Lua pattern](https://www.lua.org/pil/20.2.html) is introduced to map git remote
-url to host url. Even lua pattern has many limitations compared with the [standard regex expression](https://en.wikipedia.org/wiki/Regular_expression),
-it's still the best solution in git sharable file permalinks scenario.
+url to host url. The lua pattern has many limitations compared with the [standard regex expression](https://en.wikipedia.org/wiki/Regular_expression),
+but it's still the best solution in git sharable file permalinks scenario.
 
 For now github.com(include both git/http protocols and github enterprise) are supported:
 
