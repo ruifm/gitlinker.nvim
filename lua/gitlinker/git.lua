@@ -3,6 +3,7 @@ local M = {}
 local job = require("plenary.job")
 local path = require("plenary.path")
 local log = require("gitlinker.log")
+local util = require("gitlinker.util")
 
 -- wrap the git command to do the right thing always
 local function cmd(args, cwd)
@@ -13,10 +14,10 @@ local function cmd(args, cwd)
     args = args,
     cwd = cwd or M.get_root(),
     on_stdout = function(_, data)
-      log.debug("[git.cmd] stdout data:%s", vim.inspect(data))
+      log.debug("[git.cmd] stdout data:%s", util.inspect(data))
     end,
     on_stderr = function(_, data)
-      log.debug("[git.cmd] stderr data:%s", vim.inspect(data))
+      log.debug("[git.cmd] stderr data:%s", util.inspect(data))
     end,
   })
   process:after_success(function(j)
@@ -182,7 +183,7 @@ local function get_branch_remote()
 
   -- origin
   local remote_from_upstream_branch =
-      upstream_branch:match("^(" .. allowed_chars .. ")%/")
+    upstream_branch:match("^(" .. allowed_chars .. ")%/")
 
   if not remote_from_upstream_branch then
     log.error(
