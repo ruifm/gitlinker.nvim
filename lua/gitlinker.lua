@@ -75,6 +75,20 @@ local function setup(option)
   log.debug("[setup] opts: %s", vim.inspect(configs))
 end
 
+local Linker = {}
+
+local function new_linker(remote_url, rev, file, lstart, lend, file_changed)
+  local linker = vim.tbl_extend("force", vim.deepcopy(Linker), {
+    remote_url = remote_url,
+    rev = rev,
+    file = file,
+    lstart = lstart,
+    lend = lend,
+    file_changed = file_changed,
+  })
+  return linker
+end
+
 local function make_link_data()
   local root = git.get_root()
   if not root then
@@ -121,21 +135,14 @@ local function make_link_data()
     vim.inspect(range)
   )
 
-  -- if git.has_file_changed(buf_path_on_cwd, rev) then
-  --   log.info(
-  --     "Computed Line numbers are probably wrong because '%s' has changes",
-  --     buf_path_on_cwd
-  --   )
-  -- end
-
-  return {
-    remote_url = remote_url,
-    rev = rev,
-    file = buf_path_on_root,
-    lstart = range.lstart,
-    lend = range.lend,
-    file_changed = git.has_file_changed(buf_path_on_cwd, rev),
-  }
+  return new_linker(
+    remote_url,
+    rev,
+    buf_path_on_root,
+    range.lstart,
+    range.lend,
+    git.has_file_changed(buf_path_on_cwd, rev)
+  )
 end
 
 local function map_remote_to_host(remote_url)
@@ -171,14 +178,14 @@ local function map_remote_to_host(remote_url)
   return nil
 end
 
-local function make_sharable_permalinks(host_url, url_data)
-  local url = host_url .. url_data.rev .. "/" .. url_data.file
-  if not url_data.lstart then
+local function make_sharable_permalinks(host_url, linker)
+  local url = host_url .. linker.rev .. "/" .. linker.file
+  if not linker.lstart then
     return url
   end
-  url = url .. "#L" .. url_data.lstart
-  if url_data.lend and url_data.lend ~= url_data.lstart then
-    url = url .. "-L" .. url_data.lend
+  url = url .. "#L" .. linker.lstart
+  if linker.lend and linker.lend ~= linker.lstart then
+    url = url .. "-L" .. linker.lend
   end
   return url
 end
@@ -189,28 +196,28 @@ local function link(option)
   option = vim.tbl_deep_extend("force", configs, option or {})
   log.debug("[make_link] after merge, option: %s", vim.inspect(option))
 
-  local url_data = make_link_data()
-  if not url_data then
+  local linker = make_link_data()
+  if not linker then
     return nil
   end
 
-  local host_url = map_remote_to_host(url_data.remote_url)
+  local host_url = map_remote_to_host(linker.remote_url)
 
-  if host_url == nil or string.len(host_url) <= 0 then
+  if type(host_url) ~= "string" or string.len(host_url) <= 0 then
     log.error(
       "Error! Cannot generate git link from remote url:%s",
-      url_data.remote_url
+      linker.remote_url
     )
     return nil
   end
 
-  local url = make_sharable_permalinks(host_url, url_data)
+  local url = make_sharable_permalinks(host_url, linker)
 
   if option.action then
     option.action(url)
   end
   if option.message then
-    local msg = url_data.file_changed
+    local msg = linker.file_changed
         and string.format("%s (lines can be wrong due to file change)", url)
       or url
     log.info(msg)
