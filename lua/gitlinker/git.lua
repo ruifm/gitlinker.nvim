@@ -6,32 +6,45 @@ local log = require("gitlinker.log")
 
 -- wrap the git command to do the right thing always
 local function cmd(args, cwd)
-  local output
-  local p = job:new({
+  local stdout
+  local stderr
+  local process = job:new({
     command = "git",
     args = args,
     cwd = cwd or M.get_root(),
+    on_stdout = function(_, data)
+      log.debug("[git.cmd] stdout data:%s", vim.inspect(data))
+    end,
+    on_stderr = function(_, data)
+      log.debug("[git.cmd] stderr data:%s", vim.inspect(data))
+    end,
   })
-  p:after_success(function(j)
-    output = j:result()
+  process:after_success(function(j)
+    stdout = j:result()
   end)
-  p:sync()
-  return output or {}
+  process:sync()
+  return stdout or {}
 end
 
 local function cmd2(args, cwd)
   local stdout
   local stderr
-  local p = job:new({
+  local process = job:new({
     command = "git",
     args = args,
     cwd = cwd or M.get_root(),
+    on_stdout = function(_, data)
+      log.debug("[git.cmd2] stdout data:%s", vim.inspect(data))
+    end,
+    on_stderr = function(_, data)
+      log.debug("[git.cmd2] stderr data:%s", vim.inspect(data))
+    end,
   })
-  p:after_success(function(j)
+  process:after_success(function(j)
     stdout = j:result()
     stderr = j:stderr_result()
   end)
-  p:sync()
+  process:sync()
   return { stdout = stdout, stderr = stderr }
 end
 
