@@ -87,8 +87,8 @@ The default key mappings are defined to open git link in browser:
 To disable the default key mappings, set `mapping = false` in the `setup()`
 function(see [Configuration](#configuration)).
 
-To create key mappings, please use API `require"gitlinker".link(user_opts)`.
-The `user_opts` is a table of options that override the configured options(see [Configuration](#configuration)).
+To create key mappings, please use API `require"gitlinker".link(option)`.
+The `option` is a table of options that override the configured options(see [Configuration](#configuration)).
 
 For example:
 

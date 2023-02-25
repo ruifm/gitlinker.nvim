@@ -60,14 +60,19 @@ local DEFAULTS = {
   file_log_name = "gitlinker.log",
 }
 
-local opts = {}
+local configs = {}
 
 --- Setup configs
 local function setup(configs)
-  opts = vim.tbl_deep_extend("force", DEFAULTS, configs or {})
-  log.setup(opts.debug, opts.console_log, opts.file_log, opts.file_log_name)
-  keys.setup(opts.mapping)
-  log.debug("[setup] opts: %s", vim.inspect(opts))
+  configs = vim.tbl_deep_extend("force", DEFAULTS, configs or {})
+  log.setup(
+    configs.debug,
+    configs.console_log,
+    configs.file_log,
+    configs.file_log_name
+  )
+  keys.setup(configs.mapping)
+  log.debug("[setup] opts: %s", vim.inspect(configs))
 end
 
 local function make_link_data()
@@ -134,11 +139,11 @@ local function make_link_data()
 end
 
 local function map_remote_to_host(remote_url)
-  local custom_rules = opts.custom_rules
+  local custom_rules = configs.custom_rules
   if type(custom_rules) == "function" then
     return custom_rules(remote_url)
   else
-    local pattern_rules = opts.pattern_rules
+    local pattern_rules = configs.pattern_rules
     for i, group in ipairs(pattern_rules) do
       for pattern, replace in pairs(group) do
         log.debug(
@@ -179,10 +184,10 @@ local function make_sharable_permalinks(host_url, url_data)
 end
 
 --- Get the url for the buffer with selected lines
-local function link(user_opts)
-  log.debug("[make_link] before merge, user_opts: %s", vim.inspect(user_opts))
-  user_opts = vim.tbl_deep_extend("force", opts, user_opts or {})
-  log.debug("[make_link] after merge, user_opts: %s", vim.inspect(user_opts))
+local function link(option)
+  log.debug("[make_link] before merge, option: %s", vim.inspect(option))
+  option = vim.tbl_deep_extend("force", configs, option or {})
+  log.debug("[make_link] after merge, option: %s", vim.inspect(option))
 
   local url_data = make_link_data()
   if not url_data then
@@ -201,10 +206,10 @@ local function link(user_opts)
 
   local url = make_sharable_permalinks(host_url, url_data)
 
-  if user_opts.action then
-    user_opts.action(url)
+  if option.action then
+    option.action(url)
   end
-  if user_opts.message then
+  if option.message then
     local msg = url_data.file_changed
         and string.format("%s (lines can be wrong due to file change)", url)
       or url
