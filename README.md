@@ -1,6 +1,6 @@
 # gitlinker.nvim
 
-> A fork of [ruifm's gitlinker](https://github.com/ruifm/gitlinker.nvim), with
+> A fork of [ruifm's gitlinker](https://github.com/ruifm/gitlinker.nvim) with
 > bug fix, enhancements and lots of rewrittens.
 
 A lua plugin for [Neovim](https://github.com/neovim/neovim) to generate sharable
