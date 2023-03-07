@@ -110,7 +110,8 @@ function M.get_cgit_type_url(url_data)
   if url_data.port then
     url = url .. ":" .. url_data.port
   end
-  url = url .. "/tree/" .. url_data.file .. "?id=" .. url_data.rev
+  url = url .. "/" .. url_data.repo
+  url = url .. "tree/" .. url_data.file .. "?id=" .. url_data.rev
   if url_data.lstart then
     url = url .. "#n" .. url_data.lstart
   end
