@@ -20,7 +20,7 @@ function M.get_github_type_url(url_data)
     return url
   end
   url = url .. "#L" .. url_data.lstart
-  if url_data.lend then
+  if url_data.lend and url_data.lend ~= url_data.lstart then
     url = url .. "-L" .. url_data.lend
   end
   return url
@@ -38,7 +38,7 @@ function M.get_gitea_type_url(url_data)
     return url
   end
   url = url .. "#L" .. url_data.lstart
-  if url_data.lend then
+  if url_data.lend and url_data.lend ~= url_data.lstart then
     url = url .. "-L" .. url_data.lend
   end
   return url
@@ -56,7 +56,7 @@ function M.get_gitlab_type_url(url_data)
     return url
   end
   url = url .. "#L" .. url_data.lstart
-  if url_data.lend then
+  if url_data.lend and url_data.lend ~= url_data.lstart then
     url = url .. "-" .. url_data.lend
   end
   return url
@@ -74,7 +74,7 @@ function M.get_bitbucket_type_url(url_data)
     return url
   end
   url = url .. "#lines-" .. url_data.lstart
-  if url_data.lend then
+  if url_data.lend and url_data.lend ~= url_data.lstart then
     url = url .. ":" .. url_data.lend
   end
 
@@ -93,7 +93,7 @@ function M.get_gogs_type_url(url_data)
     return url
   end
   url = url .. "#L" .. url_data.lstart
-  if url_data.lend then
+  if url_data.lend and url_data.lend ~= url_data.lstart then
     url = url .. "-L" .. url_data.lend
   end
 
@@ -129,7 +129,7 @@ function M.get_srht_type_url(url_data)
     return url
   end
   url = url .. "#L" .. url_data.lstart
-  if url_data.lend then
+  if url_data.lend and url_data.lend ~= url_data.lstart then
     url = url .. "-" .. url_data.lend
   end
 
