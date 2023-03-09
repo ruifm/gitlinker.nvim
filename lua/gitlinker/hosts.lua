@@ -187,11 +187,11 @@ function M.get_matching_callback(target_host)
 end
 
 M.callbacks = {
-  ["github.com"] = M.get_github_type_url,
-  ["gitlab.com"] = M.get_gitlab_type_url,
+  ["github.*"] = M.get_github_type_url,
+  ["gitlab.*"] = M.get_gitlab_type_url,
   ["try.gitea.io"] = M.get_gitea_type_url,
   ["codeberg.org"] = M.get_gitea_type_url,
-  ["bitbucket.org"] = M.get_bitbucket_type_url,
+  ["bitbucket.*"] = M.get_bitbucket_type_url,
   ["try.gogs.io"] = M.get_gogs_type_url,
   ["git.sr.ht"] = M.get_srht_type_url,
   ["git.launchpad.net"] = M.get_launchpad_type_url,
