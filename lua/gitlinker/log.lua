@@ -38,17 +38,19 @@ local function log(level, msg)
   end
   if USE_FILE then
     local fp = io.open(FILENAME, "a")
-    for _, m in ipairs(splited_msg) do
-      fp:write(
-        string.format(
-          "[gitlinker] %s [%s]: %s\n",
-          os.date("%Y-%m-%d %H:%M:%S"),
-          level,
-          m
+    if fp then
+      for _, m in ipairs(splited_msg) do
+        fp:write(
+          string.format(
+            "[gitlinker] %s [%s]: %s\n",
+            os.date("%Y-%m-%d %H:%M:%S"),
+            level,
+            m
+          )
         )
-      )
+      end
+      fp:close()
     end
-    fp:close()
   end
 end
 

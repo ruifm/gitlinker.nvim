@@ -4,6 +4,16 @@ local job = require("plenary.job")
 local path = require("plenary.path")
 local log = require("gitlinker.log")
 
+local function has_output(result)
+  return result["stdout"]
+    and type(result["stdout"]) == "table"
+    and #result["stdout"] > 0
+end
+
+local function has_error(result)
+  return result.stderr ~= nil
+end
+
 -- wrap the git command to do the right thing always
 local function cmd(args, cwd)
   local result = {}
@@ -36,7 +46,7 @@ local function get_remote_url(remote)
     vim.inspect(remote),
     vim.inspect(result)
   )
-  return result.stdout[1]
+  return has_output(result) and result.stdout[1] or nil
 end
 
 local function get_rev(revspec)
@@ -46,11 +56,7 @@ local function get_rev(revspec)
     vim.inspect(revspec),
     vim.inspect(result)
   )
-  if result["stdout"] then
-    return result["stdout"][1]
-  else
-    return nil
-  end
+  return has_output(result) and result.stdout[1] or nil
 end
 
 local function get_rev_name(revspec)
@@ -60,7 +66,7 @@ local function get_rev_name(revspec)
     vim.inspect(revspec),
     vim.inspect(result)
   )
-  return result.stdout[1]
+  return has_output(result) and result.stdout[1] or nil
 end
 
 local function is_file_in_rev(file, revspec)
@@ -71,7 +77,7 @@ local function is_file_in_rev(file, revspec)
     vim.inspect(revspec),
     vim.inspect(result)
   )
-  return result.stderr == nil
+  return not has_error(result)
 end
 
 -- local function string_split(s, sep)
@@ -102,7 +108,7 @@ local function has_file_changed(file, rev)
     vim.inspect(rev),
     vim.inspect(result)
   )
-  return type(result.stdout) == "table" and #result.stdout > 0
+  return has_output(result)
 end
 
 local function is_rev_in_remote(revspec, remote)
@@ -175,9 +181,14 @@ local function get_root()
     vim.inspect(buf_dir),
     vim.inspect(result)
   )
-  local root = result.stdout[1]
-  log.debug("[git.root] current_folder:%s, root:%s", buf_dir, root)
-  return tostring(path:new(root))
+  if has_output(result) then
+    local root = result.stdout[1]
+    log.debug("[git.root] current_folder:%s, root:%s", buf_dir, root)
+    return tostring(path:new(root))
+  else
+    log.debug("[git.root] current_folder:%s, root is nil", buf_dir)
+    return nil
+  end
 end
 
 local function get_branch_remote()
