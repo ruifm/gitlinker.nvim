@@ -46,7 +46,11 @@ local function get_rev(revspec)
     vim.inspect(revspec),
     vim.inspect(result)
   )
-  return result.stdout[1]
+  if result["stdout"] then
+    return result["stdout"][1]
+  else
+    return nil
+  end
 end
 
 local function get_rev_name(revspec)
