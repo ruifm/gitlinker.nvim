@@ -30,6 +30,8 @@ that already exist in gitlinker! See [callbacks](#callbacks)
 
 ## Installation
 
+[![LuaRocks](https://img.shields.io/luarocks/v/ruifm/gitlinker.nvim?logo=lua&color=purple)](https://luarocks.org/modules/ruifm/gitlinker.nvim)
+
 Install it like any other vim plugin, just make sure
 [plenary.nvim](https://github.com/nvim-lua/plenary.nvim) is also installed.
 
