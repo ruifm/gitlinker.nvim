@@ -1,15 +1,24 @@
 local git = require("gitlinker.git")
-local log = require("gitlinker.log")
 local util = require("gitlinker.util")
 local keys = require("gitlinker.keys")
+local logger = require("logger")
 
-local DEFAULTS = {
+local Defaults = {
   -- system/clipboard
   action = require("gitlinker.actions").system,
   -- print message(git host url) in command line
   message = true,
   -- key mapping
-  mapping = "<leader>gl",
+  mapping = {
+    ["<leader>gl"] = {
+      action = require("gitlinker.actions").clipboard,
+      desc = "Copy git link to clipboard",
+    },
+    ["<leader>gL"] = {
+      action = require("gitlinker.actions").system,
+      desc = "Open git link in default browser",
+    },
+  },
   -- regex pattern based rules
   pattern_rules = {
     {
@@ -60,19 +69,19 @@ local DEFAULTS = {
   file_log_name = "gitlinker.log",
 }
 
-local configs = {}
+local Configs = {}
 
---- Setup configs
 local function setup(option)
-  configs = vim.tbl_deep_extend("force", DEFAULTS, option or {})
-  log.setup(
-    configs.debug,
-    configs.console_log,
-    configs.file_log,
-    configs.file_log_name
-  )
-  keys.setup(configs.mapping)
-  log.debug("[setup] opts: %s", vim.inspect(configs))
+  Configs = vim.tbl_deep_extend("force", Defaults, option or {})
+  logger.setup({
+    name = "gitlinker",
+    level = Configs.debug and "DEBUG" or "WARN",
+    console = Configs.console_log,
+    file = Configs.file_log,
+    file_name = Configs.file_log_name,
+  })
+  keys.setup(Configs.mapping)
+  logger.debug("[setup] opts: %s", vim.inspect(Configs))
 end
 
 local Linker = {}
@@ -92,7 +101,7 @@ end
 local function make_link_data()
   local root = git.get_root()
   if not root then
-    log.error("Error! Not in a git repository")
+    logger.error("Error! Not in a git repository")
     return nil
   end
 
@@ -103,7 +112,7 @@ local function make_link_data()
 
   local remote_url = git.get_remote_url(remote)
   if not remote_url then
-    log.error("Error! Failed to get remote url by remote '%s'", remote)
+    logger.error("Error! Failed to get remote url by remote '%s'", remote)
     return nil
   end
 
@@ -113,13 +122,13 @@ local function make_link_data()
   end
 
   local buf_path_on_root = util.relative_path(root)
-  log.debug(
+  logger.debug(
     "[make_link_data] buf_path_on_root: %s, git_root: %s",
     vim.inspect(buf_path_on_root),
     vim.inspect(root)
   )
   if not git.is_file_in_rev(buf_path_on_root, rev) then
-    log.error(
+    logger.error(
       "Error! '%s' does not exist in remote '%s'",
       buf_path_on_root,
       remote
@@ -129,7 +138,7 @@ local function make_link_data()
 
   local buf_path_on_cwd = util.relative_path()
   local range = util.line_range()
-  log.debug(
+  logger.debug(
     "[make_link_data] buf_path_on_cwd:%s, range:%s",
     vim.inspect(buf_path_on_cwd),
     vim.inspect(range)
@@ -146,14 +155,14 @@ local function make_link_data()
 end
 
 local function map_remote_to_host(remote_url)
-  local custom_rules = configs.custom_rules
+  local custom_rules = Configs.custom_rules
   if type(custom_rules) == "function" then
     return custom_rules(remote_url)
   else
-    local pattern_rules = configs.pattern_rules
+    local pattern_rules = Configs.pattern_rules
     for i, group in ipairs(pattern_rules) do
       for pattern, replace in pairs(group) do
-        log.debug(
+        logger.debug(
           "[map_remote_to_host] map group[%d], pattern:'%s', replace:'%s'",
           i,
           pattern,
@@ -161,7 +170,7 @@ local function map_remote_to_host(remote_url)
         )
         if string.match(remote_url, pattern) then
           local host_url = string.gsub(remote_url, pattern, replace)
-          log.debug(
+          logger.debug(
             "[map_remote_to_host] map group[%d] matched, pattern:'%s', replace:'%s', remote_url:'%s' => host_url:'%s'",
             i,
             pattern,
@@ -192,9 +201,9 @@ end
 
 --- Get the url for the buffer with selected lines
 local function link(option)
-  log.debug("[make_link] before merge, option: %s", vim.inspect(option))
-  option = vim.tbl_deep_extend("force", configs, option or {})
-  log.debug("[make_link] after merge, option: %s", vim.inspect(option))
+  logger.debug("[make_link] before merge, option: %s", vim.inspect(option))
+  option = vim.tbl_deep_extend("force", Configs, option or {})
+  logger.debug("[make_link] after merge, option: %s", vim.inspect(option))
 
   local linker = make_link_data()
   if not linker then
@@ -204,7 +213,7 @@ local function link(option)
   local host_url = map_remote_to_host(linker.remote_url)
 
   if type(host_url) ~= "string" or string.len(host_url) <= 0 then
-    log.error(
+    logger.error(
       "Error! Cannot generate git link from remote url:%s",
       linker.remote_url
     )
@@ -220,7 +229,7 @@ local function link(option)
     local msg = linker.file_changed
         and string.format("%s (lines can be wrong due to file change)", url)
       or url
-    log.info(msg)
+    logger.info(msg)
   end
 
   return url

@@ -2,7 +2,7 @@ local M = {}
 
 local job = require("plenary.job")
 local path = require("plenary.path")
-local log = require("gitlinker.log")
+local logger = require("logger")
 
 local function has_output(result)
   return result["stdout"]
@@ -34,14 +34,14 @@ end
 
 local function get_remote()
   local result = cmd({ "remote" })
-  log.debug("[git.get_remote] result:%s", vim.inspect(result))
+  logger.debug("[git.get_remote] result:%s", vim.inspect(result))
   return result.stdout
 end
 
 local function get_remote_url(remote)
   assert(remote, "remote cannot be nil")
   local result = cmd({ "remote", "get-url", remote })
-  log.debug(
+  logger.debug(
     "[git.get_remote_url] remote:%s, result:%s",
     vim.inspect(remote),
     vim.inspect(result)
@@ -51,7 +51,7 @@ end
 
 local function get_rev(revspec)
   local result = cmd({ "rev-parse", revspec })
-  log.debug(
+  logger.debug(
     "[git.get_rev] revspec:%s, result:%s",
     vim.inspect(revspec),
     vim.inspect(result)
@@ -61,7 +61,7 @@ end
 
 local function get_rev_name(revspec)
   local result = cmd({ "rev-parse", "--abbrev-ref", revspec })
-  log.debug(
+  logger.debug(
     "[git.get_rev_name] revspec:%s, result:%s",
     vim.inspect(revspec),
     vim.inspect(result)
@@ -71,7 +71,7 @@ end
 
 local function is_file_in_rev(file, revspec)
   local result = cmd({ "cat-file", "-e", revspec .. ":" .. file })
-  log.debug(
+  logger.debug(
     "[git.is_file_in_rev] file:%s, revspec:%s, result:%s",
     vim.inspect(file),
     vim.inspect(revspec),
@@ -102,7 +102,7 @@ end
 
 local function has_file_changed(file, rev)
   local result = cmd({ "diff", rev, "--", file })
-  log.debug(
+  logger.debug(
     "[git.has_file_changed] file:%s, rev:%s, result:%s",
     vim.inspect(file),
     vim.inspect(rev),
@@ -113,7 +113,7 @@ end
 
 local function is_rev_in_remote(revspec, remote)
   local result = cmd({ "branch", "--remotes", "--contains", revspec })
-  log.debug(
+  logger.debug(
     "[git.is_rev_in_remote] revspec:%s, remote:%s, result:%s",
     vim.inspect(revspec),
     vim.inspect(remote),
@@ -164,7 +164,7 @@ local function get_closest_remote_compatible_rev(remote)
     return remote_rev
   end
 
-  log.error(
+  logger.error(
     "Error! Failed to get closest revision in that exists in remote '%s'",
     remote
   )
@@ -175,7 +175,7 @@ local function get_root()
   local buf_path = path:new(vim.api.nvim_buf_get_name(0))
   local buf_dir = tostring(buf_path:parent())
   local result = cmd({ "rev-parse", "--show-toplevel" }, buf_dir)
-  log.debug(
+  logger.debug(
     "[git.get_root] buf_path:%s, buf_dir:%s, result:%s",
     vim.inspect(buf_path),
     vim.inspect(buf_dir),
@@ -183,10 +183,10 @@ local function get_root()
   )
   if has_output(result) then
     local root = result.stdout[1]
-    log.debug("[git.root] current_folder:%s, root:%s", buf_dir, root)
+    logger.debug("[git.root] current_folder:%s, root:%s", buf_dir, root)
     return tostring(path:new(root))
   else
-    log.debug("[git.root] current_folder:%s, root is nil", buf_dir)
+    logger.debug("[git.root] current_folder:%s, root is nil", buf_dir)
     return nil
   end
 end
@@ -196,7 +196,7 @@ local function get_branch_remote()
   local remotes = get_remote()
 
   if type(remotes) ~= "table" or #remotes == 0 then
-    log.error("Error! Git repository has no remote")
+    logger.error("Error! Git repository has no remote")
     return nil
   end
 
@@ -215,7 +215,7 @@ local function get_branch_remote()
     upstream_branch:match("^(" .. allowed_chars .. ")%/")
 
   if not remote_from_upstream_branch then
-    log.error(
+    logger.error(
       "Error! Cannot parse remote name from remote branch '%s'",
       upstream_branch
     )
@@ -228,7 +228,7 @@ local function get_branch_remote()
     end
   end
 
-  log.error(
+  logger.error(
     "Error! Parsed remote '%s' from remote branch '%s' is not a valid remote",
     remote_from_upstream_branch,
     upstream_branch
