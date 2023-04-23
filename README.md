@@ -70,7 +70,7 @@ require"gitlinker".setup()
 - `<leader>gy` for normal and visual mode
 
 When used, it will copy the generated url to your clipboard and print it in
-`:messages`.
+`:messages` with highlight of the selected region.
 
 - In normal mode, it will add the current line number to the url
 - In visual mode , it will add the line range of the visual selection to the url
@@ -126,6 +126,9 @@ require"gitlinker".setup({
     action_callback = require"gitlinker.actions".copy_to_clipboard,
     -- print the url after performing the action
     print_url = true,
+    -- highlights the linked line(s) by the time in ms
+    -- disable highlight by setting a value equal or less than 0
+    highlight_duration = 100,
   },
   callbacks = {
         ["github.com"] = require"gitlinker.hosts".get_github_type_url,
