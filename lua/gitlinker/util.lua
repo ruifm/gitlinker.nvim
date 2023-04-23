@@ -1,5 +1,5 @@
 local path = require("plenary.path")
-local log = require("gitlinker.log")
+local logger = require("logger")
 local os = vim.loop.os_uname().sysname
 
 local function is_macos()
@@ -19,7 +19,7 @@ local function relative_path(cwd)
   -- But git root command will give us path with '/' separator
   -- This will lead us to the wrong relative path because plenary.path don't recoginize them
   -- So here we replace '/' to '\\' for plenary.path
-  log.debug("[util.get_relative_path] cwd:%s", vim.inspect(cwd))
+  logger.debug("[util.get_relative_path] cwd:%s", vim.inspect(cwd))
   if cwd ~= nil and is_windows() then
     if cwd:find("/") then
       cwd = cwd:gsub("/", "\\")
@@ -28,7 +28,7 @@ local function relative_path(cwd)
 
   local buf_path = path:new(vim.api.nvim_buf_get_name(0))
   local relpath = buf_path:make_relative(cwd)
-  log.debug(
+  logger.debug(
     "[util.get_relative_path] buf_path:%s, cwd:%s, relpath:%s",
     vim.inspect(buf_path),
     vim.inspect(cwd),

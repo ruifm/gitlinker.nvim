@@ -1,11 +1,17 @@
 local function setup(mapping)
-  if mapping and string.len(mapping) > 0 then
-    vim.keymap.set(
-      { "n", "v" },
-      mapping,
-      "<cmd>lua require('gitlinker').link()<cr>",
-      { noremap = true, silent = true, desc = "Open git link in browser" }
-    )
+  if mapping and #mapping > 0 then
+    for k, v in pairs(mapping) do
+      local opt = {
+        noremap = true,
+        silent = true,
+      }
+      if v.desc then
+        opt.desc = v.desc
+      end
+      vim.keymap.set({ "n", "v" }, k, function()
+        require("gitlinker").link({ action = v.action })
+      end, opt)
+    end
   end
 end
 

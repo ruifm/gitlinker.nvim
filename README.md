@@ -1,7 +1,7 @@
 # gitlinker.nvim
 
-> A fork of [ruifm's gitlinker](https://github.com/ruifm/gitlinker.nvim) with
-> bug fix, enhancements and lots of rewrittens.
+> A fork of [ruifm's gitlinker](https://github.com/ruifm/gitlinker.nvim), rewrite
+> with lua string pattern based rule engine and other enhancements.
 
 A lua plugin for [Neovim](https://github.com/neovim/neovim) to generate sharable
 file permalinks (with line ranges) for git host websites. Inspired by
@@ -40,6 +40,7 @@ PRs are welcomed for other git host websites!
 - git
 - neovim 0.8
 - [plenary.nvim](https://github.com/nvim-lua/plenary.nvim)
+- [logger.nvim](https://github.com/linrongbin16/logger.nvim)
 
 ## Installation
 
@@ -48,7 +49,10 @@ PRs are welcomed for other git host websites!
 ```lua
 use {
     'linrongbin16/gitlinker.nvim',
-    requires = 'nvim-lua/plenary.nvim',
+    requires = {
+        'nvim-lua/plenary.nvim',
+        'linrongbin16/logger.nvim'
+    },
     branch = 'master',
     config = function()
         require('gitlinker').setup()
@@ -60,6 +64,7 @@ use {
 
 ```vim
 Plug 'nvim-lua/plenary.nvim'
+Plug 'linrongbin16/logger.nvim'
 Plug 'linrongbin16/gitlinker.nvim', { 'branch': 'master' }
 ```
 
@@ -70,7 +75,10 @@ Then add `require('gitlinker').setup()` to your `init.lua`.
 ```lua
 {
     'linrongbin16/gitlinker.nvim',
-    dependencies = 'nvim-lua/plenary.nvim',
+    dependencies = {
+        'nvim-lua/plenary.nvim',
+        'linrongbin16/logger.nvim'
+    },
     branch = 'master',
     config = function()
         require('gitlinker').setup()
@@ -82,41 +90,60 @@ Then add `require('gitlinker').setup()` to your `init.lua`.
 
 The default key mappings are defined to open git link in browser:
 
-- `<leader>gl` (normal/visual mode): Open in browser and print message in command line.
+- `<leader>gl` (normal/visual mode): Copy git link to clipboard.
+- `<leader>gL` (normal/visual mode): Open git link in default browser.
 
-To disable the default key mappings, set `mapping = false` in the `setup()`
-function(see [Configuration](#configuration)).
+To disable default key mappings, set `mapping = false` in `setup()` function(see
+[Configuration](#configuration)).
 
 To create key mappings, please use API `require"gitlinker".link(option)`.
-The `option` is a table of options that override the configured options(see [Configuration](#configuration)).
+The `option` is an optional lua table that override the configured options in
+`setup` function:
+
+```lua
+{
+    action = require("gitlinker.actions").clipboard, -- clipboard/system
+    message = true, -- true/false
+}
+```
 
 For example:
 
 ```lua
-vim.keymap.set({ 'n', 'x' }, '<leader>gb',
-  '<cmd>lua require"gitlinker".link({action = require"gitlinker.actions".clipboard})<cr>',
-  { desc = "Copy git link to clipboard" })
+vim.keymap.set(
+    { 'n', 'x' },
+    '<leader>gb',
+    '<cmd>lua require("gitlinker").link({action = require("gitlinker.actions").clipboard})<cr>',
+    { desc = "Copy git link to clipboard" }
+)
 ```
 
 ### Actions
 
-- `require"gitlinker.actions".system`: Open git link in browser(the default action).
-- `require"gitlinker.actions".clipboard`: Copy git link to clipboard.
+- `require("gitlinker.actions").system`: Open git link in default browser.
+- `require("gitlinker.actions").clipboard`: Copy git link to clipboard.
 
 ## Configuration
 
-Configure options in `setup()` function, they will override the defaults:
-
 ```lua
 require('gitlinker').setup({
-  -- system/clipboard
-  action = require("gitlinker.actions").system,
+  -- action, clipboard/system
+  action = nil,
 
   -- print message in command line
   message = true,
 
   -- key mapping
-  mapping = "<leader>gl",
+  mapping = {
+    ["<leader>gl"] = {
+      action = require("gitlinker.actions").clipboard,
+      desc = "Copy git link to clipboard",
+    },
+    ["<leader>gL"] = {
+      action = require("gitlinker.actions").system,
+      desc = "Open git link in default browser",
+    },
+  },
 
   -- regex pattern based rules
   pattern_rules = {
