@@ -75,7 +75,7 @@ local function setup(option)
   Configs = vim.tbl_deep_extend("force", Defaults, option or {})
   logger.setup({
     name = "gitlinker",
-    level = Configs.debug and "DEBUG" or "WARN",
+    level = Configs.debug and "DEBUG" or "INFO",
     console = Configs.console_log,
     file = Configs.file_log,
     file_name = Configs.file_log_name,
