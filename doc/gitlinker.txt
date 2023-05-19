@@ -35,18 +35,29 @@ installed.
 
 * packer.nvim
 
->
+>lua
   use {
       'ruifm/gitlinker.nvim',
       requires = 'nvim-lua/plenary.nvim',
   }
 <
 
+* lazy.nvim
+
+>lua
+  return {
+    'ruifm/gitlinker.nvim',
+    dependencies = 'nvim-lua/plenary.nvim',
+    keys = "<leader>gy",
+    opts = true
+  }
+<
+
 * vim-plug
 
->
-Plug 'nvim-lua/plenary.nvim'
-Plug 'ruifm/gitlinker.nvim'
+>vim
+  Plug 'nvim-lua/plenary.nvim'
+  Plug 'ruifm/gitlinker.nvim'
 <
 
 ==============================================================================
@@ -126,6 +137,8 @@ Here’s all the options with their defaults:
       print_url = true,
       -- mapping to call url generation
       mappings = "<leader>gy"
+      -- list of bare repositories to check { { git_dir_1, git_work_tree_1 }, ... }
+      bare_repos = {}
     },
     callbacks = {
           ["github.com"] = require"gitlinker.hosts".get_github_type_url,
@@ -259,6 +272,23 @@ ojroques/vim-oscyank and use its `OSCYankString` function:
   }
 <
 For the above setup, make sure that ojroques/vim-oscyank is also installed.
+
+bare_repos                                       *gitlinker-bare-repositories*
+
+A list of bare repositories to check when a the current buffer doesn't seem
+inside a git repo.
+By default is empty, you can insert your repositories' git_dir and
+git_work_tree, for example if you track your dotfiles with a bare repo:
+>lua
+  require'gitlinker'.setup{
+    opts = {
+      bare_repos = {
+     -- { GIT_DIR,     GIT_WORK_TREE }
+        { "$HOME/.dotfiles", "$HOME" },
+      }
+    },
+  }
+<
 
 remote                                                     *gitlinker-mappings*
 

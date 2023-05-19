@@ -126,6 +126,8 @@ require"gitlinker".setup({
     action_callback = require"gitlinker.actions".copy_to_clipboard,
     -- print the url after performing the action
     print_url = true,
+    -- list of bare repositories to check
+    bare_repos = {}, -- { { git_dir_1, git_work_tree_1 }, ... },
   },
   callbacks = {
         ["github.com"] = require"gitlinker.hosts".get_github_type_url,

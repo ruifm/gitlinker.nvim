@@ -3,9 +3,36 @@ local M = {}
 local job = require("plenary.job")
 local path = require("plenary.path")
 
+local bare_repo_cache = {}
+local cache_key = vim.fn.bufname -- This function must return an unique identifier for the file
+
+-- Sets the bare repository environment variable
+-- `--git-dir` and `--work-tree` have to be prepended
+-- before the git args. `git ENV args`
+local function set_bare_env(args, git_dir, work_tree)
+  if git_dir ~= nil and work_tree ~= nil then
+    table.insert(args, 1, "--git-dir=" .. git_dir)
+    table.insert(args, 2, "--work-tree=" .. work_tree)
+  else
+    if git_dir ~= nil or work_tree ~= nil then
+      vim.notify(
+        "Both git-dir and git-work-tree have to be specified. `:h gitlinker-bare-repositories`",
+        vim.log.levels.ERROR
+      )
+    end
+  end
+  return args
+end
+
 -- wrap the git command to do the right thing always
-local function git(args, cwd)
+local function git(args, cwd, bare_recursion)
   local output
+
+  local cached = bare_repo_cache[cache_key()]
+  if cached then
+    args = set_bare_env(args, cached.git_dir, cached.work_tree)
+  end
+
   local p = job:new({
     command = "git",
     args = args,
@@ -15,6 +42,37 @@ local function git(args, cwd)
     output = j:result()
   end)
   p:sync()
+
+  -- `bare_recursion` is used to stop the recursion call to git() from below.
+  -- The subroutine to check all bare-repos, by calling git() with them prefixed,
+  -- has only to be started once, so after we return the output and check the next if nil.
+  -- `cached` is used to skip the bare repo checking and "improve performance"
+  if output or bare_recursion or cached then
+    return output or {}
+  end
+
+  for _, repo in ipairs(require("gitlinker.opts").get().bare_repos) do
+    local git_dir = vim.fn.expand(repo[1])
+    local work_tree = vim.fn.expand(repo[2])
+
+    local buffer = vim.fn.expand("%:p")
+    local pattern = "^" .. work_tree .. ".*"
+    local is_sub = buffer:match(pattern) ~= nil -- Check if buffer path is subfolder of work tree
+    if is_sub then
+      args = set_bare_env(args, git_dir, work_tree)
+
+      output = git(args, cwd, true) -- recursive call with GIT_DIR and GIT_WORK_TREE env vars
+
+      if output then
+        -- if the git call with environments variable returns something it means the file is in a
+        -- bare repo so the environment variables can be cached for the current buffer
+        bare_repo_cache[cache_key()] =
+          { git_dir = git_dir, work_tree = work_tree }
+        return output or {}
+      end
+    end
+  end
+
   return output or {}
 end
 
