@@ -16,6 +16,7 @@ M.actions = require("gitlinker.actions")
 -- Sets the mappings
 --
 -- @param config table with the schema
+-- ```lua
 -- {
 --   opts = {
 --    remote = "<remotename>", -- force the use of a specific remote
@@ -28,15 +29,13 @@ M.actions = require("gitlinker.actions")
 --   },
 --  mappings = "<keys>"-- keys for normal and visual mode keymaps
 -- }
+-- ```
 -- @param user_opts a table to override options passed in M.setup()
 function M.setup(config)
   if config then
     opts.setup(config.opts)
-    M.hosts.callbacks = vim.tbl_deep_extend(
-      "force",
-      M.hosts.callbacks,
-      config.callbacks or {}
-    )
+    M.hosts.callbacks =
+      vim.tbl_deep_extend("force", M.hosts.callbacks, config.callbacks or {})
     mappings.set(config.mappings)
   else
     opts.setup()
@@ -84,10 +83,8 @@ local function get_buf_range_url_data(mode, user_opts)
       vim.log.levels.WARN
     )
   end
-  local range = buffer.get_range(
-    mode,
-    user_opts.add_current_line_on_normal_mode
-  )
+  local range =
+    buffer.get_range(mode, user_opts.add_current_line_on_normal_mode)
 
   return vim.tbl_extend("force", repo_url_data, {
     rev = rev,
@@ -137,9 +134,8 @@ end
 function M.get_repo_url(user_opts)
   user_opts = vim.tbl_deep_extend("force", opts.get(), user_opts or {})
 
-  local repo_url_data = git.get_repo_data(
-    git.get_branch_remote() or user_opts.remote
-  )
+  local repo_url_data =
+    git.get_repo_data(git.get_branch_remote() or user_opts.remote)
   if not repo_url_data then
     return nil
   end
