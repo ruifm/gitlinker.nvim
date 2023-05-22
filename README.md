@@ -98,7 +98,7 @@ looking for is `require"gitlinker".get_buf_range_url(mode, user_opts)` where:
 ### Repo home page url
 
 For convenience, the function
-`require"gitlinker".get_buf_range_url(mode, user_opts)` allows one to generate
+`require"gitlinker".get_repo_url(user_opts)` allows one to generate
 the url for the repository homepage. You can map it like so:
 
   ``` lua
