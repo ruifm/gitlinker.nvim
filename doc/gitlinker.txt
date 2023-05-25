@@ -223,7 +223,8 @@ remote                                                       *gitlinker-remote*
 
 If `remote = nil` (default), the relevant remote will be auto-detected.
 If you have multiple git remotes configured and want to use a specific
-one (e.g. `myfork`), do `remote = "myfork"`.
+one (e.g. `myfork`), do `remote = "myfork"`. It can also be a `function`,
+the return value will be used as `remote`.
 
 add_current_line_on_normal_mode     *gitlinker-add_current_line_on_normal_mode*
 
