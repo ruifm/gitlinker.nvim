@@ -51,7 +51,9 @@ local function get_buf_range_url_data(mode, user_opts)
     return nil
   end
   mode = mode or "n"
-  local remote = user_opts.remote or git.get_branch_remote()
+  local remote = type(user_opts.remote) == "function" and user_opts.remote()
+    or user_opts.remote
+    or git.get_branch_remote()
   local repo_url_data = git.get_repo_data(remote)
   if not repo_url_data then
     return nil
@@ -137,7 +139,9 @@ end
 function M.get_repo_url(user_opts)
   user_opts = vim.tbl_deep_extend("force", opts.get(), user_opts or {})
 
-  local remote = user_opts.remote or git.get_branch_remote()
+  local remote = type(user_opts.remote) == "function" and user_opts.remote()
+    or user_opts.remote
+    or git.get_branch_remote()
   local repo_url_data = git.get_repo_data(remote)
   if not repo_url_data then
     return nil
