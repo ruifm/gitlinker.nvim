@@ -28,12 +28,7 @@ local function log(level, msg)
   if Config.console then
     vim.cmd("echohl " .. EchoHl[level])
     for _, line in ipairs(msg_lines) do
-      vim.cmd(
-        string.format(
-          'echom "%s"',
-          vim.fn.escape(string.format("gitlinker: %s", line), '"')
-        )
-      )
+      vim.cmd(string.format('echom "%s"', vim.fn.escape(line, '"')))
     end
     vim.cmd("echohl None")
   end
@@ -43,7 +38,7 @@ local function log(level, msg)
       for _, line in ipairs(msg_lines) do
         fp:write(
           string.format(
-            "gitlinker: %s [%s] - %s\n",
+            "%s [%s] - %s\n",
             os.date("%Y-%m-%d %H:%M:%S"),
             level,
             line
