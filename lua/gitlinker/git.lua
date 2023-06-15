@@ -2,7 +2,7 @@ local M = {}
 
 local job = require("plenary.job")
 local path = require("plenary.path")
-local logger = require("logger")
+local logger = require("gitlinker.logger")
 
 local function has_output(result)
   return result["stdout"]

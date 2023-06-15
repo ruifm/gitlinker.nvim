@@ -1,7 +1,7 @@
 local git = require("gitlinker.git")
 local util = require("gitlinker.util")
 local keys = require("gitlinker.keys")
-local logger = require("logger")
+local logger = require("gitlinker.logger")
 
 local Defaults = {
   -- system/clipboard
@@ -65,8 +65,6 @@ local Defaults = {
   console_log = true,
   -- write logs to file
   file_log = false,
-  -- file name to write logs, working with `file_log=true`
-  file_log_name = "gitlinker.log",
 }
 
 local Configs = {}
@@ -74,11 +72,9 @@ local Configs = {}
 local function setup(option)
   Configs = vim.tbl_deep_extend("force", Defaults, option or {})
   logger.setup({
-    name = "gitlinker",
     level = Configs.debug and "DEBUG" or "INFO",
     console = Configs.console_log,
     file = Configs.file_log,
-    file_name = Configs.file_log_name,
   })
   keys.setup(Configs.mapping)
   logger.debug("[setup] opts: %s", vim.inspect(Configs))

@@ -1,5 +1,5 @@
 local path = require("plenary.path")
-local logger = require("logger")
+local logger = require("gitlinker.logger")
 local os = vim.loop.os_uname().sysname
 
 local function is_macos()
