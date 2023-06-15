@@ -24,11 +24,13 @@ local function system(url)
   j:start()
 end
 
+--- @alias ActionType fun(url:string):nil
+
 --- @type table<string, function>
 local M = {
-  --- @overload fun(url:string):nil
+  --- @type ActionType
   clipboard = clipboard,
-  --- @overload fun(url:string):nil
+  --- @type ActionType
   system = system,
 }
 
