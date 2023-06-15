@@ -4,18 +4,28 @@ local job = require("plenary.job")
 local path = require("plenary.path")
 local logger = require("gitlinker.logger")
 
+--- @alias JobResult table<string, any>
+
+--- @param result JobResult
+--- @return boolean
 local function has_output(result)
   return result["stdout"]
     and type(result["stdout"]) == "table"
     and #result["stdout"] > 0
 end
 
+--- @param result JobResult
+--- @return boolean
 local function has_error(result)
   return result.stderr ~= nil
 end
 
 -- wrap the git command to do the right thing always
+--- @param args string[]
+--- @param cwd string|nil
+--- @return JobResult
 local function cmd(args, cwd)
+  --- @type JobResult
   local result = {}
   local process = job:new({
     command = "git",
@@ -32,12 +42,15 @@ local function cmd(args, cwd)
   return result
 end
 
+--- @return string[]
 local function get_remote()
   local result = cmd({ "remote" })
   logger.debug("[git.get_remote] result:%s", vim.inspect(result))
   return result.stdout
 end
 
+--- @param remote string
+--- @return string|nil
 local function get_remote_url(remote)
   assert(remote, "remote cannot be nil")
   local result = cmd({ "remote", "get-url", remote })
@@ -49,6 +62,8 @@ local function get_remote_url(remote)
   return has_output(result) and result.stdout[1] or nil
 end
 
+--- @param revspec string|nil
+--- @return string|nil
 local function get_rev(revspec)
   local result = cmd({ "rev-parse", revspec })
   logger.debug(
@@ -59,6 +74,8 @@ local function get_rev(revspec)
   return has_output(result) and result.stdout[1] or nil
 end
 
+--- @param revspec string|nil
+--- @return string|nil
 local function get_rev_name(revspec)
   local result = cmd({ "rev-parse", "--abbrev-ref", revspec })
   logger.debug(
