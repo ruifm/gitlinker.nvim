@@ -204,7 +204,6 @@ local function get_root()
   return result
 end
 
---- @return string|nil
 local function get_branch_remote()
   -- origin/upstream
   --- @type JobResult
@@ -257,25 +256,15 @@ local function get_branch_remote()
   return nil
 end
 
---- @type table<string, function>
 local M = {
-  --- @overload fun(result:JobResult):boolean
   result_has_out = result_has_out,
-  --- @overload fun(result:JobResult):boolean
   result_has_err = result_has_err,
-  --- @overload fun(result:JobResult, default:string|nil):nil
   result_print_err = result_print_err,
-  --- @overload fun():JobResult
   get_root = get_root,
-  --- @overload fun(remote:string):JobResult
   get_remote_url = get_remote_url,
-  --- @overload fun(file:string, revspec:string):JobResult
   is_file_in_rev = is_file_in_rev,
-  --- @overload fun(file:string, rev:string):boolean
   has_file_changed = has_file_changed,
-  --- @overload fun(remote:string):string|nil
   get_closest_remote_compatible_rev = get_closest_remote_compatible_rev,
-  --- @overload fun():string|nil
   get_branch_remote = get_branch_remote,
 }
 

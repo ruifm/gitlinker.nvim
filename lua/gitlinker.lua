@@ -4,23 +4,12 @@ local keys = require("gitlinker.keys")
 local logger = require("gitlinker.logger")
 local path = require("plenary.path")
 
---- @type table<string, any>
 local Defaults = {
   -- system/clipboard
-  --- @type ActionType
   action = require("gitlinker.actions").system,
-
   -- print message(git host url) in command line
-  --- @type boolean
   message = true,
-
   -- key mapping
-  --
-  --- @class ConfigMappingItem
-  --- @field action ActionType
-  --- @field desc string|nil
-  --
-  --- @type table<string, ConfigMappingItem>
   mapping = {
     ["<leader>gl"] = {
       action = require("gitlinker.actions").clipboard,
@@ -31,9 +20,7 @@ local Defaults = {
       desc = "Open git link in default browser",
     },
   },
-
   -- regex pattern based rules
-  --- @type table<string, string>[]
   pattern_rules = {
     {
       ["^git@github%.([_%.%-%w]+):([%.%-%w]+)/([%.%-%w]+)%.git$"] = "https://github.%1/%2/%3/blob/",
@@ -44,11 +31,12 @@ local Defaults = {
       ["^https?://github%.([_%.%-%w]+)/([%.%-%w]+)/([%.%-%w]+)$"] = "https://github.%1/%2/%3/blob/",
     },
   },
-
-  -- function based rules, signature: function(remote_url) => host_url
+  -- function based rules: function(remote_url) -> host_url
+  -- @param remote_url    A string value for git remote url.
+  -- @return              A string value for git host url.
+  custom_rules = nil,
+  -- here's an example of custom_rules:
   --
-  -- here's an example:
-  -- ```
   -- custom_rules = function(remote_url)
   --   local rules = {
   --     {
@@ -71,26 +59,15 @@ local Defaults = {
   --   end
   --   return nil
   -- end,
-  -- ```
-  --
-  --- @alias CustomRulesType fun(remote_url:string):string
-  --- @type CustomRulesType|nil
-  custom_rules = nil,
 
   -- enable debug
-  --- @type boolean
   debug = false,
-
   -- write logs to console(command line)
-  --- @type boolean
   console_log = true,
-
   -- write logs to file
-  --- @type boolean
   file_log = false,
 }
 
---- @type table<string, any>
 local Configs = {}
 
 local function setup(option)
