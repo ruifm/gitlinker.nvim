@@ -1,5 +1,3 @@
-local M = {}
-
 local job = require("plenary.job")
 local path = require("plenary.path")
 local logger = require("gitlinker.logger")
@@ -10,7 +8,7 @@ local logger = require("gitlinker.logger")
 
 --- @param result JobResult
 --- @return boolean
-local function has_output(result)
+local function result_has_out(result)
   return result["stdout"]
     and type(result["stdout"]) == "table"
     and #result["stdout"] > 0
@@ -18,8 +16,19 @@ end
 
 --- @param result JobResult
 --- @return boolean
-local function has_error(result)
+local function result_has_err(result)
   return result.stderr ~= nil
+end
+
+--- @param result JobResult
+--- @param default string|nil
+--- @return nil
+local function result_print_err(result, default)
+  if result_has_err(result) and #result.stderr > 0 then
+    logger.error("%s", result.stderr[1])
+  else
+    logger.error("fatal: %s", default)
+  end
 end
 
 -- wrap the git command to do the right thing always
@@ -52,7 +61,7 @@ local function get_remote()
 end
 
 --- @param remote string
---- @return string|nil
+--- @return JobResult
 local function get_remote_url(remote)
   assert(remote, "remote cannot be nil")
   local result = cmd({ "remote", "get-url", remote })
@@ -61,7 +70,8 @@ local function get_remote_url(remote)
     vim.inspect(remote),
     vim.inspect(result)
   )
-  return has_output(result) and result.stdout[1] or nil
+  return result
+  -- return has_output(result) and result.stdout[1] or nil
 end
 
 --- @param revspec string|nil
@@ -73,7 +83,7 @@ local function get_rev(revspec)
     vim.inspect(revspec),
     vim.inspect(result)
   )
-  return has_output(result) and result.stdout[1] or nil
+  return result_has_out(result) and result.stdout[1] or nil
 end
 
 --- @param revspec string|nil
@@ -96,7 +106,7 @@ local function is_file_in_rev(file, revspec)
     vim.inspect(revspec),
     vim.inspect(result)
   )
-  return not has_error(result)
+  return not result_has_err(result)
 end
 
 -- local function string_split(s, sep)
@@ -127,7 +137,7 @@ local function has_file_changed(file, rev)
     vim.inspect(rev),
     vim.inspect(result)
   )
-  return has_output(result)
+  return result_has_out(result)
 end
 
 local function is_rev_in_remote(revspec, remote)
@@ -200,7 +210,7 @@ local function get_root()
     vim.inspect(buf_dir),
     vim.inspect(result)
   )
-  if has_output(result) then
+  if result_has_out(result) then
     local root = result.stdout[1]
     logger.debug("[git.root] current_folder:%s, root:%s", buf_dir, root)
     return tostring(path:new(root))
@@ -216,11 +226,7 @@ local function get_branch_remote()
   local remote_result = get_remote()
 
   if type(remote_result.stdout) ~= "table" or #remote_result.stdout == 0 then
-    if #remote_result.stderr > 0 then
-      logger.error("%s", remote_result.stderr[1])
-    else
-      logger.error("fatal: git repository has no remote")
-    end
+    result_print_err(remote_result, "git repository has no remote")
     return nil
   end
 
@@ -231,12 +237,8 @@ local function get_branch_remote()
   -- origin/linrongbin16/add-rule2
   --- @type JobResult
   local upstream_branch_result = get_rev_name("@{u}")
-  if not has_output(upstream_branch_result) then
-    if #upstream_branch_result.stderr > 0 then
-      logger.error("%s", upstream_branch_result.stderr[1])
-    else
-      logger.error("fatal: git branch has no remote")
-    end
+  if not result_has_out(upstream_branch_result) then
+    result_print_err(upstream_branch_result, "git branch has no remote")
     return nil
   end
 
@@ -270,11 +272,16 @@ local function get_branch_remote()
   return nil
 end
 
-M.get_root = get_root
-M.get_remote_url = get_remote_url
-M.is_file_in_rev = is_file_in_rev
-M.has_file_changed = has_file_changed
-M.get_closest_remote_compatible_rev = get_closest_remote_compatible_rev
-M.get_branch_remote = get_branch_remote
+local M = {
+  result_has_out = result_has_out,
+  result_has_err = result_has_err,
+  result_print_err = result_print_err,
+  get_root = get_root,
+  get_remote_url = get_remote_url,
+  is_file_in_rev = is_file_in_rev,
+  has_file_changed = has_file_changed,
+  get_closest_remote_compatible_rev = get_closest_remote_compatible_rev,
+  get_branch_remote = get_branch_remote,
+}
 
 return M

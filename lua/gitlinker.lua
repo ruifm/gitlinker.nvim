@@ -106,9 +106,13 @@ local function make_link_data()
     return nil
   end
 
-  local remote_url = git.get_remote_url(remote)
-  if not remote_url then
-    logger.error("Error! Failed to get remote url by remote '%s'", remote)
+  --- @type JobResult
+  local remote_url_result = git.get_remote_url(remote)
+  if not git.result_has_out(remote_url_result) then
+    git.result_print_err(
+      remote_url_result,
+      "failed to get remote url by remote '" .. remote .. "'"
+    )
     return nil
   end
 
@@ -140,6 +144,7 @@ local function make_link_data()
     vim.inspect(range)
   )
 
+  local remote_url = remote_url_result.stdout[1]
   return new_linker(
     remote_url,
     rev,
