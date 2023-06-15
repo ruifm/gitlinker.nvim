@@ -22,9 +22,8 @@ co-workers.
 ## Lua pattern based rules
 
 [Lua pattern](https://www.lua.org/pil/20.2.html) is introduced to map git remote
-url to host url. The lua pattern has many limitations compared with the [standard
-regex expression](https://en.wikipedia.org/wiki/Regular_expression), but it's
-still the best solution in this scenario.
+url to host url. The lua pattern has many limitations compared with the [standard regex expression](https://en.wikipedia.org/wiki/Regular_expression),
+but it's still the best solution in git sharable file permalinks scenario.
 
 For now github.com(include both git/http protocols and github enterprise) are supported:
 
@@ -41,6 +40,7 @@ PRs are welcomed for other git host websites!
 - git
 - neovim 0.8
 - [plenary.nvim](https://github.com/nvim-lua/plenary.nvim)
+- [logger.nvim](https://github.com/linrongbin16/logger.nvim)
 
 ## Installation
 
@@ -49,7 +49,10 @@ PRs are welcomed for other git host websites!
 ```lua
 use {
     'linrongbin16/gitlinker.nvim',
-    requires = { 'nvim-lua/plenary.nvim' },
+    requires = {
+        'nvim-lua/plenary.nvim',
+        'linrongbin16/logger.nvim'
+    },
     branch = 'master',
     config = function()
         require('gitlinker').setup()
@@ -61,7 +64,8 @@ use {
 
 ```vim
 Plug 'nvim-lua/plenary.nvim'
-Plug 'linrongbin16/gitlinker.nvim', {'branch': 'master'}
+Plug 'linrongbin16/logger.nvim'
+Plug 'linrongbin16/gitlinker.nvim', { 'branch': 'master' }
 ```
 
 Then add `require('gitlinker').setup()` to your `init.lua`.
@@ -71,7 +75,11 @@ Then add `require('gitlinker').setup()` to your `init.lua`.
 ```lua
 {
     'linrongbin16/gitlinker.nvim',
-    dependencies = { 'nvim-lua/plenary.nvim' },
+    dependencies = {
+        'nvim-lua/plenary.nvim',
+        'linrongbin16/logger.nvim'
+    },
+    branch = 'master',
     config = function()
         require('gitlinker').setup()
     end,
