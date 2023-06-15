@@ -71,22 +71,21 @@ local function get_remote_url(remote)
     vim.inspect(result)
   )
   return result
-  -- return has_output(result) and result.stdout[1] or nil
 end
 
 --- @param revspec string|nil
 --- @return string|nil
-local function get_rev(revspec)
+local function _get_rev(revspec)
   local result = cmd({ "rev-parse", revspec })
   logger.debug(
-    "[git.get_rev] revspec:%s, result:%s",
+    "[git._get_rev] revspec:%s, result:%s",
     vim.inspect(revspec),
     vim.inspect(result)
   )
   return result_has_out(result) and result.stdout[1] or nil
 end
 
---- @param revspec string|nil
+--- @param revspec string
 --- @return JobResult
 local function get_rev_name(revspec)
   local result = cmd({ "rev-parse", "--abbrev-ref", revspec })
@@ -98,6 +97,9 @@ local function get_rev_name(revspec)
   return result
 end
 
+--- @param file string
+--- @param revspec string
+--- @return JobResult
 local function is_file_in_rev(file, revspec)
   local result = cmd({ "cat-file", "-e", revspec .. ":" .. file })
   logger.debug(
@@ -106,7 +108,8 @@ local function is_file_in_rev(file, revspec)
     vim.inspect(revspec),
     vim.inspect(result)
   )
-  return not result_has_err(result)
+  return result
+  -- return not result_has_err(result)
 end
 
 -- local function string_split(s, sep)
@@ -163,14 +166,14 @@ local function get_closest_remote_compatible_rev(remote)
   assert(remote, "remote cannot be nil")
 
   -- try upstream branch HEAD (a.k.a @{u})
-  local upstream_rev = get_rev("@{u}")
+  local upstream_rev = _get_rev("@{u}")
   if upstream_rev then
     return upstream_rev
   end
 
   -- try HEAD
   if is_rev_in_remote("HEAD", remote) then
-    local head_rev = get_rev("HEAD")
+    local head_rev = _get_rev("HEAD")
     if head_rev then
       return head_rev
     end
@@ -180,7 +183,7 @@ local function get_closest_remote_compatible_rev(remote)
   for i = 1, 50 do
     local revspec = "HEAD~" .. i
     if is_rev_in_remote(revspec, remote) then
-      local rev = get_rev(revspec)
+      local rev = _get_rev(revspec)
       if rev then
         return rev
       end
@@ -188,7 +191,7 @@ local function get_closest_remote_compatible_rev(remote)
   end
 
   -- try remote HEAD
-  local remote_rev = get_rev(remote)
+  local remote_rev = _get_rev(remote)
   if remote_rev then
     return remote_rev
   end

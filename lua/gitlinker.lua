@@ -127,11 +127,12 @@ local function make_link_data()
     vim.inspect(buf_path_on_root),
     vim.inspect(root)
   )
-  if not git.is_file_in_rev(buf_path_on_root, rev) then
-    logger.error(
-      "Error! '%s' does not exist in remote '%s'",
-      buf_path_on_root,
-      remote
+  --- @type JobResult
+  local file_in_rev_result = git.is_file_in_rev(buf_path_on_root, rev)
+  if git.result_has_err(file_in_rev_result) then
+    git.result_print_err(
+      file_in_rev_result,
+      "'" .. buf_path_on_root .. "' does not exist in remote '" .. remote .. "'"
     )
     return nil
   end
