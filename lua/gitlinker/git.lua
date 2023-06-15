@@ -1,20 +1,29 @@
+--- @type table<string, function>
 local M = {}
 
 local job = require("plenary.job")
 local path = require("plenary.path")
+--- @type table<string, function>
 local logger = require("gitlinker.logger")
 
+--- @param result table<string, any>
+--- @return boolean
 local function has_output(result)
   return result["stdout"]
     and type(result["stdout"]) == "table"
     and #result["stdout"] > 0
 end
 
+--- @param result table<string, any>
+--- @return boolean
 local function has_error(result)
   return result.stderr ~= nil
 end
 
 -- wrap the git command to do the right thing always
+--- @param args string[]
+--- @param cwd string|nil
+--- @return table<string, any>
 local function cmd(args, cwd)
   local result = {}
   local process = job:new({
@@ -32,12 +41,15 @@ local function cmd(args, cwd)
   return result
 end
 
+--- @return string[]
 local function get_remote()
   local result = cmd({ "remote" })
   logger.debug("[git.get_remote] result:%s", vim.inspect(result))
   return result.stdout
 end
 
+--- @param remote string
+--- @return string|nil
 local function get_remote_url(remote)
   assert(remote, "remote cannot be nil")
   local result = cmd({ "remote", "get-url", remote })
@@ -49,6 +61,8 @@ local function get_remote_url(remote)
   return has_output(result) and result.stdout[1] or nil
 end
 
+--- @param revspec string
+--- @return string|nil
 local function get_rev(revspec)
   local result = cmd({ "rev-parse", revspec })
   logger.debug(
@@ -59,6 +73,8 @@ local function get_rev(revspec)
   return has_output(result) and result.stdout[1] or nil
 end
 
+--- @param revspec string
+--- @return string|nil
 local function get_rev_name(revspec)
   local result = cmd({ "rev-parse", "--abbrev-ref", revspec })
   logger.debug(
@@ -69,6 +85,9 @@ local function get_rev_name(revspec)
   return has_output(result) and result.stdout[1] or nil
 end
 
+--- @param file string
+--- @param revspec string
+--- @return boolean
 local function is_file_in_rev(file, revspec)
   local result = cmd({ "cat-file", "-e", revspec .. ":" .. file })
   logger.debug(
@@ -80,26 +99,9 @@ local function is_file_in_rev(file, revspec)
   return not has_error(result)
 end
 
--- local function string_split(s, sep)
---   -- by default, split by whitespace
---   if sep == nil then
---     sep = "%s"
---   end
---   local splits = {}
---   for i in string.gmatch(s, "([^" .. sep .. "]+)") do
---     table.insert(splits, i)
---   end
---   return splits
--- end
---
--- local function to_positive(n)
---   if n < 0 then
---     return -n
---   else
---     return n
---   end
--- end
-
+--- @param file string
+--- @param rev string
+--- @return boolean
 local function has_file_changed(file, rev)
   local result = cmd({ "diff", rev, "--", file })
   logger.debug(
@@ -111,6 +113,9 @@ local function has_file_changed(file, rev)
   return has_output(result)
 end
 
+--- @param revspec string
+--- @param remote string
+--- @return boolean
 local function is_rev_in_remote(revspec, remote)
   local result = cmd({ "branch", "--remotes", "--contains", revspec })
   logger.debug(
@@ -128,8 +133,11 @@ local function is_rev_in_remote(revspec, remote)
   return false
 end
 
-local allowed_chars = "[_%-%w%.]+"
+--- @type string
+local AllowedChars = "[_%-%w%.]+"
 
+--- @param remote string
+--- @return string|nil
 local function get_closest_remote_compatible_rev(remote)
   assert(remote, "remote cannot be nil")
 
@@ -171,6 +179,7 @@ local function get_closest_remote_compatible_rev(remote)
   return nil
 end
 
+--- @return string|nil
 local function get_root()
   local buf_path = path:new(vim.api.nvim_buf_get_name(0))
   local buf_dir = tostring(buf_path:parent())
@@ -191,6 +200,7 @@ local function get_root()
   end
 end
 
+--- @return string|nil
 local function get_branch_remote()
   -- origin/upstream
   local remotes = get_remote()
@@ -212,7 +222,7 @@ local function get_branch_remote()
 
   -- origin
   local remote_from_upstream_branch =
-    upstream_branch:match("^(" .. allowed_chars .. ")%/")
+    upstream_branch:match("^(" .. AllowedChars .. ")%/")
 
   if not remote_from_upstream_branch then
     logger.error(

@@ -119,9 +119,6 @@ vim.keymap.set(
 
 ```lua
 require('gitlinker').setup({
-  -- action, clipboard/system
-  action = nil,
-
   -- print message in command line
   message = true,
 

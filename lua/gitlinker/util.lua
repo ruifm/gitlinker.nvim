@@ -1,19 +1,18 @@
 local path = require("plenary.path")
 local logger = require("gitlinker.logger")
-local os = vim.loop.os_uname().sysname
 
+--- @return boolean
 local function is_macos()
-  return os == "Darwin"
+  return vim.loop.os_uname().sysname == "Darwin"
 end
 
+--- @return boolean
 local function is_windows()
-  if os:match("Windows") then
-    return true
-  else
-    return false
-  end
+  return vim.fn.has("win32") or vim.fn.has("win64")
 end
 
+--- @param cwd string|nil
+--- @return string
 local function relative_path(cwd)
   -- In Windows, path separator is '\\'
   -- But git root command will give us path with '/' separator
@@ -44,6 +43,12 @@ local function relative_path(cwd)
   return relpath
 end
 
+--- @class LineRange
+--- @field lstart integer
+--- @field lend integer
+local LineRange = {}
+
+--- @return LineRange
 local function line_range()
   -- local lstart
   -- local lend
@@ -63,14 +68,18 @@ local function line_range()
   --   lstart = vim.api.nvim_win_get_cursor(0)[1]
   --   log.debug("[util.selected_line_range] mode:%s, lstart:%d", mode, lstart)
   -- end
-  --
   return { lstart = lstart, lend = lend }
 end
 
+--- @type table<string, function>
 local M = {
+  --- @overload fun():boolean
   is_macos = is_macos,
+  --- @overload fun():boolean
   is_windows = is_windows,
+  --- @overload fun(cwd:string|nil):string
   relative_path = relative_path,
+  --- @overload fun():LineRange
   line_range = line_range,
 }
 
