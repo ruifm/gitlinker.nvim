@@ -2,6 +2,7 @@ local git = require("gitlinker.git")
 local util = require("gitlinker.util")
 local keys = require("gitlinker.keys")
 local logger = require("gitlinker.logger")
+local path = require("plenary.path")
 
 local Defaults = {
   -- system/clipboard
@@ -95,9 +96,9 @@ local function new_linker(remote_url, rev, file, lstart, lend, file_changed)
 end
 
 local function make_link_data()
-  local root = git.get_root()
-  if not root then
-    logger.error("Error! Not in a git repository")
+  local root_result = git.get_root()
+  if not git.result_has_out(root_result) then
+    git.result_print_err(root_result, "not in a git repository")
     return nil
   end
 
@@ -121,6 +122,7 @@ local function make_link_data()
     return nil
   end
 
+  local root = tostring(path:new(root_result.stdout[1]))
   local buf_path_on_root = util.relative_path(root)
   logger.debug(
     "[make_link_data] buf_path_on_root: %s, git_root: %s",
@@ -240,7 +242,6 @@ end
 local M = {
   setup = setup,
   link = link,
-  map_remote_to_host = map_remote_to_host,
 }
 
 return M

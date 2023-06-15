@@ -109,29 +109,11 @@ local function is_file_in_rev(file, revspec)
     vim.inspect(result)
   )
   return result
-  -- return not result_has_err(result)
 end
 
--- local function string_split(s, sep)
---   -- by default, split by whitespace
---   if sep == nil then
---     sep = "%s"
---   end
---   local splits = {}
---   for i in string.gmatch(s, "([^" .. sep .. "]+)") do
---     table.insert(splits, i)
---   end
---   return splits
--- end
---
--- local function to_positive(n)
---   if n < 0 then
---     return -n
---   else
---     return n
---   end
--- end
-
+--- @param file string
+--- @param rev string
+--- @return boolean
 local function has_file_changed(file, rev)
   local result = cmd({ "diff", rev, "--", file })
   logger.debug(
@@ -143,7 +125,10 @@ local function has_file_changed(file, rev)
   return result_has_out(result)
 end
 
-local function is_rev_in_remote(revspec, remote)
+--- @param revspec string
+--- @param remote string
+--- @return boolean
+local function _is_rev_in_remote(revspec, remote)
   local result = cmd({ "branch", "--remotes", "--contains", revspec })
   logger.debug(
     "[git.is_rev_in_remote] revspec:%s, remote:%s, result:%s",
@@ -162,6 +147,8 @@ end
 
 local UpstreamBranchAllowedChars = "[_%-%w%.]+"
 
+--- @param remote string
+--- @return string|nil
 local function get_closest_remote_compatible_rev(remote)
   assert(remote, "remote cannot be nil")
 
@@ -172,7 +159,7 @@ local function get_closest_remote_compatible_rev(remote)
   end
 
   -- try HEAD
-  if is_rev_in_remote("HEAD", remote) then
+  if _is_rev_in_remote("HEAD", remote) then
     local head_rev = _get_rev("HEAD")
     if head_rev then
       return head_rev
@@ -182,7 +169,7 @@ local function get_closest_remote_compatible_rev(remote)
   -- try last 50 parent commits
   for i = 1, 50 do
     local revspec = "HEAD~" .. i
-    if is_rev_in_remote(revspec, remote) then
+    if _is_rev_in_remote(revspec, remote) then
       local rev = _get_rev(revspec)
       if rev then
         return rev
@@ -203,6 +190,7 @@ local function get_closest_remote_compatible_rev(remote)
   return nil
 end
 
+--- @return JobResult
 local function get_root()
   local buf_path = path:new(vim.api.nvim_buf_get_name(0))
   local buf_dir = tostring(buf_path:parent())
@@ -213,14 +201,7 @@ local function get_root()
     vim.inspect(buf_dir),
     vim.inspect(result)
   )
-  if result_has_out(result) then
-    local root = result.stdout[1]
-    logger.debug("[git.root] current_folder:%s, root:%s", buf_dir, root)
-    return tostring(path:new(root))
-  else
-    logger.debug("[git.root] current_folder:%s, root is nil", buf_dir)
-    return nil
-  end
+  return result
 end
 
 local function get_branch_remote()
