@@ -7,7 +7,7 @@ local EchoHl = {
 local Defaults = {
   level = "INFO",
   console = true,
-  name = "gitlinker:",
+  name = "gitlinker",
   file = false,
   file_name = "gitlinker.log",
   file_dir = vim.fn.stdpath("data"),
@@ -53,7 +53,7 @@ local function log(level, msg)
       vim.cmd(
         string.format(
           'echom "%s"',
-          vim.fn.escape(string.format("[%s] %s", Config.name, line), '"')
+          vim.fn.escape(string.format("%s: %s", Config.name, line), '"')
         )
       )
     end
@@ -65,7 +65,7 @@ local function log(level, msg)
       for _, line in ipairs(msg_lines) do
         fp:write(
           string.format(
-            "[%s] %s [%s]: %s\n",
+            "%s: %s [%s] - %s\n",
             Config.name,
             os.date("%Y-%m-%d %H:%M:%S"),
             level,
