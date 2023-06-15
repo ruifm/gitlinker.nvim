@@ -1,7 +1,7 @@
 # gitlinker.nvim
 
-> A fork of [ruifm's gitlinker](https://github.com/ruifm/gitlinker.nvim), rewrite
-> with lua string pattern based rule engine and other enhancements.
+> A fork of [ruifm's gitlinker](https://github.com/ruifm/gitlinker.nvim), refactored
+> with pattern based rule engine, windows support and other enhancements.
 
 A lua plugin for [Neovim](https://github.com/neovim/neovim) to generate sharable
 file permalinks (with line ranges) for git host websites. Inspired by
