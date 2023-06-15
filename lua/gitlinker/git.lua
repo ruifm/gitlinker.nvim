@@ -32,7 +32,7 @@ local function cmd(args, cwd)
   local process = job:new({
     command = "git",
     args = args,
-    cwd = cwd or M.get_root(),
+    cwd = cwd,
   })
   process:after_success(function(j)
     result.stdout = j:result()
