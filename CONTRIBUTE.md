@@ -14,5 +14,5 @@ Use [stylua](https://github.com/JohnnyMorganz/StyLua) for code formatting.
 Start neovim and run:
 
 ```lua
-require('gitlinker.test.test_rules')
+lua require('gitlinker.test.test_rules')
 ```
