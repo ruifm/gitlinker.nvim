@@ -23,7 +23,8 @@ local function relative_path(cwd)
   -- But git root command will give us path with '/' separator
   -- This will lead us to the wrong relative path because plenary.path don't recoginize them
   -- So here we replace '/' to '\\' for plenary.path
-  logger.debug("[util.get_relative_path] cwd:%s", vim.inspect(cwd))
+
+  -- logger.debug("[util.get_relative_path] cwd:%s", vim.inspect(cwd))
   if cwd ~= nil and is_windows() then
     if cwd:find("/") then
       cwd = cwd:gsub("/", "\\")
@@ -32,12 +33,12 @@ local function relative_path(cwd)
 
   local buf_path = path:new(vim.api.nvim_buf_get_name(0))
   local relpath = buf_path:make_relative(cwd)
-  logger.debug(
-    "[util.get_relative_path] buf_path:%s, cwd:%s, relpath:%s",
-    vim.inspect(buf_path),
-    vim.inspect(cwd),
-    vim.inspect(relpath)
-  )
+  -- logger.debug(
+  --   "[util.get_relative_path] buf_path:%s, cwd:%s, relpath:%s",
+  --   vim.inspect(buf_path),
+  --   vim.inspect(cwd),
+  --   vim.inspect(relpath)
+  -- )
 
   -- Then we translate '\\' back to '/'
   if relpath ~= nil and is_windows() then

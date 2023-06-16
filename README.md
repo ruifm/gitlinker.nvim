@@ -60,11 +60,17 @@ use {
 ### [vim-plug](https://github.com/junegunn/vim-plug)
 
 ```vim
+call plug#begin()
+
 Plug 'nvim-lua/plenary.nvim'
 Plug 'linrongbin16/gitlinker.nvim', { 'branch': 'master' }
-```
 
-Then add `require('gitlinker').setup()` to your `init.lua`.
+call plug#end()
+
+lua<<EOF
+require('gitlinker').setup()
+EOF
+```
 
 ### [lazy.nvim](https://github.com/folke/lazy.nvim)
 
@@ -82,8 +88,8 @@ Then add `require('gitlinker').setup()` to your `init.lua`.
 
 The default key mappings are defined to open git link in browser:
 
-- `<leader>gl` (normal/visual mode): Copy git link to clipboard.
-- `<leader>gL` (normal/visual mode): Open git link in default browser.
+- `<leader>gl` (normal/visual mode): copy git link to clipboard.
+- `<leader>gL` (normal/visual mode): open git link in default browser.
 
 To disable default key mappings, set `mapping = false` in `setup()` function(see
 [Configuration](#configuration)).
@@ -112,16 +118,13 @@ vim.keymap.set(
 
 ### Actions
 
-- `require("gitlinker.actions").system`: Open git link in default browser.
-- `require("gitlinker.actions").clipboard`: Copy git link to clipboard.
+- `require("gitlinker.actions").clipboard`: copy git link to clipboard.
+- `require("gitlinker.actions").system`: open git link in default browser.
 
 ## Configuration
 
 ````lua
 require('gitlinker').setup({
-  -- action, clipboard/system
-  action = nil,
-
   -- print message in command line
   message = true,
 

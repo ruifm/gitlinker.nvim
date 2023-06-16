@@ -1,15 +1,10 @@
 local git = require("gitlinker.git")
 local util = require("gitlinker.util")
-local keys = require("gitlinker.keys")
 local logger = require("gitlinker.logger")
 local path = require("plenary.path")
 
 --- @type table<string, any>
 local Defaults = {
-  -- system/clipboard
-  --- @type ActionType
-  action = require("gitlinker.actions").system,
-
   -- print message(git host url) in command line
   --- @type boolean
   message = true,
@@ -99,12 +94,30 @@ local Configs = {}
 --- @return nil
 local function setup(option)
   Configs = vim.tbl_deep_extend("force", Defaults, option or {})
+
+  -- logger
   logger.setup({
     level = Configs.debug and "DEBUG" or "INFO",
     console = Configs.console_log,
     file = Configs.file_log,
   })
-  keys.setup(Configs.mapping)
+
+  -- key mapping
+  if Configs.mapping and #Configs.mapping > 0 then
+    for k, v in pairs(Configs.mapping) do
+      local opt = {
+        noremap = true,
+        silent = true,
+      }
+      if v.desc then
+        opt.desc = v.desc
+      end
+      vim.keymap.set({ "n", "v" }, k, function()
+        require("gitlinker").link({ action = v.action })
+      end, opt)
+    end
+  end
+
   logger.debug("[setup] opts: %s", vim.inspect(Configs))
 end
 
@@ -171,11 +184,11 @@ local function make_link_data()
 
   local root = tostring(path:new(root_result.stdout[1]))
   local buf_path_on_root = util.relative_path(root)
-  logger.debug(
-    "[make_link_data] buf_path_on_root: %s, git_root: %s",
-    vim.inspect(buf_path_on_root),
-    vim.inspect(root)
-  )
+  -- logger.debug(
+  --   "[make_link_data] buf_path_on_root: %s, git_root: %s",
+  --   vim.inspect(buf_path_on_root),
+  --   vim.inspect(root)
+  -- )
 
   --- @type JobResult
   local file_in_rev_result = git.is_file_in_rev(buf_path_on_root, rev)
@@ -191,11 +204,11 @@ local function make_link_data()
 
   --- @type LineRange
   local range = util.line_range()
-  logger.debug(
-    "[make_link_data] buf_path_on_cwd:%s, range:%s",
-    vim.inspect(buf_path_on_cwd),
-    vim.inspect(range)
-  )
+  -- logger.debug(
+  --   "[make_link_data] buf_path_on_cwd:%s, range:%s",
+  --   vim.inspect(buf_path_on_cwd),
+  --   vim.inspect(range)
+  -- )
 
   local remote_url = remote_url_result.stdout[1]
   return new_linker(
@@ -219,22 +232,22 @@ local function map_remote_to_host(remote_url)
   local pattern_rules = Configs.pattern_rules
   for i, group in ipairs(pattern_rules) do
     for pattern, replace in pairs(group) do
-      logger.debug(
-        "[map_remote_to_host] map group[%d], pattern:'%s', replace:'%s'",
-        i,
-        pattern,
-        replace
-      )
+      -- logger.debug(
+      --   "[map_remote_to_host] map group[%d], pattern:'%s', replace:'%s'",
+      --   i,
+      --   pattern,
+      --   replace
+      -- )
       if string.match(remote_url, pattern) then
         local host_url = string.gsub(remote_url, pattern, replace)
-        logger.debug(
-          "[map_remote_to_host] map group[%d] matched, pattern:'%s', replace:'%s', remote_url:'%s' => host_url:'%s'",
-          i,
-          pattern,
-          replace,
-          remote_url,
-          host_url
-        )
+        -- logger.debug(
+        --   "[map_remote_to_host] map group[%d] matched, pattern:'%s', replace:'%s', remote_url:'%s' => host_url:'%s'",
+        --   i,
+        --   pattern,
+        --   replace,
+        --   remote_url,
+        --   host_url
+        -- )
         return host_url
       end
     end
