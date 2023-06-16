@@ -86,17 +86,16 @@ EOF
 
 ## Usage
 
-The default key mappings are defined to open git link in browser:
+There're two key mappings defined by default:
 
 - `<leader>gl` (normal/visual mode): copy git link to clipboard.
 - `<leader>gL` (normal/visual mode): open git link in default browser.
 
-To disable default key mappings, set `mapping = false` in `setup()` function(see
+To disable the default key mappings, set `mapping = false` in `setup()` function(see
 [Configuration](#configuration)).
 
-To create key mappings, please use API `require"gitlinker".link(option)`.
-The `option` is an optional lua table that override the configured options in
-`setup` function:
+To create your own key mappings, please use API `require("gitlinker").link(option)`.
+The `option` is a lua table:
 
 ```lua
 {
@@ -195,10 +194,6 @@ require('gitlinker').setup({
   file_log = false,
 })
 ````
-
-Notice the option `custom_rules` is either `nil` or a function with signature
-`(string) => string`, the argument is git remote url, the return is git host url.
-You can use this function to get the fully capabilities of url mapping.
 
 ## Contribute
 
