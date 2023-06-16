@@ -1,6 +1,8 @@
 local job = require("plenary.job")
 local util = require("gitlinker.util")
 
+--- @alias ActionType fun(url:string):nil
+
 -- copy url to clipboard
 --- @param url string
 --- @return nil
@@ -26,9 +28,9 @@ end
 
 --- @type table<string, function>
 local M = {
-  --- @overload fun(url:string):nil
+  --- @type ActionType
   clipboard = clipboard,
-  --- @overload fun(url:string):nil
+  --- @type ActionType
   system = system,
 }
 

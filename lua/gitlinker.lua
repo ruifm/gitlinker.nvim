@@ -4,12 +4,23 @@ local keys = require("gitlinker.keys")
 local logger = require("gitlinker.logger")
 local path = require("plenary.path")
 
+--- @type table<string, any>
 local Defaults = {
   -- system/clipboard
+  --- @type ActionType
   action = require("gitlinker.actions").system,
+
   -- print message(git host url) in command line
+  --- @type boolean
   message = true,
+
   -- key mapping
+  --
+  --- @class ConfigMappingItem
+  --- @field action ActionType
+  --- @field desc string|nil
+  --
+  --- @type table<string, ConfigMappingItem>
   mapping = {
     ["<leader>gl"] = {
       action = require("gitlinker.actions").clipboard,
@@ -20,7 +31,9 @@ local Defaults = {
       desc = "Open git link in default browser",
     },
   },
+
   -- regex pattern based rules
+  --- @type table<string, string>[]
   pattern_rules = {
     {
       ["^git@github%.([_%.%-%w]+):([%.%-%w]+)/([%.%-%w]+)%.git$"] = "https://github.%1/%2/%3/blob/",
@@ -31,12 +44,13 @@ local Defaults = {
       ["^https?://github%.([_%.%-%w]+)/([%.%-%w]+)/([%.%-%w]+)$"] = "https://github.%1/%2/%3/blob/",
     },
   },
-  -- function based rules: function(remote_url) -> host_url
-  -- @param remote_url    A string value for git remote url.
-  -- @return              A string value for git host url.
-  custom_rules = nil,
-  -- here's an example of custom_rules:
+
+  -- function based rules: function(remote_url) => host_url
+  -- this will override the default pattern_rules.
   --
+  -- here's an example:
+  --
+  -- ```
   -- custom_rules = function(remote_url)
   --   local rules = {
   --     {
@@ -59,17 +73,30 @@ local Defaults = {
   --   end
   --   return nil
   -- end,
+  -- ```
+  --
+  --- @alias CustomRulesType fun(remote_url:string):string|nil
+  --- @type CustomRulesType|nil
+  custom_rules = nil,
 
   -- enable debug
+  --- @type boolean
   debug = false,
+
   -- write logs to console(command line)
+  --- @type boolean
   console_log = true,
+
   -- write logs to file
+  --- @type boolean
   file_log = false,
 }
 
+--- @type table<string, any>
 local Configs = {}
 
+--- @param option table<string, any>
+--- @return nil
 local function setup(option)
   Configs = vim.tbl_deep_extend("force", Defaults, option or {})
   logger.setup({
@@ -81,8 +108,24 @@ local function setup(option)
   logger.debug("[setup] opts: %s", vim.inspect(Configs))
 end
 
+--- @class Linker
+--- @field remote_url string
+--- @field rev string
+--- @field file string
+--- @field lstart integer
+--- @field lend integer
+--- @field file_changed boolean
+
+--- @type Linker
 local Linker = {}
 
+--- @param remote_url string
+--- @param rev string
+--- @param file string
+--- @param lstart integer
+--- @param lend integer
+--- @param file_changed boolean
+--- @return Linker
 local function new_linker(remote_url, rev, file, lstart, lend, file_changed)
   local linker = vim.tbl_extend("force", vim.deepcopy(Linker), {
     remote_url = remote_url,
@@ -95,13 +138,16 @@ local function new_linker(remote_url, rev, file, lstart, lend, file_changed)
   return linker
 end
 
+--- @return Linker|nil
 local function make_link_data()
+  --- @type JobResult
   local root_result = git.get_root()
   if not git.result_has_out(root_result) then
     git.result_print_err(root_result, "not in a git repository")
     return nil
   end
 
+  --- @type string|nil
   local remote = git.get_branch_remote()
   if not remote then
     return nil
@@ -117,6 +163,7 @@ local function make_link_data()
     return nil
   end
 
+  --- @type string|nil
   local rev = git.get_closest_remote_compatible_rev(remote)
   if not rev then
     return nil
@@ -129,6 +176,7 @@ local function make_link_data()
     vim.inspect(buf_path_on_root),
     vim.inspect(root)
   )
+
   --- @type JobResult
   local file_in_rev_result = git.is_file_in_rev(buf_path_on_root, rev)
   if git.result_has_err(file_in_rev_result) then
@@ -140,6 +188,8 @@ local function make_link_data()
   end
 
   local buf_path_on_cwd = util.relative_path()
+
+  --- @type LineRange
   local range = util.line_range()
   logger.debug(
     "[make_link_data] buf_path_on_cwd:%s, range:%s",
@@ -158,32 +208,34 @@ local function make_link_data()
   )
 end
 
+--- @param remote_url string
+--- @return string|nil host_url
 local function map_remote_to_host(remote_url)
   local custom_rules = Configs.custom_rules
   if type(custom_rules) == "function" then
     return custom_rules(remote_url)
-  else
-    local pattern_rules = Configs.pattern_rules
-    for i, group in ipairs(pattern_rules) do
-      for pattern, replace in pairs(group) do
+  end
+
+  local pattern_rules = Configs.pattern_rules
+  for i, group in ipairs(pattern_rules) do
+    for pattern, replace in pairs(group) do
+      logger.debug(
+        "[map_remote_to_host] map group[%d], pattern:'%s', replace:'%s'",
+        i,
+        pattern,
+        replace
+      )
+      if string.match(remote_url, pattern) then
+        local host_url = string.gsub(remote_url, pattern, replace)
         logger.debug(
-          "[map_remote_to_host] map group[%d], pattern:'%s', replace:'%s'",
+          "[map_remote_to_host] map group[%d] matched, pattern:'%s', replace:'%s', remote_url:'%s' => host_url:'%s'",
           i,
           pattern,
-          replace
+          replace,
+          remote_url,
+          host_url
         )
-        if string.match(remote_url, pattern) then
-          local host_url = string.gsub(remote_url, pattern, replace)
-          logger.debug(
-            "[map_remote_to_host] map group[%d] matched, pattern:'%s', replace:'%s', remote_url:'%s' => host_url:'%s'",
-            i,
-            pattern,
-            replace,
-            remote_url,
-            host_url
-          )
-          return host_url
-        end
+        return host_url
       end
     end
   end
@@ -191,6 +243,9 @@ local function map_remote_to_host(remote_url)
   return nil
 end
 
+--- @param host_url string
+--- @param linker Linker
+--- @return string
 local function make_sharable_permalinks(host_url, linker)
   local url = host_url .. linker.rev .. "/" .. linker.file
   if not linker.lstart then
@@ -203,7 +258,8 @@ local function make_sharable_permalinks(host_url, linker)
   return url
 end
 
---- Get the url for the buffer with selected lines
+--- @param option table<string, any>
+--- @return string|nil
 local function link(option)
   logger.debug("[make_link] before merge, option: %s", vim.inspect(option))
   option = vim.tbl_deep_extend("force", Configs, option or {})

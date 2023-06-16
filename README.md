@@ -117,7 +117,7 @@ vim.keymap.set(
 
 ## Configuration
 
-```lua
+````lua
 require('gitlinker').setup({
   -- action, clipboard/system
   action = nil,
@@ -149,13 +149,11 @@ require('gitlinker').setup({
     },
   },
 
-  -- function based rules: function(remote_url) -> host_url
-  -- @param remote_url    A string value for git remote url.
-  -- @return              A string value for git host url.
-  custom_rules = nil,
-
+  -- function based rules: function(remote_url) => host_url.
+  -- this function will override the `pattern_rules`.
   -- here's an example of custom_rules:
   --
+  -- ```
   -- custom_rules = function(remote_url)
   --   local pattern_rules = {
   --     {
@@ -178,6 +176,11 @@ require('gitlinker').setup({
   --   end
   --   return nil
   -- end,
+  -- ```
+  --
+  --- @overload fun(remote_url:string):string|nil
+  custom_rules = nil,
+
 
   -- enable debug
   debug = false,
@@ -187,11 +190,8 @@ require('gitlinker').setup({
 
   -- write logs to file
   file_log = false,
-
-  -- file name to write logs, working with `file_log=true`
-  file_log_name = "gitlinker.log",
 })
-```
+````
 
 Notice the option `custom_rules` is either `nil` or a function with signature
 `(string) => string`, the argument is git remote url, the return is git host url.
