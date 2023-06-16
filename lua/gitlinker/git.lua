@@ -262,6 +262,7 @@ local function get_branch_remote()
   return nil
 end
 
+--- @type table<string, function>
 local M = {
   result_has_out = result_has_out,
   result_has_err = result_has_err,
