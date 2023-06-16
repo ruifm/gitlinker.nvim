@@ -194,13 +194,3 @@ require('gitlinker').setup({
   file_log = false,
 })
 ````
-
-## Contribute
-
-### Code format
-
-Use [stylua](https://github.com/JohnnyMorganz/StyLua) for code formatting.
-
-### Test pattern rules
-
-Run test cases in [lua/gitlinker/test](https://github.com/linrongbin16/gitlinker.nvim/tree/master/lua/gitlinker/test).

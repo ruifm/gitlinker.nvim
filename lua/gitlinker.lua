@@ -311,6 +311,8 @@ end
 local M = {
   setup = setup,
   link = link,
+  -- for unit testing
+  map_remote_to_host = map_remote_to_host,
 }
 
 return M
