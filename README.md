@@ -16,7 +16,7 @@ co-workers.
 ## Break changes & updates
 
 1. Platform support: windows is supported.
-2. Url mapping engine changed: from hard code to pattern based rules.
+2. Url mapping engine changed: pattern based rules instead of hard coding.
 3. Rewrittens: API re-designed, logger added, code base re-structured.
 
 ## Lua pattern based rules
