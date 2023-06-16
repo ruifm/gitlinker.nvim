@@ -15,7 +15,7 @@ co-workers.
 
 ## Break changes & updates
 
-1. Cross-platform support: windows is supported now.
+1. Platform support: windows is supported.
 2. Url mapping engine changed: from hard code to pattern based rules.
 3. Rewrittens: API re-designed, logger added, code base re-structured.
 
