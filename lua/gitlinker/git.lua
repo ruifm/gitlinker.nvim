@@ -32,6 +32,7 @@ local function result_print_err(result, default)
 end
 
 -- wrap the git command to do the right thing always
+--- @package
 --- @param args string[]
 --- @param cwd string|nil
 --- @return JobResult
@@ -53,6 +54,7 @@ local function cmd(args, cwd)
   return result
 end
 
+--- @package
 --- @return JobResult
 local function get_remote()
   local result = cmd({ "remote" })
@@ -73,9 +75,10 @@ local function get_remote_url(remote)
   return result
 end
 
+--- @package
 --- @param revspec string|nil
 --- @return string|nil
-local function _get_rev(revspec)
+local function get_rev(revspec)
   local result = cmd({ "rev-parse", revspec })
   logger.debug(
     "[git._get_rev] revspec:%s, result:%s",
@@ -85,6 +88,7 @@ local function _get_rev(revspec)
   return result_has_out(result) and result.stdout[1] or nil
 end
 
+--- @package
 --- @param revspec string
 --- @return JobResult
 local function get_rev_name(revspec)
@@ -125,10 +129,11 @@ local function has_file_changed(file, rev)
   return result_has_out(result)
 end
 
+--- @package
 --- @param revspec string
 --- @param remote string
 --- @return boolean
-local function _is_rev_in_remote(revspec, remote)
+local function is_rev_in_remote(revspec, remote)
   local result = cmd({ "branch", "--remotes", "--contains", revspec })
   logger.debug(
     "[git.is_rev_in_remote] revspec:%s, remote:%s, result:%s",
@@ -153,14 +158,14 @@ local function get_closest_remote_compatible_rev(remote)
   assert(remote, "remote cannot be nil")
 
   -- try upstream branch HEAD (a.k.a @{u})
-  local upstream_rev = _get_rev("@{u}")
+  local upstream_rev = get_rev("@{u}")
   if upstream_rev then
     return upstream_rev
   end
 
   -- try HEAD
-  if _is_rev_in_remote("HEAD", remote) then
-    local head_rev = _get_rev("HEAD")
+  if is_rev_in_remote("HEAD", remote) then
+    local head_rev = get_rev("HEAD")
     if head_rev then
       return head_rev
     end
@@ -169,8 +174,8 @@ local function get_closest_remote_compatible_rev(remote)
   -- try last 50 parent commits
   for i = 1, 50 do
     local revspec = "HEAD~" .. i
-    if _is_rev_in_remote(revspec, remote) then
-      local rev = _get_rev(revspec)
+    if is_rev_in_remote(revspec, remote) then
+      local rev = get_rev(revspec)
       if rev then
         return rev
       end
@@ -178,7 +183,7 @@ local function get_closest_remote_compatible_rev(remote)
   end
 
   -- try remote HEAD
-  local remote_rev = _get_rev(remote)
+  local remote_rev = get_rev(remote)
   if remote_rev then
     return remote_rev
   end
@@ -204,6 +209,7 @@ local function get_root()
   return result
 end
 
+--- @return string|nil
 local function get_branch_remote()
   -- origin/upstream
   --- @type JobResult
