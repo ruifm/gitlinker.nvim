@@ -247,6 +247,7 @@ local function get_branch_remote()
     return nil
   end
 
+  --- @type string[]
   local remotes = remote_result.stdout
   for _, remote in ipairs(remotes) do
     if remote_from_upstream_branch == remote then
@@ -262,6 +263,7 @@ local function get_branch_remote()
   return nil
 end
 
+--- @type table<string, function>
 local M = {
   result_has_out = result_has_out,
   result_has_err = result_has_err,
