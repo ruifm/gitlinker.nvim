@@ -98,10 +98,10 @@ To create your own key mappings, please use API `require("gitlinker").link(optio
 The `option` is a lua table:
 
 ```lua
-{
+require("gitlinker").link({
     action = require("gitlinker.actions").clipboard, -- clipboard/system
     message = true, -- true/false
-}
+})
 ```
 
 For example:
