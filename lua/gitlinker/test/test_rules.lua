@@ -53,3 +53,5 @@ for i, case in ipairs(test_cases) do
     )
   )
 end
+
+print("all test cases succeeded!")
