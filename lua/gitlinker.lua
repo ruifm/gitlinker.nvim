@@ -33,10 +33,14 @@ local Defaults = {
     {
       ["^git@github%.([_%.%-%w]+):([%.%-%w]+)/([%.%-%w]+)%.git$"] = "https://github.%1/%2/%3/blob/",
       ["^https?://github%.([_%.%-%w]+)/([%.%-%w]+)/([%.%-%w]+)%.git$"] = "https://github.%1/%2/%3/blob/",
+      ["^git@gitlab%.([_%.%-%w]+):([%.%-%w]+)/([%.%-%w]+)%.git$"] = "https://gitlab.%1/%2/%3/blob/",
+      ["^https?://gitlab%.([_%.%-%w]+)/([%.%-%w]+)/([%.%-%w]+)%.git$"] = "https://gitlab.%1/%2/%3/blob/",
     },
     {
       ["^git@github%.([_%.%-%w]+):([%.%-%w]+)/([%.%-%w]+)$"] = "https://github.%1/%2/%3/blob/",
       ["^https?://github%.([_%.%-%w]+)/([%.%-%w]+)/([%.%-%w]+)$"] = "https://github.%1/%2/%3/blob/",
+      ["^git@gitlab%.([_%.%-%w]+):([%.%-%w]+)/([%.%-%w]+)$"] = "https://gitlab.%1/%2/%3/blob/",
+      ["^https?://gitlab%.([_%.%-%w]+)/([%.%-%w]+)/([%.%-%w]+)$"] = "https://gitlab.%1/%2/%3/blob/",
     },
   },
 
