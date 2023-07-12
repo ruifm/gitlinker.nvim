@@ -1,7 +1,7 @@
 # gitlinker.nvim
 
 > A fork of [ruifm's gitlinker](https://github.com/ruifm/gitlinker.nvim), refactored
-> with pattern based rule engine, windows support and other enhancements.
+> with pattern based rule engine, Windows support and other enhancements.
 
 A lua plugin for [Neovim](https://github.com/neovim/neovim) to generate sharable
 file permalinks (with line ranges) for git host websites. Inspired by
@@ -13,13 +13,22 @@ An example of git permalink:
 Personally, I use this all the time to easily share code locations with my
 co-workers.
 
+- [Break changes & updates](#break-changes--updates)
+  - [Lua pattern based rules](#lua-pattern-based-rules)
+- [Installation](#installation)
+  - [packer.nvim](#packernvim)
+  - [vim-plug](#vim-plug)
+  - [lazy.nvim](#lazynvim)
+- [Key Mappings](#key-mappings)
+- [Configuration](#configuration)
+
 ## Break changes & updates
 
 1. Platform support: windows is supported.
 2. Url mapping engine changed: pattern based rules instead of hard coding.
 3. Rewrittens: API re-designed, logger added, code base re-structured.
 
-## Lua pattern based rules
+### Lua pattern based rules
 
 [Lua pattern](https://www.lua.org/pil/20.2.html) is introduced to map git remote
 url to host url. The lua pattern has many limitations compared with the
@@ -31,13 +40,13 @@ are supported (please see [Configuration](#configuration)).
 
 PRs are welcomed for other git host websites!
 
-## Requirement
+## Installation
+
+Requirement:
 
 - git
 - neovim 0.8
 - [plenary.nvim](https://github.com/nvim-lua/plenary.nvim)
-
-## Installation
 
 ### [packer.nvim](https://github.com/wbthomason/packer.nvim)
 
