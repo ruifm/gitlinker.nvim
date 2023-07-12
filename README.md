@@ -94,7 +94,7 @@ in `setup()` function.
 
 ## Configuration
 
-```lua
+````lua
 require('gitlinker').setup({
   -- print message in command line
   message = true,
@@ -116,16 +116,16 @@ require('gitlinker').setup({
   -- regex pattern based rules
   pattern_rules = {
     {
-      ["^git@github%.([_%.%-%w]+):([%.%-%w]+)/([%.%-%w]+)%.git$"] = "https://github.%1/%2/%3/blob/",
-      ["^https?://github%.([_%.%-%w]+)/([%.%-%w]+)/([%.%-%w]+)%.git$"] = "https://github.%1/%2/%3/blob/",
-      ["^git@gitlab%.([_%.%-%w]+):([%.%-%w]+)/([%.%-%w]+)%.git$"] = "https://gitlab.%1/%2/%3/blob/",
-      ["^https?://gitlab%.([_%.%-%w]+)/([%.%-%w]+)/([%.%-%w]+)%.git$"] = "https://gitlab.%1/%2/%3/blob/",
+      ["^git@github%.([_%.%-%w]+):([%.%-%w]+)/([_%.%-%w]+)%.git$"] = "https://github.%1/%2/%3/blob/",
+      ["^https?://github%.([_%.%-%w]+)/([%.%-%w]+)/([_%.%-%w]+)%.git$"] = "https://github.%1/%2/%3/blob/",
+      ["^git@gitlab%.([_%.%-%w]+):([%.%-%w]+)/([_%.%-%w]+)%.git$"] = "https://gitlab.%1/%2/%3/blob/",
+      ["^https?://gitlab%.([_%.%-%w]+)/([%.%-%w]+)/([_%.%-%w]+)%.git$"] = "https://gitlab.%1/%2/%3/blob/",
     },
     {
-      ["^git@github%.([_%.%-%w]+):([%.%-%w]+)/([%.%-%w]+)$"] = "https://github.%1/%2/%3/blob/",
-      ["^https?://github%.([_%.%-%w]+)/([%.%-%w]+)/([%.%-%w]+)$"] = "https://github.%1/%2/%3/blob/",
-      ["^git@gitlab%.([_%.%-%w]+):([%.%-%w]+)/([%.%-%w]+)$"] = "https://gitlab.%1/%2/%3/blob/",
-      ["^https?://gitlab%.([_%.%-%w]+)/([%.%-%w]+)/([%.%-%w]+)$"] = "https://gitlab.%1/%2/%3/blob/",
+      ["^git@github%.([_%.%-%w]+):([%.%-%w]+)/([_%.%-%w]+)$"] = "https://github.%1/%2/%3/blob/",
+      ["^https?://github%.([_%.%-%w]+)/([%.%-%w]+)/([_%.%-%w]+)$"] = "https://github.%1/%2/%3/blob/",
+      ["^git@gitlab%.([_%.%-%w]+):([%.%-%w]+)/([_%.%-%w]+)$"] = "https://gitlab.%1/%2/%3/blob/",
+      ["^https?://gitlab%.([_%.%-%w]+)/([%.%-%w]+)/([_%.%-%w]+)$"] = "https://gitlab.%1/%2/%3/blob/",
     },
   },
 
@@ -171,4 +171,4 @@ require('gitlinker').setup({
   -- write logs to file
   file_log = false,
 })
-```
+````

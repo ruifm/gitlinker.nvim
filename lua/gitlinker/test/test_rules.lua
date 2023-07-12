@@ -66,6 +66,16 @@ local test_cases = {
     "https://gitlab.com/ruifm/gitlinker.nvim",
     "https://gitlab.com/ruifm/gitlinker.nvim/blob/",
   },
+  -- [13]
+  {
+    "git@github.enterprise.io:organization/repository_with_single_dash1",
+    "https://github.enterprise.io/organization/repository_with_single_dash1/blob/",
+  },
+  -- [14]
+  {
+    "https://github.enterprise.io/organization/repository____multiple___dash2.git",
+    "https://github.enterprise.io/organization/repository____multiple___dash2/blob/",
+  },
 }
 
 for i, case in ipairs(test_cases) do
