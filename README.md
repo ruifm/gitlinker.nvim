@@ -36,8 +36,8 @@ url to host url. The lua pattern has many limitations compared with the
 but it's still the best solution in this scenario.
 
 For now supported platforms are:
-- github.com (include enterprise domain)
-- gitlab.com (include enterprise domain)
+- github.com
+- gitlab.com
 
 PRs are welcomed for other git host websites!
 
