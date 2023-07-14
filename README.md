@@ -93,7 +93,7 @@ EOF
 There're two key mappings defined by default:
 
 - `<leader>gl` (normal/visual mode): copy git link to clipboard.
-- `<leader>gL` (normal/visual mode): open git link in default browser.
+- `<leader>gL` (normal/visual mode): open git link in browser.
 
 To disable the default key mappings, set `mapping = false` in `setup()` function
 (see [Configuration](#configuration)).
@@ -116,9 +116,9 @@ require('gitlinker').setup({
       desc = "Copy git link to clipboard",
     },
     ["<leader>gL"] = {
-      -- open git link in default browser
+      -- open git link in browser
       action = require("gitlinker.actions").system,
-      desc = "Open git link in default browser",
+      desc = "Open git link in browser",
     },
   },
 
