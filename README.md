@@ -98,7 +98,7 @@ There're two key mappings defined by default:
 To disable the default key mappings, set `mapping = false` in `setup()` function
 (see [Configuration](#configuration)).
 
-To create your own key mappings, please specify customize the `mapping` option
+To create your own key mappings, please specify the `mapping` option
 in `setup()` function.
 
 ## Configuration
