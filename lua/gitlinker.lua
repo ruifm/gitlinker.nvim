@@ -106,9 +106,33 @@ local function setup(option)
     file = Configs.file_log,
   })
 
+  logger.debug("[setup] Configs:%s", vim.inspect(Configs))
+
   -- key mapping
-  if Configs.mapping and #Configs.mapping > 0 then
-    for k, v in pairs(Configs.mapping) do
+  local key_mappings = nil
+  if
+    type(option) == "table"
+    and type(option["mapping"]) == "table"
+    and next(option["mapping"])
+  then
+    key_mappings = option["mapping"]
+  else
+    key_mappings = Defaults.mapping
+  end
+
+  logger.debug(
+    "[setup] option(%s):%s, option.mapping(%s):%s, next(option.mapping)(%s):%s, key_mappings:%s",
+    vim.inspect(type(option)),
+    vim.inspect(option),
+    vim.inspect(type(option["mapping"])),
+    vim.inspect(option["mapping"]),
+    vim.inspect(type(next(option["mapping"]))),
+    vim.inspect(next(option["mapping"])),
+    vim.inspect(key_mappings)
+  )
+
+  if key_mappings and next(key_mappings) then
+    for k, v in pairs(key_mappings) do
       local opt = {
         noremap = true,
         silent = true,
