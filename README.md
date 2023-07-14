@@ -33,10 +33,11 @@ co-workers.
 [Lua pattern](https://www.lua.org/pil/20.2.html) is introduced to map git remote
 url to host url. The lua pattern has many limitations compared with the
 [standard regex expression](https://en.wikipedia.org/wiki/Regular_expression),
-but it's still the best solution in git sharable file permalinks scenario.
+but it's still the best solution in this scenario.
 
-For now github.com and gitlab.com (include both git/http and enterprise domains)
-are supported (please see [Configuration](#configuration)).
+For now supported platforms are:
+- github.com (include enterprise domain)
+- gitlab.com (include enterprise domain)
 
 PRs are welcomed for other git host websites!
 
