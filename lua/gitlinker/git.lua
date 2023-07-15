@@ -106,12 +106,15 @@ end
 --- @return JobResult
 local function is_file_in_rev(file, revspec)
   local result = cmd({ "cat-file", "-e", revspec .. ":" .. file })
-  -- logger.debug(
-  --   "[git.is_file_in_rev] file:%s, revspec:%s, result:%s",
-  --   vim.inspect(file),
-  --   vim.inspect(revspec),
-  --   vim.inspect(result)
-  -- )
+  logger.debug(
+    "|git.is_file_in_rev| file(%s):%s, revspec(%s):%s, result(%s):%s",
+    vim.inspect(type(file)),
+    vim.inspect(file),
+    vim.inspect(type(revspec)),
+    vim.inspect(revspec),
+    vim.inspect(type(result)),
+    vim.inspect(result)
+  )
   return result
 end
 

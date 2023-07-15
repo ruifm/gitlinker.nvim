@@ -172,12 +172,22 @@ local function make_link_data()
     git.result_print_err(root_result, "not in a git repository")
     return nil
   end
+  logger.debug(
+    "|make_link_data| root_result(%s):%s",
+    vim.inspect(type(root_result)),
+    vim.inspect(root_result)
+  )
 
   --- @type string|nil
   local remote = git.get_branch_remote()
   if not remote then
     return nil
   end
+  logger.debug(
+    "|make_link_data| remote(%s):%s",
+    vim.inspect(type(remote)),
+    vim.inspect(remote)
+  )
 
   --- @type JobResult
   local remote_url_result = git.get_remote_url(remote)
@@ -188,20 +198,32 @@ local function make_link_data()
     )
     return nil
   end
+  logger.debug(
+    "|make_link_data| remote_url_result(%s):%s",
+    vim.inspect(type(remote_url_result)),
+    vim.inspect(remote_url_result)
+  )
 
   --- @type string|nil
   local rev = git.get_closest_remote_compatible_rev(remote)
   if not rev then
     return nil
   end
+  logger.debug(
+    "|make_link_data| rev(%s):%s",
+    vim.inspect(type(rev)),
+    vim.inspect(rev)
+  )
 
   local root = tostring(path:new(root_result.stdout[1]))
   local buf_path_on_root = util.relative_path(root)
-  -- logger.debug(
-  --   "[make_link_data] buf_path_on_root: %s, git_root: %s",
-  --   vim.inspect(buf_path_on_root),
-  --   vim.inspect(root)
-  -- )
+  logger.debug(
+    "|make_link_data| root(%s):%s, buf_path_on_root(%s):%s",
+    vim.inspect(type(root)),
+    vim.inspect(root),
+    vim.inspect(type(buf_path_on_root)),
+    vim.inspect(buf_path_on_root)
+  )
 
   --- @type JobResult
   local file_in_rev_result = git.is_file_in_rev(buf_path_on_root, rev)
@@ -212,18 +234,33 @@ local function make_link_data()
     )
     return nil
   end
+  logger.debug(
+    "|make_link_data| file_in_rev_result(%s):%s",
+    vim.inspect(type(file_in_rev_result)),
+    vim.inspect(file_in_rev_result)
+  )
 
   local buf_path_on_cwd = util.relative_path()
+  logger.debug(
+    "|make_link_data| buf_path_on_cwd(%s):%s",
+    vim.inspect(type(buf_path_on_cwd)),
+    vim.inspect(buf_path_on_cwd)
+  )
 
   --- @type LineRange
   local range = util.line_range()
-  -- logger.debug(
-  --   "[make_link_data] buf_path_on_cwd:%s, range:%s",
-  --   vim.inspect(buf_path_on_cwd),
-  --   vim.inspect(range)
-  -- )
+  logger.debug(
+    "[make_link_data] range(%s):%s",
+    vim.inspect(type(range)),
+    vim.inspect(range)
+  )
 
   local remote_url = remote_url_result.stdout[1]
+  logger.debug(
+    "[make_link_data] remote_url(%s):%s",
+    vim.inspect(type(remote_url)),
+    vim.inspect(remote_url)
+  )
   return new_linker(
     remote_url,
     rev,

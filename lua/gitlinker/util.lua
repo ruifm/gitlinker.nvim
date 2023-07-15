@@ -4,16 +4,12 @@ local os = vim.loop.os_uname().sysname
 
 --- @return boolean
 local function is_macos()
-  return os == "Darwin"
+  return vim.fn.has("mac") > 0
 end
 
 --- @return boolean
 local function is_windows()
-  if os:match("Windows") then
-    return true
-  else
-    return false
-  end
+  return vim.fn.has("win32") > 0 or vim.fn.has("win64") > 0
 end
 
 --- @param cwd string|nil
@@ -24,28 +20,58 @@ local function relative_path(cwd)
   -- This will lead us to the wrong relative path because plenary.path don't recoginize them
   -- So here we replace '/' to '\\' for plenary.path
 
-  -- logger.debug("[util.get_relative_path] cwd:%s", vim.inspect(cwd))
-  if cwd ~= nil and is_windows() then
-    if cwd:find("/") then
-      cwd = cwd:gsub("/", "\\")
-    end
-  end
+  logger.debug(
+    "|util.relative_path| cwd1(%s):%s",
+    vim.inspect(type(cwd)),
+    vim.inspect(cwd)
+  )
 
   local buf_path = path:new(vim.api.nvim_buf_get_name(0))
-  local relpath = buf_path:make_relative(cwd)
-  -- logger.debug(
-  --   "[util.get_relative_path] buf_path:%s, cwd:%s, relpath:%s",
-  --   vim.inspect(buf_path),
-  --   vim.inspect(cwd),
-  --   vim.inspect(relpath)
-  -- )
+  local relpath = nil
+
+  if is_windows() and cwd ~= nil then
+    local buf_path_filename = tostring(buf_path)
+    if buf_path_filename:sub(1, #cwd) == cwd then
+      relpath = buf_path_filename:sub(#cwd + 1, -1)
+      logger.debug(
+        "|util.relative_path| relpath1(%s):%s",
+        vim.inspect(type(relpath)),
+        vim.inspect(relpath)
+      )
+      if relpath:sub(1, 1) == "/" or relpath:sub(1, 1) == "\\" then
+        relpath = relpath:sub(2, -1)
+        logger.debug(
+          "|util.relative_path| relpath1.1(%s):%s",
+          vim.inspect(type(relpath)),
+          vim.inspect(relpath)
+        )
+      end
+    else
+      relpath = buf_path:make_relative(cwd)
+    end
+  else
+    relpath = buf_path:make_relative(cwd)
+  end
+
+  logger.debug(
+    "|util.relative_path| buf_path(%s):%s, relpath(%s):%s",
+    vim.inspect(type(buf_path)),
+    vim.inspect(buf_path),
+    vim.inspect(type(relpath)),
+    vim.inspect(relpath)
+  )
 
   -- Then we translate '\\' back to '/'
-  if relpath ~= nil and is_windows() then
-    if relpath:find("\\") then
-      relpath = relpath:gsub("\\", "/")
-    end
-  end
+  -- if relpath ~= nil and is_windows() then
+  --   if relpath:find("\\") then
+  --     relpath = relpath:gsub("\\", "/")
+  --   end
+  -- end
+  logger.debug(
+    "|util.relative_path| relpath2(%s):%s",
+    vim.inspect(type(relpath)),
+    vim.inspect(relpath)
+  )
   return relpath
 end
 
