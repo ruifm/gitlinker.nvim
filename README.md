@@ -36,6 +36,7 @@ url to host url. The lua pattern has many limitations compared with the
 but it's still the best solution in this scenario.
 
 For now supported platforms are:
+
 - github.com
 - gitlab.com
 
@@ -182,3 +183,19 @@ require('gitlinker').setup({
   file_log = false,
 })
 ````
+
+## Contribute
+
+For developing:
+
+1. Use [lua-language-server](https://github.com/LuaLS/lua-language-server) for code lint.
+2. Use [stylua](https://github.com/JohnnyMorganz/StyLua) for code formatting.
+3. Start neovim and run unit test: `lua require('gitlinker.test.test_rules')`
+
+Please also open [issue](https://github.com/linrongbin16/lin.nvim/issues)/[PR](https://github.com/linrongbin16/lin.nvim/pulls) for anything about gitlinker.nvim.
+
+Like gitlinker.nvim? Consider
+
+[![buymeacoffee](https://img.shields.io/badge/-Buy%20Me%20a%20Coffee-ff5f5f?logo=ko-fi&logoColor=white)](https://www.buymeacoffee.com/linrongbin16)
+[![Wechat Pay](https://img.shields.io/badge/-Tip%20Me%20on%20WeChat-brightgreen?logo=wechat&logoColor=white)](https://linrongbin16.github.io/sponsor)
+[![Alipay](https://img.shields.io/badge/-Tip%20Me%20on%20Alipay-blue?logo=alipay&logoColor=white)](https://linrongbin16.github.io/sponsor)
