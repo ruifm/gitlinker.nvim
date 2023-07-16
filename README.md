@@ -27,8 +27,7 @@ co-workers.
 1. Bug fix: you can disable/custom the default key mappings.
 2. Windows support: you can use it on Windows.
 3. Url mapping engine changed: pattern based rules instead of hard coding.
-4. Refactor: use git error message instead of self-defined error.
-5. Refactor: drop off `plenary` third-party dependency.
+4. Refactor: use git error message instead of self-defined error, drop off `plenary` library.
 6. Rewrittens: API re-designed, logger added, code base re-structured.
 
 ### Lua pattern based rules
