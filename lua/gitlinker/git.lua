@@ -1,5 +1,3 @@
-local job = require("plenary.job")
-local path = require("plenary.path")
 local logger = require("gitlinker.logger")
 
 --- @class JobResult
@@ -17,7 +15,9 @@ end
 --- @param result JobResult
 --- @return boolean
 local function result_has_err(result)
-  return result.stderr ~= nil
+  return result["stderr"] ~= nil
+    and type(result["stderr"]) == "table"
+    and #result["stderr"] > 0
 end
 
 --- @param result JobResult
@@ -37,28 +37,72 @@ end
 --- @param cwd string|nil
 --- @return JobResult
 local function cmd(args, cwd)
-  --- @type JobResult
-  local result = {}
-  local process = job:new({
-    command = "git",
-    args = args,
+  local result = { stdout = {}, stderr = {} }
+  local job = vim.fn.jobstart(args, {
     cwd = cwd,
+    on_stdout = function(chanid, data, name)
+      logger.debug(
+        "|cmd.on_stdout| args(%s):%s, cwd(%s):%s, chanid(%s):%s, data(%s):%s, name(%s):%s",
+        vim.inspect(type(args)),
+        vim.inspect(args),
+        vim.inspect(type(cwd)),
+        vim.inspect(cwd),
+        vim.inspect(type(chanid)),
+        vim.inspect(chanid),
+        vim.inspect(type(data)),
+        vim.inspect(data),
+        vim.inspect(type(name)),
+        vim.inspect(name)
+      )
+      for _, line in ipairs(data) do
+        if string.len(line) > 0 then
+          table.insert(result.stdout, line)
+        end
+      end
+    end,
+    on_stderr = function(chanid, data, name)
+      logger.debug(
+        "|cmd.on_stderr| args(%s):%s, cwd(%s):%s, chanid(%s):%s, data(%s):%s, name(%s):%s",
+        vim.inspect(type(args)),
+        vim.inspect(args),
+        vim.inspect(type(cwd)),
+        vim.inspect(cwd),
+        vim.inspect(type(chanid)),
+        vim.inspect(chanid),
+        vim.inspect(type(data)),
+        vim.inspect(data),
+        vim.inspect(type(name)),
+        vim.inspect(name)
+      )
+      for _, line in ipairs(data) do
+        if string.len(line) > 0 then
+          table.insert(result.stderr, line)
+        end
+      end
+    end,
   })
-  process:after_success(function(j)
-    result.stdout = j:result()
-  end)
-  process:after_failure(function(j)
-    result.stderr = j:stderr_result()
-  end)
-  process:sync()
+  vim.fn.jobwait({ job })
+  logger.debug(
+    "|cmd| args(%s):%s, cwd(%s):%s, result(%s):%s",
+    vim.inspect(type(args)),
+    vim.inspect(args),
+    vim.inspect(type(cwd)),
+    vim.inspect(cwd),
+    vim.inspect(type(result)),
+    vim.inspect(result)
+  )
   return result
 end
 
 --- @package
 --- @return JobResult
 local function get_remote()
-  local result = cmd({ "remote" })
-  -- logger.debug("[git.get_remote] result:%s", vim.inspect(result))
+  local result = cmd({ "git", "remote" })
+  logger.debug(
+    "|git.get_remote| result(%s):%s",
+    vim.inspect(type(result)),
+    vim.inspect(result)
+  )
   return result
 end
 
@@ -66,12 +110,14 @@ end
 --- @return JobResult
 local function get_remote_url(remote)
   assert(remote, "remote cannot be nil")
-  local result = cmd({ "remote", "get-url", remote })
-  -- logger.debug(
-  --   "[git.get_remote_url] remote:%s, result:%s",
-  --   vim.inspect(remote),
-  --   vim.inspect(result)
-  -- )
+  local result = cmd({ "git", "remote", "get-url", remote })
+  logger.debug(
+    "|git.get_remote_url| remote(%s):%s, result(%s):%s",
+    vim.inspect(type(remote)),
+    vim.inspect(remote),
+    vim.inspect(type(result)),
+    vim.inspect(result)
+  )
   return result
 end
 
@@ -79,12 +125,14 @@ end
 --- @param revspec string|nil
 --- @return string|nil
 local function get_rev(revspec)
-  local result = cmd({ "rev-parse", revspec })
-  -- logger.debug(
-  --   "[git._get_rev] revspec:%s, result:%s",
-  --   vim.inspect(revspec),
-  --   vim.inspect(result)
-  -- )
+  local result = cmd({ "git", "rev-parse", revspec })
+  logger.debug(
+    "|git.get_rev| revspec(%s):%s, result(%s):%s",
+    vim.inspect(type(revspec)),
+    vim.inspect(revspec),
+    vim.inspect(type(result)),
+    vim.inspect(result)
+  )
   return result_has_out(result) and result.stdout[1] or nil
 end
 
@@ -92,12 +140,14 @@ end
 --- @param revspec string
 --- @return JobResult
 local function get_rev_name(revspec)
-  local result = cmd({ "rev-parse", "--abbrev-ref", revspec })
-  -- logger.debug(
-  --   "[git.get_rev_name] revspec:%s, result:%s",
-  --   vim.inspect(revspec),
-  --   vim.inspect(result)
-  -- )
+  local result = cmd({ "git", "rev-parse", "--abbrev-ref", revspec })
+  logger.debug(
+    "|git.get_rev_name| revspec(%s):%s, result(%s):%s",
+    vim.inspect(type(revspec)),
+    vim.inspect(revspec),
+    vim.inspect(type(result)),
+    vim.inspect(result)
+  )
   return result
 end
 
@@ -105,7 +155,7 @@ end
 --- @param revspec string
 --- @return JobResult
 local function is_file_in_rev(file, revspec)
-  local result = cmd({ "cat-file", "-e", revspec .. ":" .. file })
+  local result = cmd({ "git", "cat-file", "-e", revspec .. ":" .. file })
   logger.debug(
     "|git.is_file_in_rev| file(%s):%s, revspec(%s):%s, result(%s):%s",
     vim.inspect(type(file)),
@@ -122,13 +172,16 @@ end
 --- @param rev string
 --- @return boolean
 local function has_file_changed(file, rev)
-  local result = cmd({ "diff", rev, "--", file })
-  -- logger.debug(
-  --   "[git.has_file_changed] file:%s, rev:%s, result:%s",
-  --   vim.inspect(file),
-  --   vim.inspect(rev),
-  --   vim.inspect(result)
-  -- )
+  local result = cmd({ "git", "diff", rev, "--", file })
+  logger.debug(
+    "|git.has_file_changed| file(%s):%s, rev(%s):%s, result(%s):%s",
+    vim.inspect(type(file)),
+    vim.inspect(file),
+    vim.inspect(type(rev)),
+    vim.inspect(rev),
+    vim.inspect(type(result)),
+    vim.inspect(result)
+  )
   return result_has_out(result)
 end
 
@@ -137,13 +190,16 @@ end
 --- @param remote string
 --- @return boolean
 local function is_rev_in_remote(revspec, remote)
-  local result = cmd({ "branch", "--remotes", "--contains", revspec })
-  -- logger.debug(
-  --   "[git.is_rev_in_remote] revspec:%s, remote:%s, result:%s",
-  --   vim.inspect(revspec),
-  --   vim.inspect(remote),
-  --   vim.inspect(result)
-  -- )
+  local result = cmd({ "git", "branch", "--remotes", "--contains", revspec })
+  logger.debug(
+    "|git.is_rev_in_remote| revspec(%s):%s, remote(%s):%s, result(%s):%s",
+    vim.inspect(type(revspec)),
+    vim.inspect(revspec),
+    vim.inspect(type(remote)),
+    vim.inspect(remote),
+    vim.inspect(type(result)),
+    vim.inspect(result)
+  )
   local output = result.stdout
   for _, rbranch in ipairs(output) do
     if rbranch:match(remote) then
@@ -200,15 +256,18 @@ end
 
 --- @return JobResult
 local function get_root()
-  local buf_path = path:new(vim.api.nvim_buf_get_name(0))
-  local buf_dir = tostring(buf_path:parent())
-  local result = cmd({ "rev-parse", "--show-toplevel" }, buf_dir)
-  -- logger.debug(
-  --   "[git.get_root] buf_path:%s, buf_dir:%s, result:%s",
-  --   vim.inspect(buf_path),
-  --   vim.inspect(buf_dir),
-  --   vim.inspect(result)
-  -- )
+  local buf_path = vim.api.nvim_buf_get_name(0)
+  local buf_dir = vim.fn.fnamemodify(buf_path, ":p:h")
+  local result = cmd({ "git", "rev-parse", "--show-toplevel" }, buf_dir)
+  logger.debug(
+    "|git.get_root| buf_path(%s):%s, buf_dir(%s):%s, result(%s):%s",
+    vim.inspect(type(buf_path)),
+    vim.inspect(buf_path),
+    vim.inspect(type(buf_dir)),
+    vim.inspect(buf_dir),
+    vim.inspect(type(result)),
+    vim.inspect(result)
+  )
   return result
 end
 

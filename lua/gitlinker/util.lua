@@ -1,6 +1,4 @@
-local path = require("plenary.path")
 local logger = require("gitlinker.logger")
-local os = vim.loop.os_uname().sysname
 
 --- @return boolean
 local function is_macos()
@@ -15,60 +13,33 @@ end
 --- @param cwd string|nil
 --- @return string
 local function relative_path(cwd)
-  -- In Windows, path separator is '\\'
-  -- But git root command will give us path with '/' separator
-  -- This will lead us to the wrong relative path because plenary.path don't recoginize them
-  -- So here we replace '/' to '\\' for plenary.path
-
   logger.debug(
     "|util.relative_path| cwd1(%s):%s",
     vim.inspect(type(cwd)),
     vim.inspect(cwd)
   )
 
-  local buf_path = path:new(vim.api.nvim_buf_get_name(0))
-  local relpath = nil
-
-  if is_windows() and cwd ~= nil then
-    local buf_path_filename = tostring(buf_path)
-    if buf_path_filename:sub(1, #cwd) == cwd then
-      relpath = buf_path_filename:sub(#cwd + 1, -1)
-      logger.debug(
-        "|util.relative_path| relpath1(%s):%s",
-        vim.inspect(type(relpath)),
-        vim.inspect(relpath)
-      )
-      if relpath:sub(1, 1) == "/" or relpath:sub(1, 1) == "\\" then
-        relpath = relpath:sub(2, -1)
-        logger.debug(
-          "|util.relative_path| relpath1.1(%s):%s",
-          vim.inspect(type(relpath)),
-          vim.inspect(relpath)
-        )
-      end
-    else
-      relpath = buf_path:make_relative(cwd)
-    end
-  else
-    relpath = buf_path:make_relative(cwd)
+  local buf_path = vim.api.nvim_buf_get_name(0)
+  if cwd == nil or string.len(cwd) <= 0 then
+    cwd = vim.fn.getcwd()
   end
-
   logger.debug(
-    "|util.relative_path| buf_path(%s):%s, relpath(%s):%s",
+    "|util.relative_path| buf_path(%s):%s, cwd(%s):%s",
     vim.inspect(type(buf_path)),
     vim.inspect(buf_path),
-    vim.inspect(type(relpath)),
-    vim.inspect(relpath)
+    vim.inspect(type(cwd)),
+    vim.inspect(cwd)
   )
 
-  -- Then we translate '\\' back to '/'
-  -- if relpath ~= nil and is_windows() then
-  --   if relpath:find("\\") then
-  --     relpath = relpath:gsub("\\", "/")
-  --   end
-  -- end
+  local relpath = nil
+  if buf_path:sub(1, #cwd) == cwd then
+    relpath = buf_path:sub(#cwd + 1, -1)
+    if relpath:sub(1, 1) == "/" or relpath:sub(1, 1) == "\\" then
+      relpath = relpath:sub(2, -1)
+    end
+  end
   logger.debug(
-    "|util.relative_path| relpath2(%s):%s",
+    "|util.relative_path| relpath(%s):%s",
     vim.inspect(type(relpath)),
     vim.inspect(relpath)
   )
@@ -88,20 +59,16 @@ end
 
 --- @return LineRange
 local function line_range()
-  vim.cmd([[execute "normal! \<ESC>"]])
-  local mode = vim.fn.visualmode()
+  local mode = vim.fn.mode()
   local pos1 = nil
   local pos2 = nil
   if is_visual_mode(mode) then
+    vim.cmd([[execute "normal! \<ESC>"]])
     pos1 = vim.fn.getpos("'<")[2]
     pos2 = vim.fn.getpos("'>")[2]
   else
-    pos1 = vim.fn.getpos("v")[2]
-    -- if mode == "v" then
-    --   pos2 = vim.fn.getpos(".")[2]
-    -- else
-    pos2 = vim.fn.getcurpos()[2]
-    -- end
+    pos1 = vim.fn.getcurpos()[2]
+    pos2 = pos1
   end
   local lstart = math.min(pos1, pos2)
   local lend = math.max(pos1, pos2)

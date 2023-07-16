@@ -1,7 +1,6 @@
 local git = require("gitlinker.git")
 local util = require("gitlinker.util")
 local logger = require("gitlinker.logger")
-local path = require("plenary.path")
 
 --- @type table<string, any>
 local Defaults = {
@@ -215,7 +214,7 @@ local function make_link_data()
     vim.inspect(rev)
   )
 
-  local root = tostring(path:new(root_result.stdout[1]))
+  local root = root_result.stdout[1]
   local buf_path_on_root = util.relative_path(root)
   logger.debug(
     "|make_link_data| root(%s):%s, buf_path_on_root(%s):%s",

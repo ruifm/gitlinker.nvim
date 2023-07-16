@@ -1,6 +1,6 @@
-local PathSeparator = (vim.fn.has("win32") or vim.fn.has("win64")) and "\\"
+local Separator = (vim.fn.has("win32") > 0 or vim.fn.has("win64") > 0) and "\\"
   or "/"
-local LogFilePath = vim.fn.stdpath("data") .. PathSeparator .. "gitlinker.log"
+local LogFilePath = vim.fn.stdpath("data") .. Separator .. "gitlinker.log"
 local EchoHl = {
   ["ERROR"] = "ErrorMsg",
   ["WARN"] = "ErrorMsg",

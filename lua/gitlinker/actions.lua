@@ -1,4 +1,3 @@
-local job = require("plenary.job")
 local util = require("gitlinker.util")
 
 --- @alias ActionType fun(url:string):nil
@@ -15,15 +14,15 @@ end
 --- @param url string
 --- @return nil
 local function system(url)
-  local j
+  local job
   if util.is_macos() then
-    j = job:new({ command = "open", args = { url } })
+    job = vim.fn.jobstart({ "open", url })
   elseif util.is_windows() then
-    j = job:new({ command = "cmd", args = { "/C", "start", url } })
+    job = vim.fn.jobstart({ "cmd", "/C", "start", url })
   else
-    j = job:new({ command = "xdg-open", args = { url } })
+    job = vim.fn.jobstart({ "xdg-open", url })
   end
-  j:start()
+  vim.fn.jobwait({ job })
 end
 
 --- @type table<string, function>
