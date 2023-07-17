@@ -164,7 +164,7 @@ local function new_linker(remote_url, rev, file, lstart, lend, file_changed)
 end
 
 --- @return Linker|nil
-local function make_link_data()
+local function make_link_data(range)
   --- @type JobResult
   local root_result = git.get_root()
   if not git.result_has_out(root_result) then
@@ -246,13 +246,15 @@ local function make_link_data()
     vim.inspect(buf_path_on_cwd)
   )
 
-  --- @type LineRange
-  local range = util.line_range()
-  logger.debug(
-    "[make_link_data] range(%s):%s",
-    vim.inspect(type(range)),
-    vim.inspect(range)
-  )
+  if range == nil or range["lstart"] == nil or range["lend"] == nil then
+    --- @type LineRange
+    range = util.line_range()
+    logger.debug(
+      "[make_link_data] range(%s):%s",
+      vim.inspect(type(range)),
+      vim.inspect(range)
+    )
+  end
 
   local remote_url = remote_url_result.stdout[1]
   logger.debug(
@@ -327,7 +329,11 @@ local function link(option)
   option = vim.tbl_deep_extend("force", Configs, option or {})
   logger.debug("[make_link] after merge, option: %s", vim.inspect(option))
 
-  local linker = make_link_data()
+  local range = nil
+  if option["lstart"] ~= nil and option["lend"] ~= nil then
+    range = { lstart = option["lstart"], lend = option["lend"] }
+  end
+  local linker = make_link_data(range)
   if not linker then
     return nil
   end
