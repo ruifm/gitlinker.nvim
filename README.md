@@ -155,7 +155,7 @@ end, {
 })
 ```
 
-> Support visual mode is a little bit tricky, please read: https://github.com/linrongbin16/gitlinker.nvim/discussions/38.
+> Support command range is a little bit tricky, please read: https://github.com/linrongbin16/gitlinker.nvim/discussions/38.
 
 ## Configuration
 
