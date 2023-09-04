@@ -2,6 +2,13 @@
 
 # gitlinker.nvim
 
+<p align="center">
+<a href="https://github.com/neovim/neovim/releases/stable"><img alt="Neovim-v0.5" src="https://img.shields.io/badge/Neovim-v0.5-blueviolet.svg?logo=Neovim&logoColor=green" /></a>
+<a href="https://github.com/linrongbin16/gitlinker.nvim/search?l=lua"><img alt="Top Language" src="https://img.shields.io/github/languages/top/linrongbin16/gitlinker.nvim?label=Lua&logo=lua&logoColor=darkblue" /></a>
+<a href="https://github.com/linrongbin16/gitlinker.nvim/blob/master/LICENSE"><img alt="License" src="https://img.shields.io/github/license/linrongbin16/gitlinker.nvim?logo=GNU&label=License" /></a>
+<!-- <a href="https://github.com/linrongbin16/fzfx.nvim/actions/workflows/ci.yml"><img alt="ci.yml" src="https://img.shields.io/github/actions/workflow/status/linrongbin16/fzfx.nvim/ci.yml?logo=GitHub&label=Luacheck" /></a> -->
+</p>
+
 > A fork of [ruifm's gitlinker](https://github.com/ruifm/gitlinker.nvim), refactored
 > with pattern based rule engine, Windows support and other enhancements.
 
@@ -62,7 +69,6 @@ Requirement:
 ```lua
 use {
     'linrongbin16/gitlinker.nvim',
-    branch = 'master',
     config = function()
         require('gitlinker').setup()
     end,
@@ -74,7 +80,7 @@ use {
 ```vim
 call plug#begin()
 
-Plug 'linrongbin16/gitlinker.nvim', { 'branch': 'master' }
+Plug 'linrongbin16/gitlinker.nvim'
 
 call plug#end()
 
