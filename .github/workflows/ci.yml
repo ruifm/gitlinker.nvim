@@ -1,0 +1,88 @@
+
+---
+name: CI
+on:
+  pull_request: ~
+  push:
+    branches:
+      - master
+jobs:
+  typecheck:
+    name: Type check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: LuaLs Typecheck
+        uses: stevearc/nvim-typecheck-action@v1
+        with:
+          path: lua
+          level: Information
+          configpath: ".luarc.json"
+          neodev-version: stable
+  luacheck:
+    name: Lua check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Luacheck linter
+        uses: lunarmodules/luacheck@v1
+        with:
+          args: lua --config .luacheckrc
+  unit_test:
+    name: Unit test
+    strategy:
+      matrix:
+        nvim_version: [stable, nightly, v0.7.0]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup neovim
+        uses: rhysd/action-setup-vim@v1
+        id: vim
+        with:
+          neovim: true
+          version: ${{ matrix.nvim_version }}
+      - name: Install luajit
+        uses: leafo/gh-actions-lua@v10
+        with:
+          luaVersion: "luajit-2.1.0-beta3"
+      - name: Install luarocks
+        uses: leafo/gh-actions-luarocks@v4
+      - name: Run test cases
+        shell: bash
+        run: |
+          luarocks install luacheck
+          luarocks install luacov
+          luarocks install cluacov
+          luarocks install vusted
+          vusted --coverage --shuffle ./test
+      - name: Generate coverage reports
+        shell: bash
+        run: |
+          echo "ls ."
+          ls -l .
+          echo "run luacov"
+          luacov
+          echo "ls ."
+          ls -l .
+          echo "cat ./luacov.report.out"
+          cat ./luacov.report.out
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          files: luacov.report.out
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+  code_format:
+    name: Code format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: JohnnyMorganz/stylua-action@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          version: latest
+          args: --config-path .stylua.toml --color always --check lua

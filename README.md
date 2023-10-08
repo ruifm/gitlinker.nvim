@@ -3,10 +3,11 @@
 # gitlinker.nvim
 
 <p align="center">
-<a href="https://github.com/neovim/neovim/releases/stable"><img alt="Neovim-v0.5" src="https://img.shields.io/badge/Neovim-v0.5-blueviolet.svg?logo=Neovim&logoColor=green" /></a>
+<a href="https://github.com/neovim/neovim/releases/v0.7.0"><img alt="Neovim-v0.7" src="https://img.shields.io/badge/Neovim-v0.7-blueviolet.svg?logo=Neovim&logoColor=green" /></a>
 <a href="https://github.com/linrongbin16/gitlinker.nvim/search?l=lua"><img alt="Top Language" src="https://img.shields.io/github/languages/top/linrongbin16/gitlinker.nvim?label=Lua&logo=lua&logoColor=darkblue" /></a>
 <a href="https://github.com/linrongbin16/gitlinker.nvim/blob/master/LICENSE"><img alt="License" src="https://img.shields.io/github/license/linrongbin16/gitlinker.nvim?logo=GNU&label=License" /></a>
-<!-- <a href="https://github.com/linrongbin16/fzfx.nvim/actions/workflows/ci.yml"><img alt="ci.yml" src="https://img.shields.io/github/actions/workflow/status/linrongbin16/fzfx.nvim/ci.yml?logo=GitHub&label=Luacheck" /></a> -->
+<a href="https://github.com/linrongbin16/gitlinker.nvim/actions/workflows/ci.yml"><img alt="ci.yml" src="https://img.shields.io/github/actions/workflow/status/linrongbin16/gitlinker.nvim/ci.yml?logo=GitHub&label=Luacheck" /></a>
+<a href="https://app.codecov.io/github/linrongbin16/gitlinker.nvim"><img alt="codecov" src="https://img.shields.io/codecov/c/github/linrongbin16/gitlinker.nvim?logo=codecov&logoColor=magenta&label=Codecov" /></a>
 </p>
 
 > A fork of [ruifm's gitlinker](https://github.com/ruifm/gitlinker.nvim), refactored
@@ -22,7 +23,7 @@ An example of git permalink:
 Personally, I use this all the time to easily share code locations with my
 co-workers.
 
-- [Break Changes & Features](#break-changes--features)
+- [Break Changes & Updates](#break-changes--updates)
   - [Lua pattern based rules](#lua-pattern-based-rules)
 - [Installation](#installation)
   - [packer.nvim](#packernvim)
@@ -35,7 +36,7 @@ co-workers.
   - [Customization](#customization)
 - [Configuration](#configuration)
 
-## Break Changes & Features
+## Break Changes & Updates
 
 1. Bug fix: you can disable/custom default key mappings.
 2. Windows support: you can use it on Windows.
@@ -61,8 +62,8 @@ PRs are welcomed for other git host websites!
 
 Requirement:
 
-- git
-- neovim 0.8
+- git.
+- neovim &ge; v0.7.
 
 ### [packer.nvim](https://github.com/wbthomason/packer.nvim)
 
@@ -244,13 +245,22 @@ require('gitlinker').setup({
 })
 ````
 
+## Development
+
+To develop the project and make PR, please setup with:
+
+- [lua_ls](https://github.com/LuaLS/lua-language-server).
+- [stylua](https://github.com/JohnnyMorganz/StyLua).
+- [luarocks](https://luarocks.org/).
+- [luacheck](https://github.com/mpeterv/luacheck).
+
+To run unit tests, please install below dependencies:
+
+- [vusted](https://github.com/notomo/vusted).
+
+Then test with `vusted ./test`.
+
 ## Contribute
-
-For developing:
-
-1. Use [lua-language-server](https://github.com/LuaLS/lua-language-server) for code lint.
-2. Use [stylua](https://github.com/JohnnyMorganz/StyLua) for code formatting.
-3. Start neovim and run unit test: `lua require('gitlinker.test.test_rules')`
 
 Please also open [issue](https://github.com/linrongbin16/lin.nvim/issues)/[PR](https://github.com/linrongbin16/lin.nvim/pulls) for anything about gitlinker.nvim.
 

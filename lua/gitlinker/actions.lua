@@ -6,7 +6,7 @@ local util = require("gitlinker.util")
 --- @param url string
 --- @return nil
 local function clipboard(url)
-  vim.api.nvim_command("let @+ = '" .. url .. "'")
+    vim.api.nvim_command("let @+ = '" .. url .. "'")
 end
 
 -- open url in browser
@@ -14,23 +14,23 @@ end
 --- @param url string
 --- @return nil
 local function system(url)
-  local job
-  if util.is_macos() then
-    job = vim.fn.jobstart({ "open", url })
-  elseif util.is_windows() then
-    job = vim.fn.jobstart({ "cmd", "/C", "start", url })
-  else
-    job = vim.fn.jobstart({ "xdg-open", url })
-  end
-  vim.fn.jobwait({ job })
+    local job
+    if util.is_macos() then
+        job = vim.fn.jobstart({ "open", url })
+    elseif util.is_windows() then
+        job = vim.fn.jobstart({ "cmd", "/C", "start", url })
+    else
+        job = vim.fn.jobstart({ "xdg-open", url })
+    end
+    vim.fn.jobwait({ job })
 end
 
 --- @type table<string, function>
 local M = {
-  --- @type ActionType
-  clipboard = clipboard,
-  --- @type ActionType
-  system = system,
+    --- @type ActionType
+    clipboard = clipboard,
+    --- @type ActionType
+    system = system,
 }
 
 return M
