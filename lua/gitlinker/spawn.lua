@@ -60,6 +60,7 @@ end
 --- @alias SpawnLineConsumer fun(line:string):any
 --- @class Spawn
 --- @field cmds string[]
+--- @field cwd string?
 --- @field fn_out_line_consumer SpawnLineConsumer
 --- @field fn_err_line_consumer SpawnLineConsumer
 --- @field out_pipe uv_pipe_t
@@ -81,10 +82,9 @@ local function dummy_stderr_line_consumer(line)
 end
 
 --- @param cmds string[]
---- @param fn_out_line_consumer SpawnLineConsumer
---- @param fn_err_line_consumer SpawnLineConsumer?
+--- @param opts {on_stdout:SpawnLineConsumer,on_stderr:SpawnLineConsumer?,cwd:string?}
 --- @return Spawn?
-function Spawn:make(cmds, fn_out_line_consumer, fn_err_line_consumer)
+function Spawn:make(cmds, opts)
     local out_pipe = vim.loop.new_pipe(false) --[[@as uv_pipe_t]]
     local err_pipe = vim.loop.new_pipe(false) --[[@as uv_pipe_t]]
     if not out_pipe or not err_pipe then
@@ -93,9 +93,9 @@ function Spawn:make(cmds, fn_out_line_consumer, fn_err_line_consumer)
 
     local o = {
         cmds = cmds,
-        fn_out_line_consumer = fn_out_line_consumer,
-        fn_err_line_consumer = fn_err_line_consumer
-            or dummy_stderr_line_consumer,
+        cwd = opts.cwd or vim.fn.getcwd(),
+        fn_out_line_consumer = opts.on_stdout,
+        fn_err_line_consumer = opts.on_stderr or dummy_stderr_line_consumer,
         out_pipe = out_pipe,
         err_pipe = err_pipe,
         out_buffer = nil,
@@ -228,6 +228,7 @@ end
 function Spawn:run()
     self.process_handle, self.process_id = vim.loop.spawn(self.cmds[1], {
         args = vim.list_slice(self.cmds, 2),
+        cwd = self.cwd,
         stdio = { nil, self.out_pipe, self.err_pipe },
         hide = true,
         -- verbatim = true,

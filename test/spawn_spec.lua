@@ -48,7 +48,10 @@ describe("spawn", function()
     end)
     describe("[Spawn]", function()
         it("open", function()
-            local sp = spawn.Spawn:make({ "cat", "README.md" }, function() end) --[[@as Spawn]]
+            local sp = spawn.Spawn:make(
+                { "cat", "README.md" },
+                { on_stdout = function() end }
+            ) --[[@as Spawn]]
             assert_eq(type(sp), "table")
             assert_eq(type(sp.cmds), "table")
             assert_eq(#sp.cmds, 2)
@@ -69,7 +72,10 @@ describe("spawn", function()
                 assert_eq(line, lines[i])
                 i = i + 1
             end
-            local sp = spawn.Spawn:make({ "cat", "README.md" }, process_line) --[[@as Spawn]]
+            local sp = spawn.Spawn:make(
+                { "cat", "README.md" },
+                { on_stdout = process_line }
+            ) --[[@as Spawn]]
             local pos = sp:_consume_line(content, process_line)
             if pos <= #content then
                 local line = content:sub(pos, #content)
@@ -87,7 +93,10 @@ describe("spawn", function()
                 assert_eq(line, lines[i])
                 i = i + 1
             end
-            local sp = spawn.Spawn:make({ "cat", "README.md" }, process_line) --[[@as Spawn]]
+            local sp = spawn.Spawn:make(
+                { "cat", "README.md" },
+                { on_stdout = process_line }
+            ) --[[@as Spawn]]
             local content_splits =
                 vim.split(content, "\n", { plain = true, trimempty = false })
             for j, splits in ipairs(content_splits) do
@@ -110,7 +119,10 @@ describe("spawn", function()
                 assert_eq(line, lines[i])
                 i = i + 1
             end
-            local sp = spawn.Spawn:make({ "cat", "README.md" }, process_line) --[[@as Spawn]]
+            local sp = spawn.Spawn:make(
+                { "cat", "README.md" },
+                { on_stdout = process_line }
+            ) --[[@as Spawn]]
             local content_splits =
                 vim.split(content, " ", { plain = true, trimempty = false })
             for j, splits in ipairs(content_splits) do
@@ -136,8 +148,10 @@ describe("spawn", function()
                     assert_eq(line, lines[i])
                     i = i + 1
                 end
-                local sp =
-                    spawn.Spawn:make({ "cat", "README.md" }, process_line) --[[@as Spawn]]
+                local sp = spawn.Spawn:make(
+                    { "cat", "README.md" },
+                    { on_stdout = process_line }
+                ) --[[@as Spawn]]
                 local content_splits = vim.split(
                     content,
                     lower_char,
@@ -165,8 +179,10 @@ describe("spawn", function()
                     assert_eq(line, lines[i])
                     i = i + 1
                 end
-                local sp =
-                    spawn.Spawn:make({ "cat", "README.md" }, process_line) --[[@as Spawn]]
+                local sp = spawn.Spawn:make(
+                    { "cat", "README.md" },
+                    { on_stdout = process_line }
+                ) --[[@as Spawn]]
                 local content_splits = vim.split(
                     content,
                     upper_char,
@@ -183,7 +199,10 @@ describe("spawn", function()
             end)
         end
         it("stderr", function()
-            local sp = spawn.Spawn:make({ "cat", "README.md" }, function() end) --[[@as Spawn]]
+            local sp = spawn.Spawn:make(
+                { "cat", "README.md" },
+                { on_stdout = function() end }
+            ) --[[@as Spawn]]
             sp:_on_stderr(nil, nil)
             assert_true(sp.err_pipe:is_closing())
         end)
@@ -198,7 +217,10 @@ describe("spawn", function()
                 i = i + 1
             end
 
-            local sp = spawn.Spawn:make({ "cat", "README.md" }, process_line) --[[@as Spawn]]
+            local sp = spawn.Spawn:make(
+                { "cat", "README.md" },
+                { on_stdout = process_line }
+            ) --[[@as Spawn]]
             sp:run()
         end)
         it("iterate on lua/gitlinker.lua", function()
@@ -212,14 +234,16 @@ describe("spawn", function()
                 i = i + 1
             end
 
-            local sp =
-                spawn.Spawn:make({ "cat", "lua/gitlinker.lua" }, process_line) --[[@as Spawn]]
+            local sp = spawn.Spawn:make(
+                { "cat", "lua/gitlinker.lua" },
+                { on_stdout = process_line }
+            ) --[[@as Spawn]]
             sp:run()
         end)
         it("close handle", function()
             local sp = spawn.Spawn:make(
                 { "cat", "lua/gitlinker.lua" },
-                function() end
+                { on_stdout = function() end }
             ) --[[@as Spawn]]
             sp:run()
             assert_true(sp.process_handle ~= nil)
