@@ -10,7 +10,7 @@ on:
 jobs:
   pr_conventional_commit:
     name: PR Conventional Commit
-    if: ${{ github.ref != 'refs/heads/main' }}
+    if: ${{ github.ref != 'refs/heads/master' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
