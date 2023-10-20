@@ -56,19 +56,19 @@ end
 
 --- @return {lstart:integer,lend:integer}
 local function line_range()
-    local mode = vim.fn.mode()
-    local pos1 = nil
-    local pos2 = nil
-    if is_visual_mode(mode) then
+    local m = vim.fn.mode()
+    local l1 = nil
+    local l2 = nil
+    if is_visual_mode(m) then
         vim.cmd([[execute "normal! \<ESC>"]])
-        pos1 = vim.fn.getpos("'<")[2]
-        pos2 = vim.fn.getpos("'>")[2]
+        l1 = vim.fn.getpos("'<")[2]
+        l2 = vim.fn.getpos("'>")[2]
     else
-        pos1 = vim.fn.getcurpos()[2]
-        pos2 = pos1
+        l1 = vim.fn.getcurpos()[2]
+        l2 = l1
     end
-    local lstart = math.min(pos1, pos2)
-    local lend = math.max(pos1, pos2)
+    local lstart = math.min(l1, l2)
+    local lend = math.max(l1, l2)
     return { lstart = lstart, lend = lend }
 end
 
