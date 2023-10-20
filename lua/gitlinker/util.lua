@@ -54,11 +54,7 @@ local function is_visual_mode(m)
         or m == "\22"
 end
 
---- @class LineRange
---- @field lstart integer
---- @field lend integer
-
---- @return LineRange
+--- @return {lstart:integer,lend:integer}
 local function line_range()
     local mode = vim.fn.mode()
     local pos1 = nil

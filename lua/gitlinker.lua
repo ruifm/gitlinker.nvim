@@ -5,12 +5,12 @@ local logger = require("gitlinker.logger")
 --- @alias Options table<any, any>
 --- @type Options
 local Defaults = {
-    -- print message(git host url) in command line
+    -- print permanent url in command line
     --
     --- @type boolean
     message = true,
 
-    -- key mapping
+    -- key mappings
     --
     --- @alias KeyMappingConfig {action:fun(url:string):nil,desc:string?}
     --- @type table<string, KeyMappingConfig>
@@ -128,7 +128,7 @@ local function setup(option)
         end
     end
 
-    logger.debug("[setup] opts: %s", vim.inspect(Configs))
+    -- logger.debug("|setup| Configs:%s", vim.inspect(Configs))
 end
 
 --- @class Linker
@@ -171,11 +171,7 @@ local function make_link_data(range)
     if not remote then
         return nil
     end
-    logger.debug(
-        "|make_link_data| remote(%s):%s",
-        vim.inspect(type(remote)),
-        vim.inspect(remote)
-    )
+    logger.debug("|make_link_data| remote:%s", vim.inspect(remote))
 
     local remote_url_result = git.get_remote_url(remote)
     if not remote_url_result then
@@ -191,18 +187,12 @@ local function make_link_data(range)
     if not rev then
         return nil
     end
-    logger.debug(
-        "|make_link_data| rev(%s):%s",
-        vim.inspect(type(rev)),
-        vim.inspect(rev)
-    )
+    logger.debug("|make_link_data| rev:%s", vim.inspect(rev))
 
     local buf_path_on_root = util.path_relative(root) --[[@as string]]
     logger.debug(
-        "|make_link_data| root(%s):%s, buf_path_on_root(%s):%s",
-        vim.inspect(type(root)),
+        "|make_link_data| root:%s, buf_path_on_root:%s",
         vim.inspect(root),
-        vim.inspect(type(buf_path_on_root)),
         vim.inspect(buf_path_on_root)
     )
 
@@ -222,13 +212,8 @@ local function make_link_data(range)
     )
 
     if range == nil or range["lstart"] == nil or range["lend"] == nil then
-        --- @type LineRange
         range = util.line_range()
-        logger.debug(
-            "[make_link_data] range(%s):%s",
-            vim.inspect(type(range)),
-            vim.inspect(range)
-        )
+        logger.debug("[make_link_data] range:%s", vim.inspect(range))
     end
 
     return new_linker(
@@ -292,16 +277,15 @@ local function make_sharable_permalinks(host_url, linker)
     return url
 end
 
---- @param option table<string, any>
---- @return string|nil
-local function link(option)
-    logger.debug("[make_link] before merge, option: %s", vim.inspect(option))
-    option = vim.tbl_deep_extend("force", Configs, option or {})
-    logger.debug("[make_link] after merge, option: %s", vim.inspect(option))
+--- @param opts Options
+--- @return string?
+local function link(opts)
+    opts = vim.tbl_deep_extend("force", Configs, opts or {})
+    logger.debug("[link] merged opts: %s", vim.inspect(opts))
 
     local range = nil
-    if option["lstart"] ~= nil and option["lend"] ~= nil then
-        range = { lstart = option["lstart"], lend = option["lend"] }
+    if opts["lstart"] ~= nil and opts["lend"] ~= nil then
+        range = { lstart = opts["lstart"], lend = opts["lend"] }
     end
     local linker = make_link_data(range)
     if not linker then
@@ -320,10 +304,10 @@ local function link(option)
 
     local url = make_sharable_permalinks(host_url, linker)
 
-    if option.action then
-        option.action(url)
+    if opts.action then
+        opts.action(url)
     end
-    if option.message then
+    if opts.message then
         local msg = linker.file_changed
                 and string.format(
                     "%s (lines can be wrong due to file change)",
