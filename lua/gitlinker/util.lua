@@ -22,10 +22,11 @@ local function path_relative(cwd)
     cwd = path_normalize(cwd)
 
     local bufpath = vim.api.nvim_buf_get_name(0)
+    bufpath = vim.fn.resolve(bufpath)
     bufpath = path_normalize(bufpath)
 
     logger.debug(
-        "|util.path_relative| enter, cwd:%s, buf_path:%s",
+        "|util.path_relative| enter, cwd:%s, bufpath:%s",
         vim.inspect(cwd),
         vim.inspect(bufpath)
     )
