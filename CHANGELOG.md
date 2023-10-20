@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.0.1](https://github.com/linrongbin16/gitlinker.nvim/compare/v1.0.0...v1.0.1) (2023-10-20)
+
+
+### Bug Fixes
+
+* **path:** resolve symlink in Windows ([#75](https://github.com/linrongbin16/gitlinker.nvim/issues/75)) ([b292a4f](https://github.com/linrongbin16/gitlinker.nvim/commit/b292a4f78a5c76019a7b1a7c2af31fef5fd0d23d))
+
+
+### Performance Improvements
+
+* **logger:** reduce logs ([#77](https://github.com/linrongbin16/gitlinker.nvim/issues/77)) ([e055155](https://github.com/linrongbin16/gitlinker.nvim/commit/e05515576c3da05f73e227076471042f9b6b2cf5))
+
 ## 1.0.0 (2023-10-20)
 
 
