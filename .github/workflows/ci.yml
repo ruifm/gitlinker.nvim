@@ -105,7 +105,6 @@ jobs:
       - stylua
       - typecheck
       - run_tests
-      - update_docs
     runs-on: ubuntu-22.04
     steps:
       - uses: google-github-actions/release-please-action@v3
