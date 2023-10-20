@@ -1,56 +1,55 @@
 local logger = require("gitlinker.logger")
 
---- @param cwd string?
---- @return string?
-local function relative_path(cwd)
-    logger.debug(
-        "|util.relative_path| cwd1(%s):%s",
-        vim.inspect(type(cwd)),
-        vim.inspect(cwd)
-    )
-
-    local buf_path = vim.api.nvim_buf_get_name(0)
-    if cwd == nil or string.len(cwd) <= 0 then
-        cwd = vim.fn.getcwd()
+-- normalize path slash from '\\' to '/'
+--- @param p string
+--- @return string
+local function path_normalize(p)
+    local result = vim.fn.expand(p)
+    if string.match(result, [[\\]]) then
+        result = string.gsub(result, [[\\]], [[/]])
     end
-    -- get real path from possibly symlink
-    cwd = vim.fn.resolve(cwd)
-    -- normalize path slash from '\\' to '/'
-    if cwd:find("\\") then
-        cwd = cwd:gsub("\\\\", "/")
-        cwd = cwd:gsub("\\", "/")
+    if string.match(result, [[\]]) then
+        result = string.gsub(result, [[\]], [[/]])
     end
-    if buf_path:find("\\") then
-        buf_path = buf_path:gsub("\\\\", "/")
-        buf_path = buf_path:gsub("\\", "/")
-    end
-    logger.debug(
-        "|util.relative_path| buf_path(%s):%s, cwd(%s):%s",
-        vim.inspect(type(buf_path)),
-        vim.inspect(buf_path),
-        vim.inspect(type(cwd)),
-        vim.inspect(cwd)
-    )
-
-    local relpath = nil
-    if buf_path:sub(1, #cwd) == cwd then
-        relpath = buf_path:sub(#cwd + 1, -1)
-        if relpath:sub(1, 1) == "/" or relpath:sub(1, 1) == "\\" then
-            relpath = relpath:sub(2, -1)
-        end
-    end
-    logger.debug(
-        "|util.relative_path| relpath(%s):%s",
-        vim.inspect(type(relpath)),
-        vim.inspect(relpath)
-    )
-    return relpath
+    return vim.trim(result)
 end
 
+--- @param cwd string?
+--- @return string?
+local function path_relative(cwd)
+    cwd = cwd or vim.fn.getcwd()
+    cwd = vim.fn.resolve(cwd)
+    cwd = path_normalize(cwd)
+
+    local bufpath = vim.api.nvim_buf_get_name(0)
+    bufpath = path_normalize(bufpath)
+
+    logger.debug(
+        "|util.path_relative| enter, cwd:%s, buf_path:%s",
+        vim.inspect(cwd),
+        vim.inspect(bufpath)
+    )
+
+    local result = nil
+    if
+        string.len(bufpath) >= string.len(cwd)
+        and bufpath:sub(1, #cwd) == cwd
+    then
+        result = bufpath:sub(#cwd + 1)
+        if result:sub(1, 1) == "/" or result:sub(1, 1) == "\\" then
+            result = result:sub(2)
+        end
+    end
+    logger.debug("|util.path_relative| result:%s", vim.inspect(result))
+    return result
+end
+
+--- @param m string
+--- @return boolean
 local function is_visual_mode(m)
-    return type(m) == "string" and m:upper() == "V"
-        or m:upper() == "CTRL-V"
-        or m:upper() == "<C-V>"
+    return type(m) == "string" and string.upper(m) == "V"
+        or string.upper(m) == "CTRL-V"
+        or string.upper(m) == "<C-V>"
         or m == "\22"
 end
 
@@ -76,9 +75,10 @@ local function line_range()
     return { lstart = lstart, lend = lend }
 end
 
---- @type table<string, function>
 local M = {
-    relative_path = relative_path,
+    path_normalize = path_normalize,
+    path_relative = path_relative,
+    is_visual_mode = is_visual_mode,
     line_range = line_range,
 }
 
