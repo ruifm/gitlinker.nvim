@@ -1,0 +1,4 @@
+modules = {
+    ["gitlinker"] = "lua/gitlinker.lua",
+    ["gitlinker.*"] = "lua",
+}

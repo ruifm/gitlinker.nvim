@@ -1,31 +1,38 @@
 local logger = require("gitlinker.logger")
+local spawn = require("gitlinker.spawn")
 
 --- @class JobResult
 --- @field stdout string[]
 --- @field stderr string[]
+local JobResult = {}
 
---- @param result JobResult
---- @return boolean
-local function result_has_out(result)
-    return result["stdout"]
-        and type(result["stdout"]) == "table"
-        and #result["stdout"] > 0
+--- @return JobResult
+function JobResult:new()
+    local o = {
+        stdout = {},
+        stderr = {},
+    }
+    setmetatable(o, self)
+    self.__index = self
+    return o
 end
 
---- @param result JobResult
 --- @return boolean
-local function result_has_err(result)
-    return result["stderr"] ~= nil
-        and type(result["stderr"]) == "table"
-        and #result["stderr"] > 0
+function JobResult:has_out()
+    return type(self.stdout) == "table" and #self.stdout > 0
 end
 
---- @param result JobResult
---- @param default string|nil
---- @return nil
-local function result_print_err(result, default)
-    if result_has_err(result) and #result.stderr > 0 then
-        logger.err("%s", result.stderr[1])
+--- @return boolean
+function JobResult:has_err()
+    return type(self.stderr) == "table" and #self.stderr > 0
+end
+
+--- @param default string
+function JobResult:print_err(default)
+    if self:has_err() then
+        for _, e in ipairs(self.stderr) do
+            logger.err("%s", e)
+        end
     else
         logger.err("fatal: %s", default)
     end
@@ -37,51 +44,19 @@ end
 --- @param cwd string|nil
 --- @return JobResult
 local function cmd(args, cwd)
-    local result = { stdout = {}, stderr = {} }
-    local job = vim.fn.jobstart(args, {
-        cwd = cwd,
-        on_stdout = function(chanid, data, name)
-            logger.debug(
-                "|cmd.on_stdout| args(%s):%s, cwd(%s):%s, chanid(%s):%s, data(%s):%s, name(%s):%s",
-                vim.inspect(type(args)),
-                vim.inspect(args),
-                vim.inspect(type(cwd)),
-                vim.inspect(cwd),
-                vim.inspect(type(chanid)),
-                vim.inspect(chanid),
-                vim.inspect(type(data)),
-                vim.inspect(data),
-                vim.inspect(type(name)),
-                vim.inspect(name)
-            )
-            for _, line in ipairs(data) do
-                if string.len(line) > 0 then
-                    table.insert(result.stdout, line)
-                end
-            end
-        end,
-        on_stderr = function(chanid, data, name)
-            logger.debug(
-                "|cmd.on_stderr| args(%s):%s, cwd(%s):%s, chanid(%s):%s, data(%s):%s, name(%s):%s",
-                vim.inspect(type(args)),
-                vim.inspect(args),
-                vim.inspect(type(cwd)),
-                vim.inspect(cwd),
-                vim.inspect(type(chanid)),
-                vim.inspect(chanid),
-                vim.inspect(type(data)),
-                vim.inspect(data),
-                vim.inspect(type(name)),
-                vim.inspect(name)
-            )
-            for _, line in ipairs(data) do
-                if string.len(line) > 0 then
-                    table.insert(result.stderr, line)
-                end
-            end
-        end,
-    })
-    vim.fn.jobwait({ job })
+    local result = JobResult:new()
+
+    local sp = spawn.Spawn:make(args, function(line)
+        if type(line) == "string" then
+            table.insert(result.stdout, line)
+        end
+    end, function(line)
+        if type(line) == "string" then
+            table.insert(result.stderr, line)
+        end
+    end) --[[@as Spawn]]
+    sp:run()
+
     logger.debug(
         "|cmd| args(%s):%s, cwd(%s):%s, result(%s):%s",
         vim.inspect(type(args)),
@@ -123,7 +98,7 @@ end
 
 --- @package
 --- @param revspec string|nil
---- @return string|nil
+--- @return string?
 local function get_rev(revspec)
     local result = cmd({ "git", "rev-parse", revspec })
     logger.debug(
@@ -133,7 +108,7 @@ local function get_rev(revspec)
         vim.inspect(type(result)),
         vim.inspect(result)
     )
-    return result_has_out(result) and result.stdout[1] or nil
+    return result:has_out() and result.stdout[1] or nil
 end
 
 --- @package
@@ -182,7 +157,7 @@ local function has_file_changed(file, rev)
         vim.inspect(type(result)),
         vim.inspect(result)
     )
-    return result_has_out(result)
+    return result:has_out()
 end
 
 --- @package
@@ -271,14 +246,14 @@ local function get_root()
     return result
 end
 
---- @return string|nil
+--- @return string?
 local function get_branch_remote()
     -- origin/upstream
     --- @type JobResult
     local remote_result = get_remote()
 
     if type(remote_result.stdout) ~= "table" or #remote_result.stdout == 0 then
-        result_print_err(remote_result, "git repository has no remote")
+        remote_result:print_err("git repository has no remote")
         return nil
     end
 
@@ -289,8 +264,8 @@ local function get_branch_remote()
     -- origin/linrongbin16/add-rule2
     --- @type JobResult
     local upstream_branch_result = get_rev_name("@{u}")
-    if not result_has_out(upstream_branch_result) then
-        result_print_err(upstream_branch_result, "git branch has no remote")
+    if not upstream_branch_result:has_out() then
+        upstream_branch_result:print_err("git branch has no remote")
         return nil
     end
 
@@ -324,11 +299,7 @@ local function get_branch_remote()
     return nil
 end
 
---- @type table<string, function>
 local M = {
-    result_has_out = result_has_out,
-    result_has_err = result_has_err,
-    result_print_err = result_print_err,
     get_root = get_root,
     get_remote_url = get_remote_url,
     is_file_in_rev = is_file_in_rev,

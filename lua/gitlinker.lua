@@ -2,10 +2,11 @@ local git = require("gitlinker.git")
 local util = require("gitlinker.util")
 local logger = require("gitlinker.logger")
 
---- @alias Configs table<any, any>
---- @type Configs
+--- @alias Options table<any, any>
+--- @type Options
 local Defaults = {
     -- print message(git host url) in command line
+    --
     --- @type boolean
     message = true,
 
@@ -24,8 +25,8 @@ local Defaults = {
         },
     },
 
-    -- regex pattern based rules
-    --- @type table<string, string>[]
+    -- pattern based rules
+    --- @type {[1]:table<string,string>,[2]:table<string,string>}
     pattern_rules = {
         {
             ["^git@github%.([_%.%-%w]+):([%.%-%w]+)/([_%.%-%w]+)%.git$"] = "https://github.%1/%2/%3/blob/",
@@ -88,10 +89,10 @@ local Defaults = {
     file_log = false,
 }
 
---- @type Configs
+--- @type Options
 local Configs = {}
 
---- @param option Configs?
+--- @param option Options?
 local function setup(option)
     Configs = vim.tbl_deep_extend("force", Defaults, option or {})
 
@@ -112,7 +113,7 @@ local function setup(option)
     end
 
     -- key mapping
-    if key_mappings then
+    if type(key_mappings) == "table" then
         for k, v in pairs(key_mappings) do
             local opt = {
                 noremap = true,
@@ -162,8 +163,8 @@ end
 local function make_link_data(range)
     --- @type JobResult
     local root_result = git.get_root()
-    if not git.result_has_out(root_result) then
-        git.result_print_err(root_result, "not in a git repository")
+    if not root_result:has_out() then
+        root_result:print_err("not in a git repository")
         return nil
     end
     logger.debug(
@@ -185,9 +186,8 @@ local function make_link_data(range)
 
     --- @type JobResult
     local remote_url_result = git.get_remote_url(remote)
-    if not git.result_has_out(remote_url_result) then
-        git.result_print_err(
-            remote_url_result,
+    if not remote_url_result:has_out() then
+        remote_url_result:print_err(
             "failed to get remote url by remote '" .. remote .. "'"
         )
         return nil
@@ -221,9 +221,8 @@ local function make_link_data(range)
 
     --- @type JobResult
     local file_in_rev_result = git.is_file_in_rev(buf_path_on_root, rev)
-    if git.result_has_err(file_in_rev_result) then
-        git.result_print_err(
-            file_in_rev_result,
+    if file_in_rev_result:has_err() then
+        file_in_rev_result:print_err(
             "'"
                 .. buf_path_on_root
                 .. "' does not exist in remote '"
