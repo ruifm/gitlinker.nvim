@@ -71,29 +71,29 @@ end
 
 --- @package
 --- @return JobResult
-local function get_remote()
+local function _get_remote()
     local result = cmd({ "git", "remote" })
-    logger.debug(
-        "|git.get_remote| result(%s):%s",
-        vim.inspect(type(result)),
-        vim.inspect(result)
-    )
+    logger.debug("|git._get_remote| result:%s", vim.inspect(result))
     return result
 end
 
 --- @param remote string
---- @return JobResult
+--- @return string?
 local function get_remote_url(remote)
     assert(remote, "remote cannot be nil")
     local result = cmd({ "git", "remote", "get-url", remote })
     logger.debug(
-        "|git.get_remote_url| remote(%s):%s, result(%s):%s",
-        vim.inspect(type(remote)),
+        "|git.get_remote_url| remote:%s, result:%s",
         vim.inspect(remote),
-        vim.inspect(type(result)),
         vim.inspect(result)
     )
-    return result
+    if not result:has_out() then
+        result:print_err(
+            "failed to get remote url by remote '" .. remote .. "'"
+        )
+        return nil
+    end
+    return result.stdout[1]
 end
 
 --- @package
@@ -250,10 +250,10 @@ end
 local function get_branch_remote()
     -- origin/upstream
     --- @type JobResult
-    local remote_result = get_remote()
+    local remote_result = _get_remote()
 
     if type(remote_result.stdout) ~= "table" or #remote_result.stdout == 0 then
-        remote_result:print_err("git repository has no remote")
+        remote_result:print_err("git repo has no remote")
         return nil
     end
 
@@ -262,7 +262,6 @@ local function get_branch_remote()
     end
 
     -- origin/linrongbin16/add-rule2
-    --- @type JobResult
     local upstream_branch_result = get_rev_name("@{u}")
     if not upstream_branch_result:has_out() then
         upstream_branch_result:print_err("git branch has no remote")
