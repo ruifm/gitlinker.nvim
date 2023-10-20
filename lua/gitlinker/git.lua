@@ -41,29 +41,30 @@ end
 -- wrap the git command to do the right thing always
 --- @package
 --- @param args string[]
---- @param cwd string|nil
+--- @param cwd string?
 --- @return JobResult
 local function cmd(args, cwd)
     local result = JobResult:new()
 
-    local sp = spawn.Spawn:make(args, function(line)
-        if type(line) == "string" then
-            table.insert(result.stdout, line)
-        end
-    end, function(line)
-        if type(line) == "string" then
-            table.insert(result.stderr, line)
-        end
-    end) --[[@as Spawn]]
+    local sp = spawn.Spawn:make(args, {
+        cwd = cwd or vim.fn.getcwd(),
+        on_stdout = function(line)
+            if type(line) == "string" then
+                table.insert(result.stdout, line)
+            end
+        end,
+        on_stderr = function(line)
+            if type(line) == "string" then
+                table.insert(result.stderr, line)
+            end
+        end,
+    }) --[[@as Spawn]]
     sp:run()
 
     logger.debug(
-        "|cmd| args(%s):%s, cwd(%s):%s, result(%s):%s",
-        vim.inspect(type(args)),
+        "|git.cmd| args:%s, cwd:%s, result:%s",
         vim.inspect(args),
-        vim.inspect(type(cwd)),
         vim.inspect(cwd),
-        vim.inspect(type(result)),
         vim.inspect(result)
     )
     return result
@@ -102,10 +103,8 @@ end
 local function _get_rev(revspec)
     local result = cmd({ "git", "rev-parse", revspec })
     logger.debug(
-        "|git._get_rev| revspec(%s):%s, result(%s):%s",
-        vim.inspect(type(revspec)),
+        "|git._get_rev| revspec:%s, result:%s",
         vim.inspect(revspec),
-        vim.inspect(type(result)),
         vim.inspect(result)
     )
     return result:has_out() and result.stdout[1] or nil
@@ -232,12 +231,9 @@ local function get_root()
     local buf_dir = vim.fn.fnamemodify(buf_path, ":p:h")
     local result = cmd({ "git", "rev-parse", "--show-toplevel" }, buf_dir)
     logger.debug(
-        "|git.get_root| buf_path(%s):%s, buf_dir(%s):%s, result(%s):%s",
-        vim.inspect(type(buf_path)),
+        "|git.get_root| buf_path:%s, buf_dir:%s, result:%s",
         vim.inspect(buf_path),
-        vim.inspect(type(buf_dir)),
         vim.inspect(buf_dir),
-        vim.inspect(type(result)),
         vim.inspect(result)
     )
     if not result:has_out() then
