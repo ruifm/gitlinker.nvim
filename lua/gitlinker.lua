@@ -159,19 +159,12 @@ local function new_linker(remote_url, rev, file, lstart, lend, file_changed)
     return linker
 end
 
---- @return Linker|nil
+--- @return Linker?
 local function make_link_data(range)
-    --- @type JobResult
-    local root_result = git.get_root()
-    if not root_result:has_out() then
-        root_result:print_err("not in a git repository")
+    local root = git.get_root()
+    if not root then
         return nil
     end
-    logger.debug(
-        "|make_link_data| root_result(%s):%s",
-        vim.inspect(type(root_result)),
-        vim.inspect(root_result)
-    )
 
     --- @type string|nil
     local remote = git.get_branch_remote()
@@ -204,7 +197,6 @@ local function make_link_data(range)
         vim.inspect(rev)
     )
 
-    local root = root_result.stdout[1]
     local buf_path_on_root = util.relative_path(root)
     logger.debug(
         "|make_link_data| root(%s):%s, buf_path_on_root(%s):%s",
@@ -214,28 +206,18 @@ local function make_link_data(range)
         vim.inspect(buf_path_on_root)
     )
 
-    --- @type JobResult
     local file_in_rev_result = git.is_file_in_rev(buf_path_on_root, rev)
-    if file_in_rev_result:has_err() then
-        file_in_rev_result:print_err(
-            "'"
-                .. buf_path_on_root
-                .. "' does not exist in remote '"
-                .. remote
-                .. "'"
-        )
+    if not file_in_rev_result then
         return nil
     end
     logger.debug(
-        "|make_link_data| file_in_rev_result(%s):%s",
-        vim.inspect(type(file_in_rev_result)),
+        "|make_link_data| file_in_rev_result:%s",
         vim.inspect(file_in_rev_result)
     )
 
     local buf_path_on_cwd = util.relative_path()
     logger.debug(
-        "|make_link_data| buf_path_on_cwd(%s):%s",
-        vim.inspect(type(buf_path_on_cwd)),
+        "|make_link_data| buf_path_on_cwd:%s",
         vim.inspect(buf_path_on_cwd)
     )
 
