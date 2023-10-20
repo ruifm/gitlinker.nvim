@@ -101,10 +101,10 @@ jobs:
     name: Release
     if: ${{ github.ref == 'refs/heads/master' }}
     needs:
-      - luacheck
-      - stylua
       - typecheck
-      - run_tests
+      - luacheck
+      - unit_test
+      - code_format
     runs-on: ubuntu-22.04
     steps:
       - uses: google-github-actions/release-please-action@v3
