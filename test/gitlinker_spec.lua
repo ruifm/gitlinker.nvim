@@ -87,7 +87,7 @@ describe("gitlinker", function()
             }
 
             for i, case in ipairs(test_cases) do
-                local actual = gitlinker.map_remote_to_host(case[1])
+                local actual = gitlinker._map_remote_to_host(case[1])
                 local expect = case[2]
                 assert_eq(actual, expect)
             end

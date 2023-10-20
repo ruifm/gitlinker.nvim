@@ -10,18 +10,13 @@
 <a href="https://app.codecov.io/github/linrongbin16/gitlinker.nvim"><img alt="codecov" src="https://img.shields.io/codecov/c/github/linrongbin16/gitlinker.nvim?logo=codecov&logoColor=magenta&label=Codecov" /></a>
 </p>
 
-> A fork of [ruifm's gitlinker](https://github.com/ruifm/gitlinker.nvim), refactored
-> with pattern based rule engine, Windows support and other enhancements.
+> A fork of [ruifm's gitlinker](https://github.com/ruifm/gitlinker.nvim), refactored with pattern based rule engine, Windows support and other enhancements.
 
-A lua plugin for [Neovim](https://github.com/neovim/neovim) to generate sharable
-file permalinks (with line ranges) for git host websites. Inspired by
-[tpope/vim-fugitive](https://github.com/tpope/vim-fugitive)'s `:GBrowse`.
+A lua plugin for [Neovim](https://github.com/neovim/neovim) to generate sharable file permalinks (with line ranges) for git host websites. Inspired by [tpope/vim-fugitive](https://github.com/tpope/vim-fugitive)'s `:GBrowse`.
 
-An example of git permalink:
-<https://github.com/neovim/neovim/blob/2e156a3b7d7e25e56b03683cc6228c531f4c91ef/src/nvim/main.c#L137-L156>
+Here's an example of git permalink: https://github.com/neovim/neovim/blob/2e156a3b7d7e25e56b03683cc6228c531f4c91ef/src/nvim/main.c#L137-L156
 
-Personally, I use this all the time to easily share code locations with my
-co-workers.
+## Table of Contents
 
 - [Break Changes & Updates](#break-changes--updates)
   - [Lua pattern based rules](#lua-pattern-based-rules)
@@ -38,23 +33,25 @@ co-workers.
 
 ## Break Changes & Updates
 
-1. Bug fix: you can disable/custom default key mappings.
-2. Windows support: you can use it on Windows.
-3. Url mapping engine changed: pattern based rules instead of hard coding.
-4. Refactor: use git error message instead of self-defined error, drop off `plenary` library.
-5. Rewrittens: API re-designed, logger added, code base re-structured.
+1. Bug fix:
+   - Customize default key mappings.
+   - Windows support.
+2. Improvements:
+   - Lua pattern based rules as new url mapping engine.
+   - Use stderr from git command as error message.
+   - Use `uv.spawn` for performant child process IO.
+   - Drop off `plenary` library.
+   - Re-designed API.
 
-### Lua pattern based rules
+### Lua pattern based mapping engine
 
-[Lua pattern](https://www.lua.org/pil/20.2.html) is introduced to map git remote
-url to host url. The lua pattern has many limitations compared with the
-[standard regex expression](https://en.wikipedia.org/wiki/Regular_expression),
-but it's still the best solution in this scenario.
+[Lua pattern](https://www.lua.org/pil/20.2.html) is introduced to map git remote url to host url.
+Even lua pattern has many limitations compared with the [standard regex expression](https://en.wikipedia.org/wiki/Regular_expression), it's still the best solution in this scenario.
 
 For now supported platforms are:
 
-- github.com
-- gitlab.com
+- [github.com](https://github.com)
+- [gitlab.com](https://gitlab.com)
 
 PRs are welcomed for other git host websites!
 
@@ -62,18 +59,20 @@ PRs are welcomed for other git host websites!
 
 Requirement:
 
-- git.
-- neovim &ge; v0.7.
+- Neovim &ge; v0.7.
+- [Git](https://git-scm.com/).
 
 ### [packer.nvim](https://github.com/wbthomason/packer.nvim)
 
 ```lua
-use {
+return require('packer').startup(function(use)
+  use {
     'linrongbin16/gitlinker.nvim',
     config = function()
-        require('gitlinker').setup()
+      require('gitlinker').setup()
     end,
-}
+  }
+end)
 ```
 
 ### [vim-plug](https://github.com/junegunn/vim-plug)
@@ -85,30 +84,30 @@ Plug 'linrongbin16/gitlinker.nvim'
 
 call plug#end()
 
-lua<<EOF
-require('gitlinker').setup()
-EOF
+lua require('gitlinker').setup()
 ```
 
 ### [lazy.nvim](https://github.com/folke/lazy.nvim)
 
 ```lua
-{
+require("lazy").setup({
+  {
     'linrongbin16/gitlinker.nvim',
     config = function()
-        require('gitlinker').setup()
+      require('gitlinker').setup()
     end,
-},
+  },
+})
 ```
 
-# Usage
+## Usage
 
-## Action
+### Action
 
 - `require('gitlinker.actions').clipboard`: copy git link to clipboard.
 - `require('gitlinker.actions').system`: open git link in browser.
 
-## API
+### API
 
 - `require('gitlinker').link(option)`: the main API that generate the git permalink, the `option` is a lua table that has below fields:
 

@@ -1,15 +1,5 @@
 local logger = require("gitlinker.logger")
 
---- @return boolean
-local function is_macos()
-    return vim.fn.has("mac") > 0
-end
-
---- @return boolean
-local function is_windows()
-    return vim.fn.has("win32") > 0 or vim.fn.has("win64") > 0
-end
-
 --- @param cwd string?
 --- @return string?
 local function relative_path(cwd)
@@ -88,8 +78,6 @@ end
 
 --- @type table<string, function>
 local M = {
-    is_macos = is_macos,
-    is_windows = is_windows,
     relative_path = relative_path,
     line_range = line_range,
 }

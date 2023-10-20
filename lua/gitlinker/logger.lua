@@ -1,11 +1,3 @@
-local PATH_SEPERATOR = (vim.fn.has("win32") > 0 or vim.fn.has("win64") > 0)
-        and "\\"
-    or "/"
-
-local LOG_FILE_PATH = vim.fn.stdpath("data")
-    .. PATH_SEPERATOR
-    .. "gitlinker.log"
-
 -- see: `lua print(vim.inspect(vim.log.levels))`
 local LogLevels = {
     TRACE = 0,
@@ -16,6 +8,15 @@ local LogLevels = {
     OFF = 5,
 }
 
+local LogLevelNames = {
+    [0] = "TRACE",
+    [1] = "DEBUG",
+    [2] = "INFO",
+    [3] = "WARN",
+    [4] = "ERROR",
+    [5] = "OFF",
+}
+
 local LogHighlights = {
     [1] = "Comment",
     [2] = "None",
@@ -23,19 +24,38 @@ local LogHighlights = {
     [4] = "ErrorMsg",
 }
 
-local Defaults = {
+local PathSeperator = (vim.fn.has("win32") > 0 or vim.fn.has("win64") > 0)
+        and "\\"
+    or "/"
+
+local Configs = {
     level = LogLevels.INFO,
-    console = true,
-    file = false,
+    console_log = true,
+    file_log = false,
+    file_log_dir = vim.fn.stdpath("data"),
+    file_log_name = "gitlinker.log",
+    _file_log_path = string.format(
+        "%s%s%s",
+        vim.fn.stdpath("data"),
+        PathSeperator,
+        "gitlinker.log"
+    ),
 }
 
-local Configs = {}
-
---- @param option Configs?
-local function setup(option)
-    Configs = vim.tbl_deep_extend("force", vim.deepcopy(Defaults), option or {})
+--- @param opts table<any, any>
+local function setup(opts)
+    Configs = vim.tbl_deep_extend("force", vim.deepcopy(Configs), opts or {})
     if type(Configs.level) == "string" then
         Configs.level = LogLevels[Configs.level]
+    end
+
+    if Configs.file_log then
+        Configs._file_log_path = string.format(
+            "%s%s%s",
+            Configs.file_log_dir,
+            (vim.fn.has("win32") > 0 or vim.fn.has("win64") > 0) and "\\" or "/",
+            Configs.file_log_name
+        )
     end
     assert(
         type(Configs.level) == "number" and LogHighlights[Configs.level] ~= nil
@@ -50,7 +70,7 @@ local function log(level, msg)
     end
 
     local msg_lines = vim.split(msg, "\n", { plain = true })
-    if Configs.console then
+    if Configs.console_log and level >= LogLevels.INFO then
         local msg_chunks = {}
         local prefix = ""
         if level == LogLevels.ERROR then
@@ -66,15 +86,15 @@ local function log(level, msg)
         end
         vim.api.nvim_echo(msg_chunks, false, {})
     end
-    if Configs.file then
-        local fp = io.open(LOG_FILE_PATH, "a")
+    if Configs.file_log then
+        local fp = io.open(Configs._file_log_path, "a")
         if fp then
             for _, line in ipairs(msg_lines) do
                 fp:write(
                     string.format(
                         "%s [%s]: %s\n",
                         os.date("%Y-%m-%d %H:%M:%S"),
-                        level,
+                        LogLevelNames[level],
                         line
                     )
                 )
@@ -100,12 +120,25 @@ local function err(fmt, ...)
     log(LogLevels.ERROR, string.format(fmt, ...))
 end
 
+local function throw(fmt, ...)
+    log(LogLevels.ERROR, string.format(fmt, ...))
+    error(string.format(fmt, ...))
+end
+
+local function ensure(cond, fmt, ...)
+    if not cond then
+        throw(fmt, ...)
+    end
+end
+
 local M = {
     setup = setup,
     debug = debug,
     info = info,
     warn = warn,
     err = err,
+    throw = throw,
+    ensure = ensure,
 }
 
 return M

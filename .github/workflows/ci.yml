@@ -1,12 +1,23 @@
-
 ---
 name: CI
 on:
-  pull_request: ~
+  pull_request:
+    branches:
+      - master
   push:
     branches:
       - master
 jobs:
+  pr_conventional_commit:
+    name: PR Conventional Commit
+    if: ${{ github.ref != 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - uses: ytanikin/PRConventionalCommits@1.1.0
+        with:
+          task_types: '["feat","fix","docs","test","ci","refactor","perf","chore","revert"]'
   typecheck:
     name: Type check
     runs-on: ubuntu-latest
@@ -86,3 +97,34 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           version: latest
           args: --config-path .stylua.toml --color always --check lua
+  release:
+    name: Release
+    if: ${{ github.ref == 'refs/heads/master' }}
+    needs:
+      - typecheck
+      - luacheck
+      - unit_test
+      - code_format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: google-github-actions/release-please-action@v3
+        id: release
+        with:
+          release-type: simple
+          package-name: gitlinker.nvim
+          command: github-release
+      - uses: actions/checkout@v4
+      - name: Create tags
+        if: ${{ steps.release.outputs.release_created }}
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git remote add gh-token "https://${{ secrets.GITHUB_TOKEN }}@github.com/google-github-actions/release-please-action.git"
+          git tag -d v${{ steps.release.outputs.major }} || true
+          git tag -d v${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }} || true
+          git push origin :v${{ steps.release.outputs.major }} || true
+          git push origin :v${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }} || true
+          git tag -a v${{ steps.release.outputs.major }} -m "Release v${{ steps.release.outputs.major }}"
+          git tag -a v${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }} -m "Release v${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}"
+          git push origin v${{ steps.release.outputs.major }}
+          git push origin v${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}
