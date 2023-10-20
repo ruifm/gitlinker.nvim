@@ -98,7 +98,7 @@ jobs:
           version: latest
           args: --config-path .stylua.toml --color always --check lua
   release:
-    name: release
+    name: Release
     if: ${{ github.ref == 'refs/heads/master' }}
     needs:
       - luacheck
