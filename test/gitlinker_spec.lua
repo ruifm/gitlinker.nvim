@@ -12,7 +12,7 @@ describe("gitlinker", function()
     local gitlinker = require("gitlinker")
     gitlinker.setup()
     describe("[gitlinker]", function()
-        it("map_remote_to_host", function()
+        it("_map_remote_to_host", function()
             local test_cases = {
                 -- [1]
                 {

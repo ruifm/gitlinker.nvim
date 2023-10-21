@@ -1,6 +1,5 @@
-local git = require("gitlinker.git")
-local util = require("gitlinker.util")
 local logger = require("gitlinker.logger")
+local Linker = require("gitlinker.linker").Linker
 
 --- @alias Options table<any, any>
 --- @type Options
@@ -26,7 +25,8 @@ local Defaults = {
     },
 
     -- pattern based rules
-    --- @type {[1]:table<string,string>,[2]:table<string,string>}
+    --
+    --- @type table<string,string>[]
     pattern_rules = {
         {
             ["^git@github%.([_%.%-%w]+):([%.%-%w]+)/([_%.%-%w]+)%.git$"] = "https://github.%1/%2/%3/blob/",
@@ -72,19 +72,21 @@ local Defaults = {
     -- end,
     -- ```
     --
-    --- @alias CustomRules fun(remote_url:string):string?
-    --- @type CustomRules?
+    --- @type fun(remote_url:string):string?|nil
     custom_rules = nil,
 
     -- enable debug
+    --
     --- @type boolean
     debug = false,
 
     -- write logs to console(command line)
+    --
     --- @type boolean
     console_log = true,
 
     -- write logs to file
+    --
     --- @type boolean
     file_log = false,
 }
@@ -92,9 +94,9 @@ local Defaults = {
 --- @type Options
 local Configs = {}
 
---- @param option Options?
-local function setup(option)
-    Configs = vim.tbl_deep_extend("force", Defaults, option or {})
+--- @param opts Options?
+local function setup(opts)
+    Configs = vim.tbl_deep_extend("force", vim.deepcopy(Defaults), opts or {})
 
     -- logger
     logger.setup({
@@ -104,9 +106,9 @@ local function setup(option)
     })
 
     local key_mappings = nil
-    if type(option) == "table" and option["mapping"] ~= nil then
-        if type(option["mapping"]) == "table" then
-            key_mappings = option["mapping"]
+    if type(opts) == "table" and opts["mapping"] ~= nil then
+        if type(opts["mapping"]) == "table" then
+            key_mappings = opts["mapping"]
         end
     else
         key_mappings = Defaults.mapping
@@ -129,101 +131,6 @@ local function setup(option)
     end
 
     -- logger.debug("|setup| Configs:%s", vim.inspect(Configs))
-end
-
---- @class Linker
---- @field remote_url string
---- @field rev string
---- @field file string
---- @field lstart integer
---- @field lend integer
---- @field file_changed boolean
-local Linker = {}
-
---- @param remote_url string
---- @param rev string
---- @param file string
---- @param lstart integer
---- @param lend integer
---- @param file_changed boolean
---- @return Linker
-local function new_linker(remote_url, rev, file, lstart, lend, file_changed)
-    local linker = vim.tbl_extend("force", vim.deepcopy(Linker), {
-        remote_url = remote_url,
-        rev = rev,
-        file = file,
-        lstart = lstart,
-        lend = lend,
-        file_changed = file_changed,
-    })
-    return linker
-end
-
---- @return Linker?
-local function make_link_data(range)
-    local root = git.get_root()
-    if not root then
-        return nil
-    end
-
-    --- @type string|nil
-    local remote = git.get_branch_remote()
-    if not remote then
-        return nil
-    end
-    logger.debug("|make_link_data| remote:%s", vim.inspect(remote))
-
-    local remote_url_result = git.get_remote_url(remote)
-    if not remote_url_result then
-        return nil
-    end
-    logger.debug(
-        "|make_link_data| remote_url_result:%s",
-        vim.inspect(remote_url_result)
-    )
-
-    --- @type string|nil
-    local rev = git.get_closest_remote_compatible_rev(remote)
-    if not rev then
-        return nil
-    end
-    logger.debug("|make_link_data| rev:%s", vim.inspect(rev))
-
-    local buf_path_on_root = util.path_relative(root) --[[@as string]]
-    logger.debug(
-        "|make_link_data| root:%s, buf_path_on_root:%s",
-        vim.inspect(root),
-        vim.inspect(buf_path_on_root)
-    )
-
-    local file_in_rev_result = git.is_file_in_rev(buf_path_on_root, rev)
-    if not file_in_rev_result then
-        return nil
-    end
-    logger.debug(
-        "|make_link_data| file_in_rev_result:%s",
-        vim.inspect(file_in_rev_result)
-    )
-
-    local buf_path_on_cwd = util.path_relative() --[[@as string]]
-    logger.debug(
-        "|make_link_data| buf_path_on_cwd:%s",
-        vim.inspect(buf_path_on_cwd)
-    )
-
-    if range == nil or range["lstart"] == nil or range["lend"] == nil then
-        range = util.line_range()
-        logger.debug("[make_link_data] range:%s", vim.inspect(range))
-    end
-
-    return new_linker(
-        remote_url_result,
-        rev,
-        buf_path_on_root,
-        range.lstart,
-        range.lend,
-        git.has_file_changed(buf_path_on_cwd, rev)
-    )
 end
 
 --- @package
@@ -263,52 +170,49 @@ local function _map_remote_to_host(remote_url)
 end
 
 --- @param host_url string
---- @param linker Linker
+--- @param lk Linker
 --- @return string
-local function make_sharable_permalinks(host_url, linker)
-    local url = host_url .. linker.rev .. "/" .. linker.file
-    if not linker.lstart then
+local function _make_sharable_permalinks(host_url, lk)
+    local url = string.format([[%s%s/%s]], host_url, lk.rev, lk.file)
+    if not lk.lstart then
         return url
     end
-    url = url .. "#L" .. linker.lstart
-    if linker.lend and linker.lend ~= linker.lstart then
-        url = url .. "-L" .. linker.lend
+    url = string.format([[%s#L%d]], url, lk.lstart)
+    if lk.lend and lk.lend ~= lk.lstart then
+        url = string.format([[%s-L%d]], url, lk.lend)
     end
     return url
 end
 
---- @param opts Options
+--- @param opts Options?
 --- @return string?
 local function link(opts)
-    opts = vim.tbl_deep_extend("force", Configs, opts or {})
+    opts = vim.tbl_deep_extend("force", vim.deepcopy(Configs), opts or {})
     logger.debug("[link] merged opts: %s", vim.inspect(opts))
 
-    local range = nil
-    if opts["lstart"] ~= nil and opts["lend"] ~= nil then
-        range = { lstart = opts["lstart"], lend = opts["lend"] }
-    end
-    local linker = make_link_data(range)
-    if not linker then
+    local range = (
+        type(opts.lstart) == "number" and type(opts.lend) == "number"
+    )
+            and { lstart = opts.lstart, lend = opts.lend }
+        or nil
+    local lk = Linker:make(range)
+    if not lk then
         return nil
     end
 
-    local host_url = _map_remote_to_host(linker.remote_url)
+    local host_url = _map_remote_to_host(lk.remote_url) --[[@as string]]
+    logger.ensure(
+        type(host_url) == "string" and string.len(host_url) > 0,
+        "fatal: failed to generate permanent url from remote url:%s",
+        lk.remote_url
+    )
 
-    if type(host_url) ~= "string" or string.len(host_url) <= 0 then
-        logger.err(
-            "Error! Cannot generate git link from remote url:%s",
-            linker.remote_url
-        )
-        return nil
-    end
-
-    local url = make_sharable_permalinks(host_url, linker)
-
+    local url = _make_sharable_permalinks(host_url, lk)
     if opts.action then
         opts.action(url)
     end
     if opts.message then
-        local msg = linker.file_changed
+        local msg = lk.file_changed
                 and string.format(
                     "%s (lines can be wrong due to file change)",
                     url
@@ -323,6 +227,7 @@ end
 local M = {
     setup = setup,
     link = link,
+    _make_sharable_permalinks = _make_sharable_permalinks,
     _map_remote_to_host = _map_remote_to_host,
 }
 

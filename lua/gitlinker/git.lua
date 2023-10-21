@@ -1,13 +1,13 @@
 local logger = require("gitlinker.logger")
 local spawn = require("gitlinker.spawn")
 
---- @class JobResult
+--- @class CmdResult
 --- @field stdout string[]
 --- @field stderr string[]
-local JobResult = {}
+local CmdResult = {}
 
---- @return JobResult
-function JobResult:new()
+--- @return CmdResult
+function CmdResult:new()
     local o = {
         stdout = {},
         stderr = {},
@@ -18,17 +18,17 @@ function JobResult:new()
 end
 
 --- @return boolean
-function JobResult:has_out()
+function CmdResult:has_out()
     return type(self.stdout) == "table" and #self.stdout > 0
 end
 
 --- @return boolean
-function JobResult:has_err()
+function CmdResult:has_err()
     return type(self.stderr) == "table" and #self.stderr > 0
 end
 
 --- @param default string
-function JobResult:print_err(default)
+function CmdResult:print_err(default)
     if self:has_err() then
         for _, e in ipairs(self.stderr) do
             logger.err("%s", e)
@@ -42,9 +42,9 @@ end
 --- @package
 --- @param args string[]
 --- @param cwd string?
---- @return JobResult
+--- @return CmdResult
 local function cmd(args, cwd)
-    local result = JobResult:new()
+    local result = CmdResult:new()
 
     local sp = spawn.Spawn:make(args, {
         cwd = cwd or vim.fn.getcwd(),
@@ -71,7 +71,7 @@ local function cmd(args, cwd)
 end
 
 --- @package
---- @return JobResult
+--- @return CmdResult
 local function _get_remote()
     local result = cmd({ "git", "remote" })
     logger.debug("|git._get_remote| result:%s", vim.inspect(result))
@@ -246,7 +246,7 @@ end
 --- @return string?
 local function get_branch_remote()
     -- origin/upstream
-    --- @type JobResult
+    --- @type CmdResult
     local remote_result = _get_remote()
 
     if type(remote_result.stdout) ~= "table" or #remote_result.stdout == 0 then

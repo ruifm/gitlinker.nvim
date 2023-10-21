@@ -19,7 +19,7 @@ Here's an example of git permalink: https://github.com/neovim/neovim/blob/2e156a
 ## Table of Contents
 
 - [Break Changes & Updates](#break-changes--updates)
-  - [Lua pattern based rules](#lua-pattern-based-rules)
+  - [Lua pattern based mapping engine](#lua-pattern-based-mapping-engine)
 - [Installation](#installation)
   - [packer.nvim](#packernvim)
   - [vim-plug](#vim-plug)
@@ -102,6 +102,8 @@ require("lazy").setup({
 
 ## Usage
 
+There's no pre-defined vim command, this plugin provides two actions and one API to achieve the goal.
+
 ### Action
 
 - `require('gitlinker.actions').clipboard`: copy git link to clipboard.
@@ -114,12 +116,12 @@ require("lazy").setup({
   ```lua
   {
       action = ..., -- gitlinker actions: clipboard/system
-      lstart = ..., -- selected line start, please see in [Customization](#customization).
-      lend = ..., -- selected line end, please see in [Customization](#customization).
+      lstart = ..., -- (optional) line range start, please see in [Customization](#customization).
+      lend = ..., -- (optional) line range end, please see in [Customization](#customization).
   }
   ```
 
-There're no pre-defined vim command, you need to use:
+You could use below two lua code to copy/open git link:
 
 - `require('gitlinker').link({ action = require('gitlinker.actions').clipboard })` to copy git link.
 - `require('gitlinker').link({ action = require('gitlinker.actions').system })` to open git link.
@@ -133,11 +135,9 @@ The above two operations are already defined with two default key mappings:
 
 ## Customization
 
-To disable the default key mappings, set `mapping = false` in `setup()` function
-(see [Configuration](#configuration)).
+To disable the default key mappings, set `mapping = false` in `setup()` function (see [Configuration](#configuration)).
 
-To create your own key mappings, please specify the `mapping` option
-in `setup()` function.
+To create your own key mappings, please specify the `mapping` option in `setup()` function.
 
 To create your own vim command, please use:
 
@@ -151,17 +151,17 @@ For lua:
 
 ```lua
 vim.api.nvim_create_user_command("GitLink", function()
-    require("gitlinker").link({
-        action = require("gitlinker.actions").system,
-        lstart = vim.api.nvim_buf_get_mark(0, '<')[1],
-        lend = vim.api.nvim_buf_get_mark(0, '>')[1]
-    })
+  require("gitlinker").link({
+    action = require("gitlinker.actions").system,
+    lstart = vim.api.nvim_buf_get_mark(0, '<')[1],
+    lend = vim.api.nvim_buf_get_mark(0, '>')[1]
+  })
 end, {
-    range = true,
+  range = true,
 })
 ```
 
-> Support command range is a little bit tricky, please read https://github.com/linrongbin16/gitlinker.nvim/discussions/38 and https://github.com/linrongbin16/gitlinker.nvim/issues/47.
+> Support command range is a little bit tricky, since you need to pass line range from to `link` API.
 
 ## Configuration
 
