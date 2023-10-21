@@ -121,7 +121,7 @@ There's no pre-defined vim command, this plugin provides two actions and one API
   }
   ```
 
-You could use below two lua code to copy/open git link:
+You could use below lua code to copy/open git link:
 
 - `require('gitlinker').link({ action = require('gitlinker.actions').clipboard })` to copy git link.
 - `require('gitlinker').link({ action = require('gitlinker.actions').system })` to open git link.
@@ -161,7 +161,7 @@ end, {
 })
 ```
 
-> Support command range is a little bit tricky, since you need to pass line range from to `link` API.
+> Support command range is a little bit tricky, since you need to pass line range from command line to the `link` API.
 
 ## Configuration
 
@@ -261,7 +261,7 @@ Then test with `vusted ./test`.
 
 ## Contribute
 
-Please also open [issue](https://github.com/linrongbin16/lin.nvim/issues)/[PR](https://github.com/linrongbin16/lin.nvim/pulls) for anything about gitlinker.nvim.
+Please also open [issue](https://github.com/linrongbin16/gitlinker.nvim/issues)/[PR](https://github.com/linrongbin16/gitlinker.nvim/pulls) for anything about gitlinker.nvim.
 
 Like gitlinker.nvim? Consider
 
