@@ -71,11 +71,15 @@ local function cmd(args, cwd)
 end
 
 --- @package
---- @return CmdResult
+--- @return string[]|nil
 local function _get_remote()
     local result = cmd({ "git", "remote" })
     logger.debug("|git._get_remote| result:%s", vim.inspect(result))
-    return result
+    if type(result.stdout) ~= "table" or #result.stdout == 0 then
+        result:print_err("fatal: git repo has no remote")
+        return nil
+    end
+    return result.stdout
 end
 
 --- @param remote string
@@ -90,7 +94,7 @@ local function get_remote_url(remote)
     )
     if not result:has_out() then
         result:print_err(
-            "failed to get remote url by remote '" .. remote .. "'"
+            "fatal: failed to get remote url by remote '" .. remote .. "'"
         )
         return nil
     end
@@ -121,7 +125,7 @@ local function _get_rev_name(revspec)
         vim.inspect(result)
     )
     if not result:has_out() then
-        result:print_err("git branch has no remote")
+        result:print_err("fatal: git branch has no remote")
         return nil
     end
     return result.stdout[1]
@@ -140,7 +144,11 @@ local function is_file_in_rev(file, revspec)
     )
     if result:has_err() then
         result:print_err(
-            "'" .. file .. "' does not exist in remote '" .. revspec .. "'"
+            "fatal: '"
+                .. file
+                .. "' does not exist in remote '"
+                .. revspec
+                .. "'"
         )
         return false
     end
@@ -237,7 +245,7 @@ local function get_root()
         vim.inspect(result)
     )
     if not result:has_out() then
-        result:print_err("not in a git repository")
+        result:print_err("fatal: not in a git repository")
         return nil
     end
     return result.stdout[1]
@@ -246,16 +254,13 @@ end
 --- @return string?
 local function get_branch_remote()
     -- origin/upstream
-    --- @type CmdResult
-    local remote_result = _get_remote()
-
-    if type(remote_result.stdout) ~= "table" or #remote_result.stdout == 0 then
-        remote_result:print_err("git repo has no remote")
+    local remotes = _get_remote()
+    if not remotes then
         return nil
     end
 
-    if #remote_result.stdout == 1 then
-        return remote_result.stdout[1]
+    if #remotes == 1 then
+        return remotes[1]
     end
 
     -- origin/linrongbin16/add-rule2
@@ -278,7 +283,6 @@ local function get_branch_remote()
         return nil
     end
 
-    local remotes = remote_result.stdout
     for _, remote in ipairs(remotes) do
         if remote_from_upstream_branch == remote then
             return remote
@@ -294,6 +298,10 @@ local function get_branch_remote()
 end
 
 local M = {
+    CmdResult = CmdResult,
+    _get_remote = _get_remote,
+    _get_rev = _get_rev,
+    _get_rev_name = _get_rev_name,
     get_root = get_root,
     get_remote_url = get_remote_url,
     is_file_in_rev = is_file_in_rev,

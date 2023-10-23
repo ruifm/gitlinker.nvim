@@ -1,5 +1,3 @@
-Thanks to your contribute, while please finish below tasks:
-
 # Regression Test
 
 ## Platforms
