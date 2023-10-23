@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.2](https://github.com/linrongbin16/gitlinker.nvim/compare/v1.0.1...v1.0.2) (2023-10-23)
+
+
+### Performance Improvements
+
+* improve unit test coverage ([#85](https://github.com/linrongbin16/gitlinker.nvim/issues/85)) ([d7a8d69](https://github.com/linrongbin16/gitlinker.nvim/commit/d7a8d693b87dc3331e1934b5e46c4e24302c3c68))
+* restructure code & improve unit tests coverage ([#81](https://github.com/linrongbin16/gitlinker.nvim/issues/81)) ([29c4edd](https://github.com/linrongbin16/gitlinker.nvim/commit/29c4edd632701ad83679ff3f5ab0778fcd769831))
+
 ## [1.0.1](https://github.com/linrongbin16/gitlinker.nvim/compare/v1.0.0...v1.0.1) (2023-10-20)
 
 
