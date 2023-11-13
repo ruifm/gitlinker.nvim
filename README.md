@@ -209,42 +209,42 @@ require('gitlinker').setup({
   -- regex pattern based rules
   --- @type table<{[1]:string,[2]:string}>[]
   pattern_rules = {
-    -- 'git@github' end with '.git' suffix
+    -- 'git@github' with '.git' suffix
     {
       "^git@github%.([_%.%-%w]+):([%.%-%w]+)/([_%.%-%w]+)%.git$",
       "https://github.%1/%2/%3/blob/",
     },
-    -- 'git@github' end without '.git' suffix
+    -- 'git@github' without '.git' suffix
     {
       "^git@github%.([_%.%-%w]+):([%.%-%w]+)/([_%.%-%w]+)$",
       "https://github.%1/%2/%3/blob/",
     },
-    -- 'http(s)?://github' end with '.git' suffix
+    -- 'http(s)?://github' with '.git' suffix
     {
       "^https?://github%.([_%.%-%w]+)/([%.%-%w]+)/([_%.%-%w]+)%.git$",
       "https://github.%1/%2/%3/blob/",
     },
-    -- 'http(s)?://github' end without '.git' suffix
+    -- 'http(s)?://github' without '.git' suffix
     {
       "^https?://github%.([_%.%-%w]+)/([%.%-%w]+)/([_%.%-%w]+)$",
       "https://github.%1/%2/%3/blob/",
     },
-    -- 'git@gitlab' end with '.git' suffix
+    -- 'git@gitlab' with '.git' suffix
     {
       "^git@gitlab%.([_%.%-%w]+):([%.%-%w]+)/([_%.%-%w]+)%.git$",
       "https://gitlab.%1/%2/%3/blob/",
     },
-    -- 'git@gitlab' end without '.git' suffix
+    -- 'git@gitlab' without '.git' suffix
     {
       "^git@gitlab%.([_%.%-%w]+):([%.%-%w]+)/([_%.%-%w]+)$",
       "https://gitlab.%1/%2/%3/blob/",
     },
-    -- 'http(s)?://gitlab' end with '.git' suffix
+    -- 'http(s)?://gitlab' with '.git' suffix
     {
       "^https?://gitlab%.([_%.%-%w]+)/([%.%-%w]+)/([_%.%-%w]+)%.git$",
       "https://gitlab.%1/%2/%3/blob/",
     },
-    -- 'http(s)?://gitlab' end without '.git' suffix
+    -- 'http(s)?://gitlab' without '.git' suffix
     {
       "^https?://gitlab%.([_%.%-%w]+)/([%.%-%w]+)/([_%.%-%w]+)$",
       "https://gitlab.%1/%2/%3/blob/",
