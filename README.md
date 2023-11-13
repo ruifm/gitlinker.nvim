@@ -247,6 +247,12 @@ require('gitlinker').setup({
 })
 ````
 
+## Highlight Group
+
+| Highlight Group                  | Default Group | Description |
+| -------------------------------- | ------------- | ----------- |
+| NvimGitLinkerHighlightTextObject | Search        | lines range |
+
 ## Development
 
 To develop the project and make PR, please setup with:
