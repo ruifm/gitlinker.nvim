@@ -81,8 +81,8 @@ local Defaults = {
         },
     },
 
-    -- function based rules: function(remote_url) => host_url
-    -- this function has higher priority and could override the default pattern_rules.
+    -- higher priority rules to override the default pattern_rules.
+    -- function(remote_url) => host_url
     --
     -- here's an example:
     --
@@ -340,7 +340,7 @@ end
 --- @return string?
 local function link(opts)
     opts = vim.tbl_deep_extend("force", vim.deepcopy(Configs), opts or {})
-    -- logger.debug("[link] merged opts: %s", vim.inspect(opts))
+    logger.debug("[link] merged opts: %s", vim.inspect(opts))
 
     local range = (
         type(opts.lstart) == "number" and type(opts.lend) == "number"

@@ -260,8 +260,9 @@ require('gitlinker').setup({
     },
   },
 
-  -- function based rules: function(remote_url) => host_url.
-  -- this function will override the `pattern_rules`.
+  -- higher priority rules to override the default pattern_rules.
+  -- function(remote_url) => host_url
+  --
   -- here's an example:
   --
   -- ```lua
