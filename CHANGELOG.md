@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/linrongbin16/gitlinker.nvim/compare/v1.1.0...v1.1.1) (2023-11-13)
+
+
+### Performance Improvements
+
+* **rules:** easier pattern rules schema ([#92](https://github.com/linrongbin16/gitlinker.nvim/issues/92)) ([a43e326](https://github.com/linrongbin16/gitlinker.nvim/commit/a43e326cb04dcd03f8d78ce405051e898272e169))
+
 ## [1.1.0](https://github.com/linrongbin16/gitlinker.nvim/compare/v1.0.2...v1.1.0) (2023-11-13)
 
 
