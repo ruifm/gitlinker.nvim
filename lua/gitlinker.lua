@@ -300,16 +300,27 @@ end
 
 --- @param host_url string
 --- @param lk Linker
+--- @param opts Options?
 --- @return string
-local function _make_sharable_permalinks(host_url, lk)
+local function _make_sharable_permalinks(host_url, lk, opts)
     local url = string.format([[%s%s/%s]], host_url, lk.rev, lk.file)
     if not lk.lstart then
         return url
     end
+
+    if
+        type(opts) == "table"
+        and type(opts.add_plain_for_markdown) == "boolean"
+        and opts.add_plain_for_markdown
+    then
+        url = url .. [[?plain=1]]
+    end
+
     url = string.format([[%s#L%d]], url, lk.lstart)
     if lk.lend and lk.lend > lk.lstart then
         url = string.format([[%s-L%d]], url, lk.lend)
     end
+
     return url
 end
 
