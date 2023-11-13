@@ -215,8 +215,7 @@ require('gitlinker').setup({
     },
   },
 
-  -- regex pattern based rules
-  --- @type table<{[1]:string,[2]:string}>[]
+  -- regex pattern based rules, mapping url from 'host' to 'remote'.
   pattern_rules = {
     -- 'git@github' with '.git' suffix
     {
@@ -260,7 +259,15 @@ require('gitlinker').setup({
     },
   },
 
-  -- higher priority rules to override the default pattern_rules.
+  -- override 'pattern_rules' with your own rules here.
+  --
+  -- **note**:
+  --
+  -- if you directly add your own rules in 'pattern_rules', it will remove other rules.
+  -- but 'override_rules' will only prepend your own rules before 'pattern_rules', e.g. override.
+  override_rules = nil,
+
+  -- function based rules to override the default pattern_rules.
   -- function(remote_url) => host_url
   --
   -- here's an example:
@@ -305,6 +312,55 @@ require('gitlinker').setup({
   file_log = false,
 })
 ````
+
+To add more git hosts, or map to your own hosts, please use:
+
+```lua
+require('gitlinker').setup({
+  override_rules = {
+    {
+      "^git@your-personal-host%.([_%.%-%w]+):([%.%-%w]+)/([_%.%-%w]+)%.git$",
+      "https://github.%1/%2/%3/blob/",
+    },
+    {
+      "^git@your-personal-hots%.([_%.%-%w]+):([%.%-%w]+)/([_%.%-%w]+)$",
+      "https://github-personal.%1/%2/%3/blob/",
+    },
+  }
+})
+```
+
+The above example will map `git@your-personal-host` to `https://github`, override original mapping from `git@github` to `https://github`.
+
+To fully customize git hosts, please use:
+
+```lua
+require('gitlinker').setup({
+  custom_rules = function(remote_url)
+    local rules = {
+      {
+        "^git@github%.([_%.%-%w]+):([%.%-%w]+)/([_%.%-%w]+)%.git$",
+        "https://github.%1/%2/%3/blob/",
+      },
+      {
+        "^git@github%.([_%.%-%w]+):([%.%-%w]+)/([_%.%-%w]+)$",
+        "https://github.%1/%2/%3/blob/",
+      },
+    }
+    for _, rule in ipairs(rules) do
+      local pattern = rule[1]
+      local replace = rule[2]
+      if string.match(remote_url, pattern) then
+        local result = string.gsub(remote_url, pattern, replace)
+        return result
+      end
+    end
+    return nil
+  end,
+})
+```
+
+The above example will technically allow you map anything (which is also the implementation of 'pattern_rules').
 
 ### Highlight Group
 

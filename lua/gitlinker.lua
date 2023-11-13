@@ -81,7 +81,15 @@ local Defaults = {
         },
     },
 
-    -- higher priority rules to override the default pattern_rules.
+    -- override 'pattern_rules' with your own rules here.
+    --
+    -- **note**:
+    --
+    -- if you directly add your own rules in 'pattern_rules', it will remove other rules.
+    -- but 'override_rules' will only prepend your own rules before 'pattern_rules', e.g. override.
+    override_rules = nil,
+
+    -- function based rules to override the default pattern_rules.
     -- function(remote_url) => host_url
     --
     -- here's an example:
@@ -275,6 +283,10 @@ local function _map_remote_to_host(remote_url)
     end
 
     logger.debug("|_map_remote_to_host| use new pattern rules schema")
+    pattern_rules = vim.list_extend(
+        vim.deepcopy(Configs.override_rules or {}),
+        vim.deepcopy(pattern_rules)
+    )
     for i, rule in ipairs(pattern_rules) do
         local pattern = rule[1]
         local replace = rule[2]
