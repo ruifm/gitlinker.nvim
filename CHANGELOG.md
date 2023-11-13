@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0](https://github.com/linrongbin16/gitlinker.nvim/compare/v1.2.0...v1.3.0) (2023-11-13)
+
+
+### Features
+
+* **rules:** add 'override_rules' to override default 'pattern_rules' ([#99](https://github.com/linrongbin16/gitlinker.nvim/issues/99)) ([87f10a7](https://github.com/linrongbin16/gitlinker.nvim/commit/87f10a75751502af5e8abb956d9c165697f09ba2))
+
 ## [1.2.0](https://github.com/linrongbin16/gitlinker.nvim/compare/v1.1.1...v1.2.0) (2023-11-13)
 
 
