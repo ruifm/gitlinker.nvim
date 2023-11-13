@@ -354,6 +354,8 @@ require("gitlinker").link({
 
 ### Fully Customize Urls
 
+Below example will technically allow you map anything (which is also the implementation of `pattern_rules`).
+
 ```lua
 require('gitlinker').setup({
   custom_rules = function(remote_url)
@@ -379,8 +381,6 @@ require('gitlinker').setup({
   end,
 })
 ```
-
-The above example will technically allow you map anything (which is also the implementation of 'pattern_rules').
 
 ### Highlight Group
 
