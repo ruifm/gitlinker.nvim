@@ -31,6 +31,9 @@ Here's an example of git permalink: https://github.com/neovim/neovim/blob/2e156a
   - [Vim Command](#vim-command)
   - [Highlight](#highlight)
 - [Configuration](#configuration)
+  - [Add More Urls](#add-more-urls)
+  - [Customize Urls in Runtime](#customize-urls-in-runtime)
+  - [Fully Customize Urls](#fully-customize-urls)
   - [Highlight Group](#highlight-group)
 - [Development](#development)
 - [Contribute](#contribute)
@@ -131,7 +134,7 @@ You could use below lua code to copy/open git link:
   }
   ```
 
-  Actually `option` shares the same schema with `require('gitlinker').setup()` function (also see [Configuration](#configuration)), so you can specify fields from the `setup` function to overwrite the runtime configurations.
+  Actually `option` shares the same schema with `require('gitlinker').setup()` function (also see [Configuration](#configuration)), so you can specify fields from the `setup` function to overwrite the runtime configurations (also see [Customize Urls in Runtime](#customize-urls-in-runtime)).
 
 ### Key Mappings
 
@@ -312,7 +315,9 @@ require('gitlinker').setup({
 })
 ````
 
-To add more git hosts, or map to your own hosts, please use:
+### Add More Urls
+
+Below example will map `git@your-personal-host` to `https://github`, override original mapping from `git@github` to `https://github`.
 
 ```lua
 require('gitlinker').setup({
@@ -329,9 +334,25 @@ require('gitlinker').setup({
 })
 ```
 
-The above example will map `git@your-personal-host` to `https://github`, override original mapping from `git@github` to `https://github`.
+### Customize Urls in Runtime
 
-To fully customize git hosts, please use:
+Below example will map to `https://github.com/{user}/{repo}/blame` instead of `https://github.com/{user}/{repo}/blob` in runtime, without modify the setup configuration.
+
+```lua
+-- clipboard
+require("gitlinker").link({
+  action = require("gitlinker.actions").clipboard,
+  override_rules = {
+    {
+      "^git@github%.([_%.%-%w]+):([%.%-%w]+)/([_%.%-%w]+)%.git$",
+      "https://github.%1/%2/%3/blame/",
+    },
+  },
+  add_plain_for_markdown = false,
+})
+```
+
+### Fully Customize Urls
 
 ```lua
 require('gitlinker').setup({
