@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.1.0](https://github.com/linrongbin16/gitlinker.nvim/compare/v1.0.2...v1.1.0) (2023-11-13)
+
+
+### Features
+
+* add highlighting of selected region ([#88](https://github.com/linrongbin16/gitlinker.nvim/issues/88)) ([2e97768](https://github.com/linrongbin16/gitlinker.nvim/commit/2e97768594dd3b540eaf77761f3274dfc564bc94))
+
+
+### Performance Improvements
+
+* **highlight:** allow customize highlight group 'NvimGitLinkerHighlightTextObject' ([#90](https://github.com/linrongbin16/gitlinker.nvim/issues/90)) ([7ac8301](https://github.com/linrongbin16/gitlinker.nvim/commit/7ac8301423e87f1daadfd171e08acfb630a05709))
+
 ## [1.0.2](https://github.com/linrongbin16/gitlinker.nvim/compare/v1.0.1...v1.0.2) (2023-10-23)
 
 
