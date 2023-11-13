@@ -125,14 +125,13 @@ You could use below lua code to copy/open git link:
     -- (mandatory) gitlinker actions
     action = ...,
 
-    -- (optional) highlight duration ms
-    highlight_duration = ...,
-
-    -- (optional) line range, please see in [Customization](#customization).
+    -- (optional) line range, please see in [Vim Command](#vim-command).
     lstart = ...,
     lend = ...,
   }
   ```
+
+  Actually `option` shares the same schema with `require('gitlinker').setup()` function (also see [Configuration](#configuration)), so you can specify fields from the `setup` function to overwrite the runtime configurations.
 
 ### Key Mappings
 
