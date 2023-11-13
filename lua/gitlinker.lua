@@ -15,6 +15,11 @@ local Defaults = {
     --- @type integer
     highlight_duration = 500,
 
+    -- add '?plain=1' for '*.md' (markdown) files
+    --
+    --- @type boolean
+    add_plain_for_markdown = true,
+
     -- key mappings
     --
     --- @alias KeyMappingConfig {action:fun(url:string):nil,desc:string?}
@@ -34,47 +39,42 @@ local Defaults = {
     --
     --- @type table<{[1]:string,[2]:string}>[]
     pattern_rules = {
-        -- 'git@github' end with '.git' suffix, add '?plain=1' for '*.md' files.
+        -- 'git@github' with '.git' suffix
         {
             "^git@github%.([_%.%-%w]+):([%.%-%w]+)/([_%.%-%w]+)%.git$",
             "https://github.%1/%2/%3/blob/",
         },
-        -- 'git@github' end with '.git' suffix
-        {
-            "^git@github%.([_%.%-%w]+):([%.%-%w]+)/([_%.%-%w]+)%.git$",
-            "https://github.%1/%2/%3/blob/",
-        },
-        -- 'git@github' end without '.git' suffix
+        -- 'git@github' without '.git' suffix
         {
             "^git@github%.([_%.%-%w]+):([%.%-%w]+)/([_%.%-%w]+)$",
             "https://github.%1/%2/%3/blob/",
         },
-        -- 'http(s)?://github' end with '.git' suffix
+        -- 'http(s)?://github' with '.git' suffix
         {
             "^https?://github%.([_%.%-%w]+)/([%.%-%w]+)/([_%.%-%w]+)%.git$",
             "https://github.%1/%2/%3/blob/",
         },
-        -- 'http(s)?://github' end without '.git' suffix
+        -- 'http(s)?://github' without '.git' suffix
         {
             "^https?://github%.([_%.%-%w]+)/([%.%-%w]+)/([_%.%-%w]+)$",
             "https://github.%1/%2/%3/blob/",
         },
-        -- 'git@gitlab' end with '.git' suffix
+        -- 'git@gitlab' with '.git' suffix
         {
             "^git@gitlab%.([_%.%-%w]+):([%.%-%w]+)/([_%.%-%w]+)%.git$",
             "https://gitlab.%1/%2/%3/blob/",
         },
-        -- 'git@gitlab' end without '.git' suffix
+        -- 'git@gitlab' without '.git' suffix
         {
             "^git@gitlab%.([_%.%-%w]+):([%.%-%w]+)/([_%.%-%w]+)$",
             "https://gitlab.%1/%2/%3/blob/",
         },
-        -- 'http(s)?://gitlab' end with '.git' suffix
+        -- 'http(s)?://gitlab' with '.git' suffix
         {
             "^https?://gitlab%.([_%.%-%w]+)/([%.%-%w]+)/([_%.%-%w]+)%.git$",
             "https://gitlab.%1/%2/%3/blob/",
         },
-        -- 'http(s)?://gitlab' end without '.git' suffix
+        -- 'http(s)?://gitlab' without '.git' suffix
         {
             "^https?://gitlab%.([_%.%-%w]+)/([%.%-%w]+)/([_%.%-%w]+)$",
             "https://gitlab.%1/%2/%3/blob/",
@@ -307,7 +307,7 @@ local function _make_sharable_permalinks(host_url, lk)
         return url
     end
     url = string.format([[%s#L%d]], url, lk.lstart)
-    if lk.lend and lk.lend ~= lk.lstart then
+    if lk.lend and lk.lend > lk.lstart then
         url = string.format([[%s-L%d]], url, lk.lend)
     end
     return url
