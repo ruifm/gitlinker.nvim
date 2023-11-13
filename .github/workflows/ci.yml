@@ -17,8 +17,8 @@ jobs:
         uses: actions/checkout@v4
       - uses: ytanikin/PRConventionalCommits@1.1.0
         with:
-          task_types: '["feat","fix","docs","test","ci","refactor","perf","chore","revert"]'
-  typecheck:
+          task_types: '["feat","fix","docs","test","ci","refactor","perf","chore","revert","break"]'
+  luacheck:
     name: Type check
     runs-on: ubuntu-latest
     steps:
@@ -31,7 +31,6 @@ jobs:
           level: Information
           configpath: ".luarc.json"
           neodev-version: stable
-  luacheck:
     name: Lua check
     runs-on: ubuntu-latest
     steps:
@@ -41,6 +40,21 @@ jobs:
         uses: lunarmodules/luacheck@v1
         with:
           args: lua --config .luacheckrc
+    name: Stylua
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Stylua
+        uses: JohnnyMorganz/stylua-action@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          version: latest
+          args: --config-path .stylua.toml ./
+      - name: Auto commit
+        if: ${{ github.ref != 'refs/heads/master' }}
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: "chore(pr): auto-commit"
   unit_test:
     name: Unit test
     strategy:
@@ -87,29 +101,12 @@ jobs:
           files: luacov.report.out
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-  code_format:
-    name: Code format
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: JohnnyMorganz/stylua-action@v3
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          version: latest
-          args: --config-path .stylua.toml ./
-      - name: Format with stylua
-        if: ${{ github.ref != 'refs/heads/master' }}
-        uses: stefanzweifel/git-auto-commit-action@v4
-        with:
-          commit_message: "chore(pr): format with stylua"
   release:
     name: Release
     if: ${{ github.ref == 'refs/heads/master' }}
     needs:
-      - typecheck
       - luacheck
       - unit_test
-      - code_format
     runs-on: ubuntu-latest
     steps:
       - uses: google-github-actions/release-please-action@v3
