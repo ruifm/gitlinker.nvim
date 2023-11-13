@@ -304,21 +304,30 @@ end
 --- @return string
 local function _make_sharable_permalinks(host_url, lk, opts)
     local url = string.format([[%s%s/%s]], host_url, lk.rev, lk.file)
-    if not lk.lstart then
-        return url
-    end
 
-    if
-        type(opts) == "table"
+    local add_plain = type(opts) == "table"
         and type(opts.add_plain_for_markdown) == "boolean"
         and opts.add_plain_for_markdown
-    then
+    local endswith_md = type(url) == "string"
+        and string.len(url) >= 3
+        and url:sub(#url - 2, #url):lower() == ".md"
+    -- logger.debug(
+    --     "|_make_sharable_permalinks| url:%s, add plain:%s, url sub:%s, lower:%s, endswith '*.md':%s",
+    --     vim.inspect(url),
+    --     vim.inspect(add_plain),
+    --     vim.inspect(url:sub(#url - 2, #url)),
+    --     vim.inspect(url:sub(#url - 2, #url):lower()),
+    --     vim.inspect(url:sub(#url - 2, #url):lower() == ".md")
+    -- )
+    if add_plain and endswith_md then
         url = url .. [[?plain=1]]
     end
 
-    url = string.format([[%s#L%d]], url, lk.lstart)
-    if lk.lend and lk.lend > lk.lstart then
-        url = string.format([[%s-L%d]], url, lk.lend)
+    if type(lk.lstart) == "number" then
+        url = string.format([[%s#L%d]], url, lk.lstart)
+        if type(lk.lend) == "number" and lk.lend > lk.lstart then
+            url = string.format([[%s-L%d]], url, lk.lend)
+        end
     end
 
     return url
@@ -347,7 +356,7 @@ local function link(opts)
         lk.remote_url
     )
 
-    local url = _make_sharable_permalinks(host_url, lk)
+    local url = _make_sharable_permalinks(host_url, lk, opts)
     if opts.action then
         opts.action(url)
     end
