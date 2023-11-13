@@ -82,7 +82,7 @@ local Defaults = {
     },
 
     -- function based rules: function(remote_url) => host_url
-    -- this will override the default pattern_rules.
+    -- this function has higher priority and could override the default pattern_rules.
     --
     -- here's an example:
     --
@@ -243,7 +243,10 @@ end
 local function _map_remote_to_host(remote_url)
     local custom_rules = Configs.custom_rules
     if type(custom_rules) == "function" then
-        return custom_rules(remote_url)
+        local result = custom_rules(remote_url)
+        if result then
+            return result
+        end
     end
 
     local pattern_rules = Configs.pattern_rules
