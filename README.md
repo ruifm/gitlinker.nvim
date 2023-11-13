@@ -171,7 +171,7 @@ require('gitlinker').setup({
 
   -- highlights the linked line(s) by the time in ms
   -- disable highlight by setting a value equal or less than 0
-  highlight_duration = 100,
+  highlight_duration = 500,
 
   -- key mapping
   mapping = {
