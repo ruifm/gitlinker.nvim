@@ -9,7 +9,7 @@
 <a href="https://app.codecov.io/github/linrongbin16/gitlinker.nvim"><img alt="codecov" src="https://img.shields.io/codecov/c/github/linrongbin16/gitlinker.nvim?logo=codecov&logoColor=F01F7A&label=Codecov" /></a>
 </p>
 
-> A fork of [ruifm's gitlinker](https://github.com/ruifm/gitlinker.nvim), refactored with pattern based rule engine, Windows support and other enhancements.
+> Maintained fork of [ruifm's gitlinker](https://github.com/ruifm/gitlinker.nvim), refactored with bug fixes, pattern based rule engine and other enhancements.
 
 A lua plugin for [Neovim](https://github.com/neovim/neovim) to generate sharable file permalinks (with line ranges) for git host websites. Inspired by [tpope/vim-fugitive](https://github.com/tpope/vim-fugitive)'s `:GBrowse`.
 
@@ -31,6 +31,7 @@ Here's an example of git permalink: https://github.com/neovim/neovim/blob/2e156a
 - [Configuration](#configuration)
 - [Highlight Group](#highlight-group)
 - [Development](#development)
+- [Contribute](#contribute)
 
 ## Break Changes & Updates
 
