@@ -134,7 +134,7 @@ You could use below lua code to copy/open git link:
   }
   ```
 
-  Actually `option` shares the same schema with `require('gitlinker').setup()` function (also see [Configuration](#configuration)), so you can specify fields from the `setup` function to overwrite the runtime configurations (also see [Customize Urls in Runtime](#customize-urls-in-runtime)).
+  Actually `option` shares the same schema with `require('gitlinker').setup()` function (see [Configuration](#configuration)), so you can specify fields from the `setup` function to overwrite the runtime configurations (see [Customize Urls in Runtime](#customize-urls-in-runtime)).
 
 ### Key Mappings
 
@@ -145,7 +145,7 @@ The above two operations are already defined with two default key mappings:
 
 ## Customization
 
-- To disable the default key mappings, set `mapping = false` in `setup()` function (also see [Configuration](#configuration)).
+- To disable the default key mappings, set `mapping = false` in `setup()` function (see [Configuration](#configuration)).
 
 - To create your own key mappings, please specify the `mapping` option in `setup()` function.
 
