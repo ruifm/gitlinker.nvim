@@ -34,6 +34,11 @@ local Defaults = {
     --
     --- @type table<{[1]:string,[2]:string}>[]
     pattern_rules = {
+        -- 'git@github' end with '.git' suffix, add '?plain=1' for '*.md' files.
+        {
+            "^git@github%.([_%.%-%w]+):([%.%-%w]+)/([_%.%-%w]+)%.git$",
+            "https://github.%1/%2/%3/blob/",
+        },
         -- 'git@github' end with '.git' suffix
         {
             "^git@github%.([_%.%-%w]+):([%.%-%w]+)/([_%.%-%w]+)%.git$",
