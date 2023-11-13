@@ -30,21 +30,49 @@ local Defaults = {
         },
     },
 
-    -- pattern based rules
+    -- pattern based rules, mapping url from 'host' to 'remote'.
     --
-    --- @type table<string,string>[]
+    --- @type table<{[1]:string,[2]:string}>[]
     pattern_rules = {
+        -- 'git@github' end with '.git' suffix
         {
-            ["^git@github%.([_%.%-%w]+):([%.%-%w]+)/([_%.%-%w]+)%.git$"] = "https://github.%1/%2/%3/blob/",
-            ["^https?://github%.([_%.%-%w]+)/([%.%-%w]+)/([_%.%-%w]+)%.git$"] = "https://github.%1/%2/%3/blob/",
-            ["^git@gitlab%.([_%.%-%w]+):([%.%-%w]+)/([_%.%-%w]+)%.git$"] = "https://gitlab.%1/%2/%3/blob/",
-            ["^https?://gitlab%.([_%.%-%w]+)/([%.%-%w]+)/([_%.%-%w]+)%.git$"] = "https://gitlab.%1/%2/%3/blob/",
+            "^git@github%.([_%.%-%w]+):([%.%-%w]+)/([_%.%-%w]+)%.git$",
+            "https://github.%1/%2/%3/blob/",
         },
+        -- 'git@github' end without '.git' suffix
         {
-            ["^git@github%.([_%.%-%w]+):([%.%-%w]+)/([_%.%-%w]+)$"] = "https://github.%1/%2/%3/blob/",
-            ["^https?://github%.([_%.%-%w]+)/([%.%-%w]+)/([_%.%-%w]+)$"] = "https://github.%1/%2/%3/blob/",
-            ["^git@gitlab%.([_%.%-%w]+):([%.%-%w]+)/([_%.%-%w]+)$"] = "https://gitlab.%1/%2/%3/blob/",
-            ["^https?://gitlab%.([_%.%-%w]+)/([%.%-%w]+)/([_%.%-%w]+)$"] = "https://gitlab.%1/%2/%3/blob/",
+            "^git@github%.([_%.%-%w]+):([%.%-%w]+)/([_%.%-%w]+)$",
+            "https://github.%1/%2/%3/blob/",
+        },
+        -- 'http(s)?://github' end with '.git' suffix
+        {
+            "^https?://github%.([_%.%-%w]+)/([%.%-%w]+)/([_%.%-%w]+)%.git$",
+            "https://github.%1/%2/%3/blob/",
+        },
+        -- 'http(s)?://github' end without '.git' suffix
+        {
+            "^https?://github%.([_%.%-%w]+)/([%.%-%w]+)/([_%.%-%w]+)$",
+            "https://github.%1/%2/%3/blob/",
+        },
+        -- 'git@gitlab' end with '.git' suffix
+        {
+            "^git@gitlab%.([_%.%-%w]+):([%.%-%w]+)/([_%.%-%w]+)%.git$",
+            "https://gitlab.%1/%2/%3/blob/",
+        },
+        -- 'git@gitlab' end without '.git' suffix
+        {
+            "^git@gitlab%.([_%.%-%w]+):([%.%-%w]+)/([_%.%-%w]+)$",
+            "https://gitlab.%1/%2/%3/blob/",
+        },
+        -- 'http(s)?://gitlab' end with '.git' suffix
+        {
+            "^https?://gitlab%.([_%.%-%w]+)/([%.%-%w]+)/([_%.%-%w]+)%.git$",
+            "https://gitlab.%1/%2/%3/blob/",
+        },
+        -- 'http(s)?://gitlab' end without '.git' suffix
+        {
+            "^https?://gitlab%.([_%.%-%w]+)/([%.%-%w]+)/([_%.%-%w]+)$",
+            "https://gitlab.%1/%2/%3/blob/",
         },
     },
 
@@ -55,26 +83,27 @@ local Defaults = {
     --
     -- ```
     -- custom_rules = function(remote_url)
-    --   local rules = {
-    --     {
-    --       ["^git@github%.([_%.%-%w]+):([%.%-%w]+)/([%.%-%w]+)%.git$"] = "https://github.%1/%2/%3/blob/",
-    --       ["^https://github%.([_%.%-%w]+)/([%.%-%w]+)/([%.%-%w]+)%.git$"] = "https://github.%1/%2/%3/blob/",
-    --     },
-    --     -- http(s)://github.(com|*)/linrongbin16/gitlinker.nvim(.git)? -> https://github.com/linrongbin16/gitlinker.nvim(.git)?
-    --     {
-    --       ["^git@github%.([_%.%-%w]+):([%.%-%w]+)/([%.%-%w]+)$"] = "https://github.%1/%2/%3/blob/",
-    --       ["^https://github%.([_%.%-%w]+)/([%.%-%w]+)/([%.%-%w]+)$"] = "https://github.%1/%2/%3/blob/",
-    --     },
-    --   }
-    --   for _, group in ipairs(rules) do
-    --     for pattern, replace in pairs(group) do
-    --       if string.match(remote_url, pattern) then
-    --         local result = string.gsub(remote_url, pattern, replace)
-    --         return result
-    --       end
+    --     local rules = {
+    --         -- 'git@github' end with '.git' suffix
+    --         {
+    --             "^git@github%.([_%.%-%w]+):([%.%-%w]+)/([_%.%-%w]+)%.git$",
+    --             "https://github.%1/%2/%3/blob/",
+    --         },
+    --         -- 'git@github' end without '.git' suffix
+    --         {
+    --             "^git@github%.([_%.%-%w]+):([%.%-%w]+)/([_%.%-%w]+)$",
+    --             "https://github.%1/%2/%3/blob/",
+    --         },
+    --     }
+    --     for _, rule in ipairs(rules) do
+    --         local pattern = rule[1]
+    --         local replace = rule[2]
+    --         if string.match(remote_url, pattern) then
+    --             local result = string.gsub(remote_url, pattern, replace)
+    --             return result
+    --         end
     --     end
-    --   end
-    --   return nil
+    --     return nil
     -- end,
     -- ```
     --
@@ -147,16 +176,12 @@ local function setup(opts)
     -- logger.debug("|setup| Configs:%s", vim.inspect(Configs))
 end
 
+--- @deprecated
 --- @package
+--- @param pattern_rules table[]
 --- @param remote_url string
 --- @return string?
-local function _map_remote_to_host(remote_url)
-    local custom_rules = Configs.custom_rules
-    if type(custom_rules) == "function" then
-        return custom_rules(remote_url)
-    end
-
-    local pattern_rules = Configs.pattern_rules
+local function _map_remote_to_host_deprecated(pattern_rules, remote_url)
     for i, group in ipairs(pattern_rules) do
         for pattern, replace in pairs(group) do
             -- logger.debug(
@@ -177,6 +202,91 @@ local function _map_remote_to_host(remote_url)
                 -- )
                 return host_url
             end
+        end
+    end
+
+    return nil
+end
+
+--- @param pattern_rules table
+--- @return boolean
+local function _has_deprecated_pattern_rules(pattern_rules)
+    if type(pattern_rules) ~= "table" then
+        return false
+    end
+    for _, group in ipairs(pattern_rules) do
+        if type(group) ~= "table" then
+            return false
+        end
+        for pattern, replace in pairs(group) do
+            if
+                type(pattern) == "string"
+                and string.len(pattern) > 0
+                and type(replace) == "string"
+                and string.len(replace) > 0
+            then
+                return true
+            end
+        end
+    end
+    return false
+end
+
+--- @package
+--- @param remote_url string
+--- @return string?
+local function _map_remote_to_host(remote_url)
+    local custom_rules = Configs.custom_rules
+    if type(custom_rules) == "function" then
+        return custom_rules(remote_url)
+    end
+
+    local pattern_rules = Configs.pattern_rules
+    if _has_deprecated_pattern_rules(pattern_rules) then
+        local function notify()
+            local function impl()
+                local msg = string.format(
+                    "[gitlinker] warning! detect deprecated 'config.pattern_rules', please migrate to latest schema."
+                )
+                local chunks = { { msg, "WarningMsg" } }
+                vim.api.nvim_echo(chunks, false, {})
+            end
+
+            vim.schedule(impl)
+            vim.defer_fn(impl, 3000)
+        end
+        notify()
+
+        logger.debug(
+            "|_map_remote_to_host| use deprecated pattern rules schema"
+        )
+        local result = _map_remote_to_host_deprecated(pattern_rules, remote_url)
+        if result then
+            return result
+        end
+    end
+
+    logger.debug("|_map_remote_to_host| use new pattern rules schema")
+    for i, rule in ipairs(pattern_rules) do
+        local pattern = rule[1]
+        local replace = rule[2]
+        -- logger.debug(
+        --   "[map_remote_to_host] map group[%d], pattern:'%s', replace:'%s'",
+        --   i,
+        --   pattern,
+        --   replace
+        -- )
+        if string.match(remote_url, pattern) then
+            local host_url = string.gsub(remote_url, pattern, replace)
+            -- logger.debug(
+            --   "[map_remote_to_host] map group[%d] matched, pattern:'%s', replace:'%s', remote_url:'%s' => host_url:'%s'",
+            --   i,
+            --   pattern,
+            --   replace,
+            --   remote_url,
+            --   host_url
+            -- )
+            return host_url
         end
     end
 
