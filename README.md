@@ -170,6 +170,10 @@ require('gitlinker').setup({
   -- print message in command line
   message = true,
 
+  -- highlights the linked line(s) by the time in ms
+  -- disable highlight by setting a value equal or less than 0
+  highlight_duration = 100,
+
   -- key mapping
   mapping = {
     ["<leader>gl"] = {

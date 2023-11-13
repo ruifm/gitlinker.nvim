@@ -1,5 +1,6 @@
 local logger = require("gitlinker.logger")
 local Linker = require("gitlinker.linker").Linker
+local highlight = require("gitlinker.highlight")
 
 --- @alias Options table<any, any>
 --- @type Options
@@ -8,6 +9,11 @@ local Defaults = {
     --
     --- @type boolean
     message = true,
+
+    -- highlight the linked region
+    --
+    --- @type integer
+    highlight_duration = 500,
 
     -- key mappings
     --
@@ -130,6 +136,15 @@ local function setup(opts)
         end
     end
 
+    -- Configure highlight group
+    if Configs.highlight_duration >= 0 then
+        vim.api.nvim_set_hl(
+            0,
+            "NvimGitLinkerHighlightTextObject",
+            { link = "Search" }
+        )
+    end
+
     -- logger.debug("|setup| Configs:%s", vim.inspect(Configs))
 end
 
@@ -210,6 +225,10 @@ local function link(opts)
     local url = _make_sharable_permalinks(host_url, lk)
     if opts.action then
         opts.action(url)
+    end
+    if opts.highlight_duration >= 0 then
+        highlight.show({ lstart = lk.lstart, lend = lk.lend })
+        vim.defer_fn(highlight.clear, opts.highlight_duration)
     end
     if opts.message then
         local msg = lk.file_changed
