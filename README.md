@@ -3,14 +3,13 @@
 # gitlinker.nvim
 
 <p align="center">
-<a href="https://github.com/neovim/neovim/releases/v0.7.0"><img alt="Neovim-v0.7" src="https://img.shields.io/badge/Neovim-v0.7-blueviolet.svg?logo=Neovim&logoColor=green" /></a>
-<a href="https://github.com/linrongbin16/gitlinker.nvim/search?l=lua"><img alt="Top Language" src="https://img.shields.io/github/languages/top/linrongbin16/gitlinker.nvim?label=Lua&logo=lua&logoColor=darkblue" /></a>
-<a href="https://github.com/linrongbin16/gitlinker.nvim/blob/master/LICENSE"><img alt="License" src="https://img.shields.io/github/license/linrongbin16/gitlinker.nvim?logo=GNU&label=License" /></a>
-<a href="https://github.com/linrongbin16/gitlinker.nvim/actions/workflows/ci.yml"><img alt="ci.yml" src="https://img.shields.io/github/actions/workflow/status/linrongbin16/gitlinker.nvim/ci.yml?logo=GitHub&label=Luacheck" /></a>
-<a href="https://app.codecov.io/github/linrongbin16/gitlinker.nvim"><img alt="codecov" src="https://img.shields.io/codecov/c/github/linrongbin16/gitlinker.nvim?logo=codecov&logoColor=magenta&label=Codecov" /></a>
+<a href="https://github.com/neovim/neovim/releases/v0.7.0"><img alt="Neovim" src="https://img.shields.io/badge/Neovim-v0.7-57A143?logo=neovim&logoColor=57A143" /></a>
+<a href="https://github.com/linrongbin16/gitlinker.nvim/search?l=lua"><img alt="Language" src="https://img.shields.io/github/languages/top/linrongbin16/gitlinker.nvim?label=Lua&logo=lua&logoColor=fff&labelColor=2C2D72" /></a>
+<a href="https://github.com/linrongbin16/gitlinker.nvim/actions/workflows/ci.yml"><img alt="ci.yml" src="https://img.shields.io/github/actions/workflow/status/linrongbin16/gitlinker.nvim/ci.yml?label=GitHub%20CI&labelColor=181717&logo=github&logoColor=fff" /></a>
+<a href="https://app.codecov.io/github/linrongbin16/gitlinker.nvim"><img alt="codecov" src="https://img.shields.io/codecov/c/github/linrongbin16/gitlinker.nvim?logo=codecov&logoColor=F01F7A&label=Codecov" /></a>
 </p>
 
-> A fork of [ruifm's gitlinker](https://github.com/ruifm/gitlinker.nvim), refactored with pattern based rule engine, Windows support and other enhancements.
+> Maintained fork of [ruifm's gitlinker](https://github.com/ruifm/gitlinker.nvim), refactored with lua pattern based rule engine, Windows support and other enhancements.
 
 A lua plugin for [Neovim](https://github.com/neovim/neovim) to generate sharable file permalinks (with line ranges) for git host websites. Inspired by [tpope/vim-fugitive](https://github.com/tpope/vim-fugitive)'s `:GBrowse`.
 
@@ -30,6 +29,9 @@ Here's an example of git permalink: https://github.com/neovim/neovim/blob/2e156a
   - [Key Mappings](#key-mappings)
   - [Customization](#customization)
 - [Configuration](#configuration)
+- [Highlight Group](#highlight-group)
+- [Development](#development)
+- [Contribute](#contribute)
 
 ## Break Changes & Updates
 
@@ -102,7 +104,10 @@ require("lazy").setup({
 
 ## Usage
 
-There's no pre-defined vim command, this plugin provides two actions and one API to achieve the goal.
+You could use below lua code to copy/open git link:
+
+- `require('gitlinker').link({ action = require('gitlinker.actions').clipboard })` to copy git link.
+- `require('gitlinker').link({ action = require('gitlinker.actions').system })` to open git link.
 
 ### Action
 
@@ -115,16 +120,17 @@ There's no pre-defined vim command, this plugin provides two actions and one API
 
   ```lua
   {
-      action = ..., -- gitlinker actions: clipboard/system
-      lstart = ..., -- (optional) line range start, please see in [Customization](#customization).
-      lend = ..., -- (optional) line range end, please see in [Customization](#customization).
+    -- (mandatory) gitlinker actions
+    action = ...,
+
+    -- (optional) highlight duration ms
+    highlight_duration = ...,
+
+    -- (optional) line range, please see in [Customization](#customization).
+    lstart = ...,
+    lend = ...,
   }
   ```
-
-You could use below lua code to copy/open git link:
-
-- `require('gitlinker').link({ action = require('gitlinker.actions').clipboard })` to copy git link.
-- `require('gitlinker').link({ action = require('gitlinker.actions').system })` to open git link.
 
 ## Key Mappings
 
@@ -135,33 +141,45 @@ The above two operations are already defined with two default key mappings:
 
 ## Customization
 
-To disable the default key mappings, set `mapping = false` in `setup()` function (see [Configuration](#configuration)).
+- To disable the default key mappings, set `mapping = false` in `setup()` function (see [Configuration](#configuration)).
 
-To create your own key mappings, please specify the `mapping` option in `setup()` function.
+- To create your own key mappings, please specify the `mapping` option in `setup()` function.
 
-To create your own vim command, please use:
+- To create your own vim command, please use:
 
-For vim:
+  ```vim
+  " vimscript
+  command! -range GitLink lua require('gitlinker').link({ action = require('gitlinker.actions').system, lstart = vim.api.nvim_buf_get_mark(0, '<')[1], lend = vim.api.nvim_buf_get_mark(0, '>')[1] })
+  ```
 
-```vim
-command! -range GitLink lua require('gitlinker').link({ action = require('gitlinker.actions').system, lstart = vim.api.nvim_buf_get_mark(0, '<')[1], lend = vim.api.nvim_buf_get_mark(0, '>')[1] })
-```
-
-For lua:
-
-```lua
-vim.api.nvim_create_user_command("GitLink", function()
-  require("gitlinker").link({
-    action = require("gitlinker.actions").system,
-    lstart = vim.api.nvim_buf_get_mark(0, '<')[1],
-    lend = vim.api.nvim_buf_get_mark(0, '>')[1]
+  ```lua
+  -- lua
+  vim.api.nvim_create_user_command("GitLink", function()
+    require("gitlinker").link({
+      action = require("gitlinker.actions").system,
+      lstart = vim.api.nvim_buf_get_mark(0, '<')[1],
+      lend = vim.api.nvim_buf_get_mark(0, '>')[1]
+    })
+  end, {
+    range = true,
   })
-end, {
-  range = true,
-})
-```
+  ```
 
-> Support command range is a little bit tricky, since you need to pass line range from command line to the `link` API.
+  > Support command range is a little bit tricky, since you need to pass line range from command line to the `link` API.
+
+- To create your own highlight, please use:
+
+  ```lua
+  -- lua
+  vim.api.nvim_set_hl( 0, "NvimGitLinkerHighlightTextObject", { link = "Constant" })
+  ```
+
+  ```vim
+  " vimscript
+  hi link NvimGitLinkerHighlightTextObject Constant
+  ```
+
+  > Please see [Highlight Group](#highlight-group).
 
 ## Configuration
 
@@ -172,7 +190,7 @@ require('gitlinker').setup({
 
   -- highlights the linked line(s) by the time in ms
   -- disable highlight by setting a value equal or less than 0
-  highlight_duration = 100,
+  highlight_duration = 500,
 
   -- key mapping
   mapping = {
@@ -247,6 +265,12 @@ require('gitlinker').setup({
   file_log = false,
 })
 ````
+
+## Highlight Group
+
+| Highlight Group                  | Default Group | Description |
+| -------------------------------- | ------------- | ----------- |
+| NvimGitLinkerHighlightTextObject | Search        | lines range |
 
 ## Development
 

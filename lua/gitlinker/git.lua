@@ -61,12 +61,12 @@ local function cmd(args, cwd)
     }) --[[@as Spawn]]
     sp:run()
 
-    logger.debug(
-        "|git.cmd| args:%s, cwd:%s, result:%s",
-        vim.inspect(args),
-        vim.inspect(cwd),
-        vim.inspect(result)
-    )
+    -- logger.debug(
+    --     "|git.cmd| args:%s, cwd:%s, result:%s",
+    --     vim.inspect(args),
+    --     vim.inspect(cwd),
+    --     vim.inspect(result)
+    -- )
     return result
 end
 
@@ -74,7 +74,7 @@ end
 --- @return string[]|nil
 local function _get_remote()
     local result = cmd({ "git", "remote" })
-    logger.debug("|git._get_remote| result:%s", vim.inspect(result))
+    -- logger.debug("|git._get_remote| result:%s", vim.inspect(result))
     if type(result.stdout) ~= "table" or #result.stdout == 0 then
         result:print_err("fatal: git repo has no remote")
         return nil
@@ -87,11 +87,11 @@ end
 local function get_remote_url(remote)
     assert(remote, "remote cannot be nil")
     local result = cmd({ "git", "remote", "get-url", remote })
-    logger.debug(
-        "|git.get_remote_url| remote:%s, result:%s",
-        vim.inspect(remote),
-        vim.inspect(result)
-    )
+    -- logger.debug(
+    --     "|git.get_remote_url| remote:%s, result:%s",
+    --     vim.inspect(remote),
+    --     vim.inspect(result)
+    -- )
     if not result:has_out() then
         result:print_err(
             "fatal: failed to get remote url by remote '" .. remote .. "'"
@@ -106,11 +106,11 @@ end
 --- @return string?
 local function _get_rev(revspec)
     local result = cmd({ "git", "rev-parse", revspec })
-    logger.debug(
-        "|git._get_rev| revspec:%s, result:%s",
-        vim.inspect(revspec),
-        vim.inspect(result)
-    )
+    -- logger.debug(
+    --     "|git._get_rev| revspec:%s, result:%s",
+    --     vim.inspect(revspec),
+    --     vim.inspect(result)
+    -- )
     return result:has_out() and result.stdout[1] or nil
 end
 
@@ -119,11 +119,11 @@ end
 --- @return string?
 local function _get_rev_name(revspec)
     local result = cmd({ "git", "rev-parse", "--abbrev-ref", revspec })
-    logger.debug(
-        "|git._get_rev_name| revspec:%s, result:%s",
-        vim.inspect(revspec),
-        vim.inspect(result)
-    )
+    -- logger.debug(
+    --     "|git._get_rev_name| revspec:%s, result:%s",
+    --     vim.inspect(revspec),
+    --     vim.inspect(result)
+    -- )
     if not result:has_out() then
         result:print_err("fatal: git branch has no remote")
         return nil
@@ -136,12 +136,12 @@ end
 --- @return boolean
 local function is_file_in_rev(file, revspec)
     local result = cmd({ "git", "cat-file", "-e", revspec .. ":" .. file })
-    logger.debug(
-        "|git.is_file_in_rev| file:%s, revspec:%s, result:%s",
-        vim.inspect(file),
-        vim.inspect(revspec),
-        vim.inspect(result)
-    )
+    -- logger.debug(
+    --     "|git.is_file_in_rev| file:%s, revspec:%s, result:%s",
+    --     vim.inspect(file),
+    --     vim.inspect(revspec),
+    --     vim.inspect(result)
+    -- )
     if result:has_err() then
         result:print_err(
             "fatal: '"
@@ -160,12 +160,12 @@ end
 --- @return boolean
 local function has_file_changed(file, rev)
     local result = cmd({ "git", "diff", rev, "--", file })
-    logger.debug(
-        "|git.has_file_changed| file:%s, rev:%s, result:%s",
-        vim.inspect(file),
-        vim.inspect(rev),
-        vim.inspect(result)
-    )
+    -- logger.debug(
+    --     "|git.has_file_changed| file:%s, rev:%s, result:%s",
+    --     vim.inspect(file),
+    --     vim.inspect(rev),
+    --     vim.inspect(result)
+    -- )
     return result:has_out()
 end
 
@@ -175,12 +175,12 @@ end
 --- @return boolean
 local function _is_rev_in_remote(revspec, remote)
     local result = cmd({ "git", "branch", "--remotes", "--contains", revspec })
-    logger.debug(
-        "|git.is_rev_in_remote| revspec:%s, remote:%s, result:%s",
-        vim.inspect(revspec),
-        vim.inspect(remote),
-        vim.inspect(result)
-    )
+    -- logger.debug(
+    --     "|git.is_rev_in_remote| revspec:%s, remote:%s, result:%s",
+    --     vim.inspect(revspec),
+    --     vim.inspect(remote),
+    --     vim.inspect(result)
+    -- )
     local output = result.stdout
     for _, rbranch in ipairs(output) do
         if rbranch:match(remote) then
@@ -238,12 +238,12 @@ local function get_root()
     local buf_path = vim.api.nvim_buf_get_name(0)
     local buf_dir = vim.fn.fnamemodify(buf_path, ":p:h")
     local result = cmd({ "git", "rev-parse", "--show-toplevel" }, buf_dir)
-    logger.debug(
-        "|git.get_root| buf_path:%s, buf_dir:%s, result:%s",
-        vim.inspect(buf_path),
-        vim.inspect(buf_dir),
-        vim.inspect(result)
-    )
+    -- logger.debug(
+    --     "|git.get_root| buf_path:%s, buf_dir:%s, result:%s",
+    --     vim.inspect(buf_path),
+    --     vim.inspect(buf_dir),
+    --     vim.inspect(result)
+    -- )
     if not result:has_out() then
         result:print_err("fatal: not in a git repository")
         return nil

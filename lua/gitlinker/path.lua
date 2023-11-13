@@ -25,11 +25,11 @@ local function buffer_relpath(cwd)
     bufpath = vim.fn.resolve(bufpath)
     bufpath = normalize(bufpath)
 
-    logger.debug(
-        "|path.buffer_relpath| enter, cwd:%s, bufpath:%s",
-        vim.inspect(cwd),
-        vim.inspect(bufpath)
-    )
+    -- logger.debug(
+    --     "|path.buffer_relpath| enter, cwd:%s, bufpath:%s",
+    --     vim.inspect(cwd),
+    --     vim.inspect(bufpath)
+    -- )
 
     local result = nil
     if
@@ -41,7 +41,7 @@ local function buffer_relpath(cwd)
             result = result:sub(2)
         end
     end
-    logger.debug("|path.buffer_relpath| result:%s", vim.inspect(result))
+    -- logger.debug("|path.buffer_relpath| result:%s", vim.inspect(result))
     return result
 end
 

@@ -137,12 +137,11 @@ local function setup(opts)
     end
 
     -- Configure highlight group
-    if Configs.highlight_duration >= 0 then
-        vim.api.nvim_set_hl(
-            0,
-            "NvimGitLinkerHighlightTextObject",
-            { link = "Search" }
-        )
+    if Configs.highlight_duration > 0 then
+        local hl_name = "NvimGitLinkerHighlightTextObject"
+        if not highlight.hl_group_exists(hl_name) then
+            vim.api.nvim_set_hl(0, hl_name, { link = "Search" })
+        end
     end
 
     -- logger.debug("|setup| Configs:%s", vim.inspect(Configs))
@@ -203,7 +202,7 @@ end
 --- @return string?
 local function link(opts)
     opts = vim.tbl_deep_extend("force", vim.deepcopy(Configs), opts or {})
-    logger.debug("[link] merged opts: %s", vim.inspect(opts))
+    -- logger.debug("[link] merged opts: %s", vim.inspect(opts))
 
     local range = (
         type(opts.lstart) == "number" and type(opts.lend) == "number"
@@ -226,7 +225,7 @@ local function link(opts)
     if opts.action then
         opts.action(url)
     end
-    if opts.highlight_duration >= 0 then
+    if opts.highlight_duration > 0 then
         highlight.show({ lstart = lk.lstart, lend = lk.lend })
         vim.defer_fn(highlight.clear, opts.highlight_duration)
     end
