@@ -27,7 +27,9 @@ Here's an example of git permalink: https://github.com/neovim/neovim/blob/2e156a
   - [Action](#action)
   - [API](#api)
   - [Key Mappings](#key-mappings)
-  - [Customization](#customization)
+- [Customization](#customization)
+  - [Vim Command](#vim-command)
+  - [Highlight](#highlight)
 - [Configuration](#configuration)
   - [Highlight Group](#highlight-group)
 - [Development](#development)
@@ -132,7 +134,7 @@ You could use below lua code to copy/open git link:
   }
   ```
 
-## Key Mappings
+### Key Mappings
 
 The above two operations are already defined with two default key mappings:
 
@@ -141,45 +143,49 @@ The above two operations are already defined with two default key mappings:
 
 ## Customization
 
-- To disable the default key mappings, set `mapping = false` in `setup()` function (see [Configuration](#configuration)).
+- To disable the default key mappings, set `mapping = false` in `setup()` function (also see [Configuration](#configuration)).
 
 - To create your own key mappings, please specify the `mapping` option in `setup()` function.
 
-- To create your own vim command, please use:
+### Vim Command
 
-  ```vim
-  " vimscript
-  command! -range GitLink lua require('gitlinker').link({ action = require('gitlinker.actions').system, lstart = vim.api.nvim_buf_get_mark(0, '<')[1], lend = vim.api.nvim_buf_get_mark(0, '>')[1] })
-  ```
+To create your own vim command, please use:
 
-  ```lua
-  -- lua
-  vim.api.nvim_create_user_command("GitLink", function()
-    require("gitlinker").link({
-      action = require("gitlinker.actions").system,
-      lstart = vim.api.nvim_buf_get_mark(0, '<')[1],
-      lend = vim.api.nvim_buf_get_mark(0, '>')[1]
-    })
-  end, {
-    range = true,
-  })
-  ```
+```vim
+" vimscript
+command! -range GitLink lua require('gitlinker').link({ action = require('gitlinker.actions').system, lstart = vim.api.nvim_buf_get_mark(0, '<')[1], lend = vim.api.nvim_buf_get_mark(0, '>')[1] })
+```
 
-  > Support command range is a little bit tricky, since you need to pass line range from command line to the `link` API.
+```lua
+-- lua
+vim.api.nvim_create_user_command("GitLink", function()
+require("gitlinker").link({
+  action = require("gitlinker.actions").system,
+  lstart = vim.api.nvim_buf_get_mark(0, '<')[1],
+  lend = vim.api.nvim_buf_get_mark(0, '>')[1]
+})
+end, {
+range = true,
+})
+```
 
-- To create your own highlight, please use:
+> Support command range is a little bit tricky, since you need to pass line range from command line to the `link` API.
 
-  ```lua
-  -- lua
-  vim.api.nvim_set_hl( 0, "NvimGitLinkerHighlightTextObject", { link = "Constant" })
-  ```
+### Highlight
 
-  ```vim
-  " vimscript
-  hi link NvimGitLinkerHighlightTextObject Constant
-  ```
+To create your own highlight, please use:
 
-  > Please see [Highlight Group](#highlight-group).
+```lua
+-- lua
+vim.api.nvim_set_hl( 0, "NvimGitLinkerHighlightTextObject", { link = "Constant" })
+```
+
+```vim
+" vimscript
+hi link NvimGitLinkerHighlightTextObject Constant
+```
+
+> Also see [Highlight Group](#highlight-group).
 
 ## Configuration
 
@@ -191,6 +197,9 @@ require('gitlinker').setup({
   -- highlights the linked line(s) by the time in ms
   -- disable highlight by setting a value equal or less than 0
   highlight_duration = 500,
+
+  -- add '?plain=1' for '*.md' (markdown) files
+  add_plain_for_markdown = true,
 
   -- key mapping
   mapping = {
@@ -209,42 +218,42 @@ require('gitlinker').setup({
   -- regex pattern based rules
   --- @type table<{[1]:string,[2]:string}>[]
   pattern_rules = {
-    -- 'git@github' end with '.git' suffix
+    -- 'git@github' with '.git' suffix
     {
       "^git@github%.([_%.%-%w]+):([%.%-%w]+)/([_%.%-%w]+)%.git$",
       "https://github.%1/%2/%3/blob/",
     },
-    -- 'git@github' end without '.git' suffix
+    -- 'git@github' without '.git' suffix
     {
       "^git@github%.([_%.%-%w]+):([%.%-%w]+)/([_%.%-%w]+)$",
       "https://github.%1/%2/%3/blob/",
     },
-    -- 'http(s)?://github' end with '.git' suffix
+    -- 'http(s)?://github' with '.git' suffix
     {
       "^https?://github%.([_%.%-%w]+)/([%.%-%w]+)/([_%.%-%w]+)%.git$",
       "https://github.%1/%2/%3/blob/",
     },
-    -- 'http(s)?://github' end without '.git' suffix
+    -- 'http(s)?://github' without '.git' suffix
     {
       "^https?://github%.([_%.%-%w]+)/([%.%-%w]+)/([_%.%-%w]+)$",
       "https://github.%1/%2/%3/blob/",
     },
-    -- 'git@gitlab' end with '.git' suffix
+    -- 'git@gitlab' with '.git' suffix
     {
       "^git@gitlab%.([_%.%-%w]+):([%.%-%w]+)/([_%.%-%w]+)%.git$",
       "https://gitlab.%1/%2/%3/blob/",
     },
-    -- 'git@gitlab' end without '.git' suffix
+    -- 'git@gitlab' without '.git' suffix
     {
       "^git@gitlab%.([_%.%-%w]+):([%.%-%w]+)/([_%.%-%w]+)$",
       "https://gitlab.%1/%2/%3/blob/",
     },
-    -- 'http(s)?://gitlab' end with '.git' suffix
+    -- 'http(s)?://gitlab' with '.git' suffix
     {
       "^https?://gitlab%.([_%.%-%w]+)/([%.%-%w]+)/([_%.%-%w]+)%.git$",
       "https://gitlab.%1/%2/%3/blob/",
     },
-    -- 'http(s)?://gitlab' end without '.git' suffix
+    -- 'http(s)?://gitlab' without '.git' suffix
     {
       "^https?://gitlab%.([_%.%-%w]+)/([%.%-%w]+)/([_%.%-%w]+)$",
       "https://gitlab.%1/%2/%3/blob/",

@@ -15,6 +15,11 @@ local Defaults = {
     --- @type integer
     highlight_duration = 500,
 
+    -- add '?plain=1' for '*.md' (markdown) files
+    --
+    --- @type boolean
+    add_plain_for_markdown = true,
+
     -- key mappings
     --
     --- @alias KeyMappingConfig {action:fun(url:string):nil,desc:string?}
@@ -34,42 +39,42 @@ local Defaults = {
     --
     --- @type table<{[1]:string,[2]:string}>[]
     pattern_rules = {
-        -- 'git@github' end with '.git' suffix
+        -- 'git@github' with '.git' suffix
         {
             "^git@github%.([_%.%-%w]+):([%.%-%w]+)/([_%.%-%w]+)%.git$",
             "https://github.%1/%2/%3/blob/",
         },
-        -- 'git@github' end without '.git' suffix
+        -- 'git@github' without '.git' suffix
         {
             "^git@github%.([_%.%-%w]+):([%.%-%w]+)/([_%.%-%w]+)$",
             "https://github.%1/%2/%3/blob/",
         },
-        -- 'http(s)?://github' end with '.git' suffix
+        -- 'http(s)?://github' with '.git' suffix
         {
             "^https?://github%.([_%.%-%w]+)/([%.%-%w]+)/([_%.%-%w]+)%.git$",
             "https://github.%1/%2/%3/blob/",
         },
-        -- 'http(s)?://github' end without '.git' suffix
+        -- 'http(s)?://github' without '.git' suffix
         {
             "^https?://github%.([_%.%-%w]+)/([%.%-%w]+)/([_%.%-%w]+)$",
             "https://github.%1/%2/%3/blob/",
         },
-        -- 'git@gitlab' end with '.git' suffix
+        -- 'git@gitlab' with '.git' suffix
         {
             "^git@gitlab%.([_%.%-%w]+):([%.%-%w]+)/([_%.%-%w]+)%.git$",
             "https://gitlab.%1/%2/%3/blob/",
         },
-        -- 'git@gitlab' end without '.git' suffix
+        -- 'git@gitlab' without '.git' suffix
         {
             "^git@gitlab%.([_%.%-%w]+):([%.%-%w]+)/([_%.%-%w]+)$",
             "https://gitlab.%1/%2/%3/blob/",
         },
-        -- 'http(s)?://gitlab' end with '.git' suffix
+        -- 'http(s)?://gitlab' with '.git' suffix
         {
             "^https?://gitlab%.([_%.%-%w]+)/([%.%-%w]+)/([_%.%-%w]+)%.git$",
             "https://gitlab.%1/%2/%3/blob/",
         },
-        -- 'http(s)?://gitlab' end without '.git' suffix
+        -- 'http(s)?://gitlab' without '.git' suffix
         {
             "^https?://gitlab%.([_%.%-%w]+)/([%.%-%w]+)/([_%.%-%w]+)$",
             "https://gitlab.%1/%2/%3/blob/",
@@ -77,7 +82,7 @@ local Defaults = {
     },
 
     -- function based rules: function(remote_url) => host_url
-    -- this will override the default pattern_rules.
+    -- this function has higher priority and could override the default pattern_rules.
     --
     -- here's an example:
     --
@@ -238,7 +243,10 @@ end
 local function _map_remote_to_host(remote_url)
     local custom_rules = Configs.custom_rules
     if type(custom_rules) == "function" then
-        return custom_rules(remote_url)
+        local result = custom_rules(remote_url)
+        if result then
+            return result
+        end
     end
 
     local pattern_rules = Configs.pattern_rules
@@ -295,16 +303,36 @@ end
 
 --- @param host_url string
 --- @param lk Linker
+--- @param opts Options?
 --- @return string
-local function _make_sharable_permalinks(host_url, lk)
+local function _make_sharable_permalinks(host_url, lk, opts)
     local url = string.format([[%s%s/%s]], host_url, lk.rev, lk.file)
-    if not lk.lstart then
-        return url
+
+    local add_plain = type(opts) == "table"
+        and type(opts.add_plain_for_markdown) == "boolean"
+        and opts.add_plain_for_markdown
+    local endswith_md = type(url) == "string"
+        and string.len(url) >= 3
+        and url:sub(#url - 2, #url):lower() == ".md"
+    -- logger.debug(
+    --     "|_make_sharable_permalinks| url:%s, add plain:%s, url sub:%s, lower:%s, endswith '*.md':%s",
+    --     vim.inspect(url),
+    --     vim.inspect(add_plain),
+    --     vim.inspect(url:sub(#url - 2, #url)),
+    --     vim.inspect(url:sub(#url - 2, #url):lower()),
+    --     vim.inspect(url:sub(#url - 2, #url):lower() == ".md")
+    -- )
+    if add_plain and endswith_md then
+        url = url .. [[?plain=1]]
     end
-    url = string.format([[%s#L%d]], url, lk.lstart)
-    if lk.lend and lk.lend ~= lk.lstart then
-        url = string.format([[%s-L%d]], url, lk.lend)
+
+    if type(lk.lstart) == "number" then
+        url = string.format([[%s#L%d]], url, lk.lstart)
+        if type(lk.lend) == "number" and lk.lend > lk.lstart then
+            url = string.format([[%s-L%d]], url, lk.lend)
+        end
     end
+
     return url
 end
 
@@ -331,7 +359,7 @@ local function link(opts)
         lk.remote_url
     )
 
-    local url = _make_sharable_permalinks(host_url, lk)
+    local url = _make_sharable_permalinks(host_url, lk, opts)
     if opts.action then
         opts.action(url)
     end
