@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.2.0](https://github.com/linrongbin16/gitlinker.nvim/compare/v1.1.1...v1.2.0) (2023-11-13)
+
+
+### Features
+
+* **markdown:** add '?plain=1' for markdown files to link to code instead of preview ([#94](https://github.com/linrongbin16/gitlinker.nvim/issues/94)) ([cf57151](https://github.com/linrongbin16/gitlinker.nvim/commit/cf5715198bf484657aecaf6e370d8ed84f8d7b0f))
+
+
+### Performance Improvements
+
+* **rules:** fallback to pattern rules if custom_rules not hit ([cf57151](https://github.com/linrongbin16/gitlinker.nvim/commit/cf5715198bf484657aecaf6e370d8ed84f8d7b0f))
+
 ## [1.1.1](https://github.com/linrongbin16/gitlinker.nvim/compare/v1.1.0...v1.1.1) (2023-11-13)
 
 
