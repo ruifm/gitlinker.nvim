@@ -64,7 +64,7 @@ PRs are welcomed for other git host websites!
 
 ## Installation
 
-Requirement:
+Requirements:
 
 - Neovim &ge; v0.7.
 - [Git](https://git-scm.com/).
@@ -111,13 +111,13 @@ require("lazy").setup({
 
 You could use below lua code to copy/open git link:
 
-- `require('gitlinker').link({ action = require('gitlinker.actions').clipboard })` to copy git link.
-- `require('gitlinker').link({ action = require('gitlinker.actions').system })` to open git link.
+- `require('gitlinker').link({ action = require('gitlinker.actions').clipboard })`: copy git link to clipboard.
+- `require('gitlinker').link({ action = require('gitlinker.actions').system })`: open git link in browser.
 
 ### Action
 
-- `require('gitlinker.actions').clipboard`: copy git link to clipboard.
-- `require('gitlinker.actions').system`: open git link in browser.
+- `require('gitlinker.actions').clipboard`: copy to clipboard.
+- `require('gitlinker.actions').system`: open in browser.
 
 ### API
 
