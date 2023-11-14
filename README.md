@@ -34,7 +34,7 @@ Here's an example of git permalink: https://github.com/neovim/neovim/blob/2e156a
   - [Add More Urls](#add-more-urls)
   - [Customize Urls in Runtime](#customize-urls-in-runtime)
   - [Fully Customize Urls](#fully-customize-urls)
-  - [Highlight Group](#highlight-group)
+- [Highlight Group](#highlight-group)
 - [Development](#development)
 - [Contribute](#contribute)
 
@@ -382,7 +382,7 @@ require('gitlinker').setup({
 })
 ```
 
-### Highlight Group
+## Highlight Group
 
 | Highlight Group                  | Default Group | Description |
 | -------------------------------- | ------------- | ----------- |
