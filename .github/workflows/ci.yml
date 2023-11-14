@@ -40,7 +40,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           version: latest
-          args: --config-path .stylua.toml ./
+          args: --config-path .stylua.toml ./lua ./test
       - name: Auto commit
         if: ${{ github.ref != 'refs/heads/master' }}
         uses: stefanzweifel/git-auto-commit-action@v4
