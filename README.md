@@ -15,11 +15,13 @@ A lua plugin for [Neovim](https://github.com/neovim/neovim) to generate sharable
 
 Here's an example of git permalink: https://github.com/neovim/neovim/blob/2e156a3b7d7e25e56b03683cc6228c531f4c91ef/src/nvim/main.c#L137-L156.
 
-Supported platforms are:
+For now supported platforms are:
 
 - [github.com](https://github.com/)
 - [gitlab.com](https://gitlab.com/)
 - [bitbucket.org](https://bitbucket.org/)
+
+PRs are welcomed for other git host websites!
 
 ## Table of Contents
 
