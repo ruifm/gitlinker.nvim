@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.0](https://github.com/linrongbin16/gitlinker.nvim/compare/v2.0.0...v2.1.0) (2023-11-15)
+
+
+### Features
+
+* **blame:** support `/blame` url ([#113](https://github.com/linrongbin16/gitlinker.nvim/issues/113)) ([39acdb7](https://github.com/linrongbin16/gitlinker.nvim/commit/39acdb7bb21d78dbbdf70c407aa057f058a4859a))
+
 ## [2.0.0](https://github.com/linrongbin16/gitlinker.nvim/compare/v1.3.0...v2.0.0) (2023-11-15)
 
 
