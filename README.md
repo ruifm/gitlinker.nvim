@@ -9,31 +9,27 @@
 <a href="https://app.codecov.io/github/linrongbin16/gitlinker.nvim"><img alt="codecov" src="https://img.shields.io/codecov/c/github/linrongbin16/gitlinker.nvim?logo=codecov&logoColor=F01F7A&label=Codecov" /></a>
 </p>
 
-> Maintained fork of [ruifm's gitlinker](https://github.com/ruifm/gitlinker.nvim), refactored with lua pattern based rule engine, Windows support and other enhancements.
+> Maintained fork of [ruifm's gitlinker](https://github.com/ruifm/gitlinker.nvim), refactored with ssh-alias, `/blame` url support and other improvements.
 
 A lua plugin for [Neovim](https://github.com/neovim/neovim) to generate sharable file permalinks (with line ranges) for git host websites. Inspired by [tpope/vim-fugitive](https://github.com/tpope/vim-fugitive)'s `:GBrowse`.
 
-Here's an example of git permalink: https://github.com/neovim/neovim/blob/2e156a3b7d7e25e56b03683cc6228c531f4c91ef/src/nvim/main.c#L137-L156
+Here's an example of git permalink: https://github.com/neovim/neovim/blob/2e156a3b7d7e25e56b03683cc6228c531f4c91ef/src/nvim/main.c#L137-L156.
 
 ## Table of Contents
 
 - [Break Changes & Updates](#break-changes--updates)
-  - [Lua pattern based mapping engine](#lua-pattern-based-mapping-engine)
 - [Installation](#installation)
   - [packer.nvim](#packernvim)
   - [vim-plug](#vim-plug)
   - [lazy.nvim](#lazynvim)
 - [Usage](#usage)
-  - [Action](#action)
+  - [Actions](#actions)
+  - [Routers](#routers)
   - [API](#api)
-  - [Key Mappings](#key-mappings)
-- [Customization](#customization)
-  - [Vim Command](#vim-command)
-  - [Highlight](#highlight)
 - [Configuration](#configuration)
-  - [Add More Urls](#add-more-urls)
-  - [Customize Urls in Runtime](#customize-urls-in-runtime)
-  - [Fully Customize Urls](#fully-customize-urls)
+  - [Key Mappings](#key-mappings)
+  - [Vim Command](#vim-command)
+  - [Highlighting](#highlighting)
 - [Highlight Group](#highlight-group)
 - [Development](#development)
 - [Contribute](#contribute)
@@ -41,33 +37,25 @@ Here's an example of git permalink: https://github.com/neovim/neovim/blob/2e156a
 ## Break Changes & Updates
 
 1. Bug fix:
-   - Customize default key mappings.
+   - Customize/disable default key mappings.
+2. New Features:
    - Windows support.
-2. Improvements:
-   - Lua pattern based rules as new url mapping engine.
+   - Respect ssh config alias host.
+   - Add `?plain=1` for markdown files.
+   - Support `/blame` (by default is `/blob`, todo).
+   - Support column numbers (e.g. `#L152C2-L167C20`, todo).
+3. Improvements:
    - Use stderr from git command as error message.
-   - Use `uv.spawn` for performant child process IO.
-   - Drop off `plenary` library.
-   - Re-designed API.
-
-### Lua pattern based mapping engine
-
-[Lua pattern](https://www.lua.org/pil/20.2.html) is introduced to map git remote url to host url.
-Even lua pattern has many limitations compared with the [standard regex expression](https://en.wikipedia.org/wiki/Regular_expression), it's still the best solution in this scenario.
-
-For now supported platforms are:
-
-- [github.com](https://github.com)
-- [gitlab.com](https://gitlab.com)
-
-PRs are welcomed for other git host websites!
+   - Performant child process IO via `uv.spawn`.
+   - Drop off `plenary` dependency.
 
 ## Installation
 
 Requirement:
 
-- Neovim &ge; v0.7.
-- [Git](https://git-scm.com/).
+- neovim &ge; v0.7.
+- [git](https://git-scm.com/).
+- [ssh](https://www.openssh.com/) (optional for resolve git alias host).
 
 ### [packer.nvim](https://github.com/wbthomason/packer.nvim)
 
@@ -111,87 +99,45 @@ require("lazy").setup({
 
 You could use below lua code to copy/open git link:
 
-- `require('gitlinker').link({ action = require('gitlinker.actions').clipboard })` to copy git link.
-- `require('gitlinker').link({ action = require('gitlinker.actions').system })` to open git link.
+- `require('gitlinker').link({ action = require('gitlinker.actions').clipboard })` to copy git link to clipboard.
+- `require('gitlinker').link({ action = require('gitlinker.actions').system })` to open git link in browser.
 
-### Action
+These two operations are already defined in key mappings:
+
+- `<leader>gl` (normal/visual mode): copy to clipboard.
+- `<leader>gL` (normal/visual mode): open in browser.
+
+### Actions
 
 - `require('gitlinker.actions').clipboard`: copy git link to clipboard.
 - `require('gitlinker.actions').system`: open git link in browser.
 
+### Routers
+
+- `require('gitlinker.routers').blob`: generate the `/blob` url, by default `link` API will use this router.
+- `require('gitlinker.routers').blame` (todo): generate the `/blame` url.
+
 ### API
 
-- `require('gitlinker').link(option)`: the main API that generate the git permalink, the `option` is a lua table that has below fields:
-
-  ```lua
-  {
-    -- (mandatory) gitlinker actions
-    action = ...,
-
-    -- (optional) line range, please see in [Vim Command](#vim-command).
-    lstart = ...,
-    lend = ...,
-  }
-  ```
-
-  Actually `option` shares the same schema with `require('gitlinker').setup()` function (see [Configuration](#configuration)), so you can specify fields from the `setup` function to overwrite the runtime configurations (see [Customize Urls in Runtime](#customize-urls-in-runtime)).
-
-### Key Mappings
-
-The above two operations are already defined with two default key mappings:
-
-- `<leader>gl` (normal/visual mode): copy git link to clipboard.
-- `<leader>gL` (normal/visual mode): open git link in browser.
-
-## Customization
-
-- To disable the default key mappings, set `mapping = false` in `setup()` function (see [Configuration](#configuration)).
-
-- To create your own key mappings, please specify the `mapping` option in `setup()` function.
-
-### Vim Command
-
-To create your own vim command, please use:
-
-```vim
-" vimscript
-command! -range GitLink lua require('gitlinker').link({ action = require('gitlinker.actions').system, lstart = vim.api.nvim_buf_get_mark(0, '<')[1], lend = vim.api.nvim_buf_get_mark(0, '>')[1] })
-```
+`require('gitlinker').link(option)`: the main API that generate the git permalink, the `option` is a lua table that has below fields:
 
 ```lua
--- lua
-vim.api.nvim_create_user_command("GitLink", function()
-require("gitlinker").link({
-  action = require("gitlinker.actions").system,
-  lstart = vim.api.nvim_buf_get_mark(0, '<')[1],
-  lend = vim.api.nvim_buf_get_mark(0, '>')[1]
-})
-end, {
-range = true,
-})
+{
+  -- (mandatory) gitlinker actions
+  action = ...,
+
+  -- (optional) gitlinker routers
+  router = ...,
+
+  -- (optional) line range, please see in [Vim Command](#vim-command).
+  lstart = ...,
+  lend = ...,
+}
 ```
-
-> Support command range is a little bit tricky, since you need to pass line range from command line to the `link` API.
-
-### Highlight
-
-To create your own highlight, please use:
-
-```lua
--- lua
-vim.api.nvim_set_hl( 0, "NvimGitLinkerHighlightTextObject", { link = "Constant" })
-```
-
-```vim
-" vimscript
-hi link NvimGitLinkerHighlightTextObject Constant
-```
-
-> Also see [Highlight Group](#highlight-group).
 
 ## Configuration
 
-````lua
+```lua
 require('gitlinker').setup({
   -- print message in command line
   message = true,
@@ -199,9 +145,6 @@ require('gitlinker').setup({
   -- highlights the linked line(s) by the time in ms
   -- disable highlight by setting a value equal or less than 0
   highlight_duration = 500,
-
-  -- add '?plain=1' for '*.md' (markdown) files
-  add_plain_for_markdown = true,
 
   -- key mapping
   mapping = {
@@ -217,93 +160,6 @@ require('gitlinker').setup({
     },
   },
 
-  -- regex pattern based rules, mapping url from 'host' to 'remote'.
-  pattern_rules = {
-    -- 'git@github' with '.git' suffix
-    {
-      "^git@github%.([_%.%-%w]+):([%.%-%w]+)/([_%.%-%w]+)%.git$",
-      "https://github.%1/%2/%3/blob/",
-    },
-    -- 'git@github' without '.git' suffix
-    {
-      "^git@github%.([_%.%-%w]+):([%.%-%w]+)/([_%.%-%w]+)$",
-      "https://github.%1/%2/%3/blob/",
-    },
-    -- 'http(s)?://github' with '.git' suffix
-    {
-      "^https?://github%.([_%.%-%w]+)/([%.%-%w]+)/([_%.%-%w]+)%.git$",
-      "https://github.%1/%2/%3/blob/",
-    },
-    -- 'http(s)?://github' without '.git' suffix
-    {
-      "^https?://github%.([_%.%-%w]+)/([%.%-%w]+)/([_%.%-%w]+)$",
-      "https://github.%1/%2/%3/blob/",
-    },
-    -- 'git@gitlab' with '.git' suffix
-    {
-      "^git@gitlab%.([_%.%-%w]+):([%.%-%w]+)/([_%.%-%w]+)%.git$",
-      "https://gitlab.%1/%2/%3/blob/",
-    },
-    -- 'git@gitlab' without '.git' suffix
-    {
-      "^git@gitlab%.([_%.%-%w]+):([%.%-%w]+)/([_%.%-%w]+)$",
-      "https://gitlab.%1/%2/%3/blob/",
-    },
-    -- 'http(s)?://gitlab' with '.git' suffix
-    {
-      "^https?://gitlab%.([_%.%-%w]+)/([%.%-%w]+)/([_%.%-%w]+)%.git$",
-      "https://gitlab.%1/%2/%3/blob/",
-    },
-    -- 'http(s)?://gitlab' without '.git' suffix
-    {
-      "^https?://gitlab%.([_%.%-%w]+)/([%.%-%w]+)/([_%.%-%w]+)$",
-      "https://gitlab.%1/%2/%3/blob/",
-    },
-  },
-
-  -- override 'pattern_rules' with your own rules here.
-  --
-  -- **note**:
-  --
-  -- if you directly add your own rules in 'pattern_rules', it will remove other rules.
-  -- but 'override_rules' will only prepend your own rules before 'pattern_rules', e.g. override.
-  override_rules = nil,
-
-  -- function based rules to override the default pattern_rules.
-  -- function(remote_url) => host_url
-  --
-  -- here's an example:
-  --
-  -- ```lua
-  -- custom_rules = function(remote_url)
-  --   local rules = {
-  --     -- 'git@github' end with '.git' suffix
-  --     {
-  --       "^git@github%.([_%.%-%w]+):([%.%-%w]+)/([_%.%-%w]+)%.git$",
-  --       "https://github.%1/%2/%3/blob/",
-  --     },
-  --     -- 'git@github' end without '.git' suffix
-  --     {
-  --       "^git@github%.([_%.%-%w]+):([%.%-%w]+)/([_%.%-%w]+)$",
-  --       "https://github.%1/%2/%3/blob/",
-  --     },
-  --   }
-  --   for _, rule in ipairs(rules) do
-  --     local pattern = rule[1]
-  --     local replace = rule[2]
-  --     if string.match(remote_url, pattern) then
-  --       local result = string.gsub(remote_url, pattern, replace)
-  --       return result
-  --     end
-  --   end
-  --   return nil
-  -- end,
-  -- ```
-  --
-  --- @overload fun(remote_url:string):string|nil
-  custom_rules = nil,
-
-
   -- enable debug
   debug = false,
 
@@ -313,80 +169,110 @@ require('gitlinker').setup({
   -- write logs to file
   file_log = false,
 })
-````
+```
 
-### Add More Urls
+### Key Mappings
 
-Below example will map `git@your-personal-host` to `https://github`, override original mapping from `git@github` to `https://github`.
+To disable default key mappings, set `mapping = false`.
+
+To create your own key mappings, please customize the `mapping` option, it will overwrite default options.
+
+### Vim Command
+
+To create your own vim command, please use:
+
+```vim
+" vimscript
+" copy to clipboard
+command! -range GitLink lua require('gitlinker').link({ action = require('gitlinker.actions').clipboard, lstart = vim.api.nvim_buf_get_mark(0, '<')[1], lend = vim.api.nvim_buf_get_mark(0, '>')[1] })
+" or open in browser
+command! -range GitLink lua require('gitlinker').link({ action = require('gitlinker.actions').system, lstart = vim.api.nvim_buf_get_mark(0, '<')[1], lend = vim.api.nvim_buf_get_mark(0, '>')[1] })
+```
 
 ```lua
-require('gitlinker').setup({
-  override_rules = {
-    {
-      "^git@your-personal-host%.([_%.%-%w]+):([%.%-%w]+)/([_%.%-%w]+)%.git$",
-      "https://github.%1/%2/%3/blob/",
-    },
-    {
-      "^git@your-personal-hots%.([_%.%-%w]+):([%.%-%w]+)/([_%.%-%w]+)$",
-      "https://github-personal.%1/%2/%3/blob/",
-    },
-  }
+-- lua
+-- copy to clipboard
+vim.api.nvim_create_user_command("GitLink", function()
+  require("gitlinker").link({
+    action = require("gitlinker.actions").clipboard,
+    lstart = vim.api.nvim_buf_get_mark(0, '<')[1],
+    lend = vim.api.nvim_buf_get_mark(0, '>')[1]
+  })
+  end, {
+  range = true,
+})
+-- or open in browser
+vim.api.nvim_create_user_command("GitLink", function()
+  require("gitlinker").link({
+    action = require("gitlinker.actions").system,
+    lstart = vim.api.nvim_buf_get_mark(0, '<')[1],
+    lend = vim.api.nvim_buf_get_mark(0, '>')[1]
+  })
+  end, {
+  range = true,
 })
 ```
 
-### Customize Urls in Runtime
+> Support command range is a little bit tricky, since you need to pass line range from command line to the `link` API.
+>
+> Todo: add the `GitLink` command.
 
-Below example will map to `https://github.com/{user}/{repo}/blame` instead of `https://github.com/{user}/{repo}/blob` in runtime, without modify the setup configuration.
+### Highlighting
+
+To create your own highlighting, please use:
 
 ```lua
--- clipboard
-require("gitlinker").link({
-  action = require("gitlinker.actions").clipboard,
-  override_rules = {
-    {
-      "^git@github%.([_%.%-%w]+):([%.%-%w]+)/([_%.%-%w]+)%.git$",
-      "https://github.%1/%2/%3/blame/",
+-- lua
+vim.api.nvim_set_hl( 0, "NvimGitLinkerHighlightTextObject", { link = "Constant" })
+```
+
+```vim
+" vimscript
+hi link NvimGitLinkerHighlightTextObject Constant
+```
+
+> Also see [Highlight Group](#highlight-group).
+
+### Blame (todo)
+
+To link to the `/blame` url, please specify the `router` option in `link` API:
+
+- `require('gitlinker').link({ action = require('gitlinker.actions').clipboard, router = require('gitlinker.routers').blame })`: copy to clipboard.
+- `require('gitlinker').link({ action = require('gitlinker.actions').system, router = require('gitlinker.routers').blame })`: open in browser.
+
+Or just add new key mappings in `setup`:
+
+```lua
+require('gitlinker').setup({
+  mapping = {
+    ["<leader>gl"] = {
+      action = require("gitlinker.actions").clipboard,
+      desc = "Copy git link to clipboard",
+    },
+    ["<leader>gL"] = {
+      action = require("gitlinker.actions").system,
+      desc = "Open git link in browser",
+    },
+    -- add new keys for `/blame`
+    ["<leader>gb"] = {
+      action = require("gitlinker.actions").clipboard,
+      router = require("gitlinker.routers").blame, -- specify router
+      desc = "Copy git link to clipboard",
+    },
+    ["<leader>gB"] = {
+      action = require("gitlinker.actions").system,
+      router = require("gitlinker.routers").blame, -- specify router
+      desc = "Open git link in browser",
     },
   },
-  add_plain_for_markdown = false,
-})
-```
-
-### Fully Customize Urls
-
-Below example will technically allow you map anything (which is also the implementation of `pattern_rules`).
-
-```lua
-require('gitlinker').setup({
-  custom_rules = function(remote_url)
-    local rules = {
-      {
-        "^git@github%.([_%.%-%w]+):([%.%-%w]+)/([_%.%-%w]+)%.git$",
-        "https://github.%1/%2/%3/blob/",
-      },
-      {
-        "^git@github%.([_%.%-%w]+):([%.%-%w]+)/([_%.%-%w]+)$",
-        "https://github.%1/%2/%3/blob/",
-      },
-    }
-    for _, rule in ipairs(rules) do
-      local pattern = rule[1]
-      local replace = rule[2]
-      if string.match(remote_url, pattern) then
-        local result = string.gsub(remote_url, pattern, replace)
-        return result
-      end
-    end
-    return nil
-  end,
 })
 ```
 
 ## Highlight Group
 
-| Highlight Group                  | Default Group | Description |
-| -------------------------------- | ------------- | ----------- |
-| NvimGitLinkerHighlightTextObject | Search        | lines range |
+| Highlight Group                  | Default Group | Description                          |
+| -------------------------------- | ------------- | ------------------------------------ |
+| NvimGitLinkerHighlightTextObject | Search        | highlight line ranges when copy/open |
 
 ## Development
 

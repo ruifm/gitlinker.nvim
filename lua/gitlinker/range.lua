@@ -34,6 +34,22 @@ function Range:make()
   return o
 end
 
+--- @param r {lstart:integer?,lend:integer?}?
+--- @return string?
+local function stringify(r)
+  if type(r) ~= "table" then
+    return nil
+  end
+  if type(r.lstart) ~= "number" then
+    return nil
+  end
+  local builder = string.format([[#L%d]], r.lstart)
+  if type(r.lend) == "number" and r.lend > r.lstart then
+    builder = builder .. string.format([[-L%d]], r.lend)
+  end
+  return builder
+end
+
 --- @param r any?
 --- @return boolean
 local function is_range(r)
@@ -48,6 +64,7 @@ local M = {
   Range = Range,
   _is_visual_mode = _is_visual_mode,
   is_range = is_range,
+  stringify = stringify,
 }
 
 return M

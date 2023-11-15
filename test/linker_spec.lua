@@ -15,6 +15,38 @@ describe("linker", function()
 
   local github_actions = os.getenv("GITHUB_ACTIONS") == "true"
   local linker = require("gitlinker.linker")
+  describe("[_parse_remote_url]", function()
+    it("parse git", function()
+      local parsed = linker._parse_remote_url(
+        "git@github.com:linrongbin16/gitlinker.nvim.git"
+      )
+      assert_eq(type(parsed), "table")
+      assert_eq(parsed.protocol, "git")
+      assert_eq(parsed.host, "github.com")
+      assert_eq(parsed.user, "linrongbin16")
+      assert_eq(parsed.repo, "gitlinker.nvim.git")
+    end)
+    it("parse http", function()
+      local parsed = linker._parse_remote_url(
+        "http://github.com/linrongbin16/gitlinker.nvim.git"
+      )
+      assert_eq(type(parsed), "table")
+      assert_eq(parsed.protocol, "http")
+      assert_eq(parsed.host, "github.com")
+      assert_eq(parsed.user, "linrongbin16")
+      assert_eq(parsed.repo, "gitlinker.nvim.git")
+    end)
+    it("parse https", function()
+      local parsed = linker._parse_remote_url(
+        "https://github.com/linrongbin16/gitlinker.nvim.git"
+      )
+      assert_eq(type(parsed), "table")
+      assert_eq(parsed.protocol, "https")
+      assert_eq(parsed.host, "github.com")
+      assert_eq(parsed.user, "linrongbin16")
+      assert_eq(parsed.repo, "gitlinker.nvim.git")
+    end)
+  end)
   describe("[Linker]", function()
     it("make", function()
       local lk = linker.Linker:make() --[[@as Linker]]
