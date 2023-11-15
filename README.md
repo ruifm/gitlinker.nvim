@@ -259,7 +259,7 @@ hi link NvimGitLinkerHighlightTextObject Constant
 
 ### Blame
 
-To link to the `/blame` url, please specify the `router` option in `link` API:
+To generate `/blame` url, please specify the `router` option in `link` API:
 
 - `require('gitlinker').link({ action = require('gitlinker.actions').clipboard, router = require('gitlinker.routers').blame })`: copy to clipboard.
 - `require('gitlinker').link({ action = require('gitlinker.actions').system, router = require('gitlinker.routers').blame })`: open in browser.
