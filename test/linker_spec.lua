@@ -47,9 +47,9 @@ describe("linker", function()
       assert_eq(parsed.repo, "gitlinker.nvim.git")
     end)
   end)
-  describe("[Linker]", function()
+  describe("[make_linker]", function()
     it("make", function()
-      local lk = linker.Linker:make() --[[@as Linker]]
+      local lk = linker.make_linker() --[[@as gitlinker.Linker]]
       print(string.format("linker:%s", vim.inspect(lk)))
       if github_actions then
         assert_true(type(lk) == "table" or lk == nil)
@@ -68,7 +68,7 @@ describe("linker", function()
       end
     end)
     it("make with range", function()
-      local lk = linker.Linker:make({ lstart = 10, lend = 20 }) --[[@as Linker]]
+      local lk = linker.make_linker({ lstart = 10, lend = 20 }) --[[@as gitlinker.Linker]]
       print(string.format("linker:%s", vim.inspect(lk)))
       if github_actions then
         assert_true(type(lk) == "table" or lk == nil)

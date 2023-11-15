@@ -21,7 +21,7 @@ end
 local hl_namespace = "NvimGitLinker"
 
 -- Highlights the text selected by the specified range.
---- @param range Range?
+--- @param range gitlinker.Range?
 M.show = function(range)
   if not range then
     return

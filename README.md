@@ -15,6 +15,12 @@ A lua plugin for [Neovim](https://github.com/neovim/neovim) to generate sharable
 
 Here's an example of git permalink: https://github.com/neovim/neovim/blob/2e156a3b7d7e25e56b03683cc6228c531f4c91ef/src/nvim/main.c#L137-L156.
 
+Supported platforms are:
+
+- [github.com](https://github.com/)
+- [gitlab.com](https://gitlab.com/)
+- [bitbucket.org](https://bitbucket.org/)
+
 ## Table of Contents
 
 - [Break Changes & Updates](#break-changes--updates)
@@ -30,6 +36,7 @@ Here's an example of git permalink: https://github.com/neovim/neovim/blob/2e156a
   - [Key Mappings](#key-mappings)
   - [Vim Command](#vim-command)
   - [Highlighting](#highlighting)
+  - [Blame](#blame)
 - [Highlight Group](#highlight-group)
 - [Development](#development)
 - [Contribute](#contribute)
@@ -42,8 +49,7 @@ Here's an example of git permalink: https://github.com/neovim/neovim/blob/2e156a
    - Windows support.
    - Respect ssh config alias host.
    - Add `?plain=1` for markdown files.
-   - Support `/blame` (by default is `/blob`, todo).
-   - Support column numbers (e.g. `#L152C2-L167C20`, todo).
+   - Support `/blame` (by default is `/blob`).
 3. Improvements:
    - Use stderr from git command as error message.
    - Performant child process IO via `uv.spawn`.
@@ -115,7 +121,8 @@ These two operations are already defined in key mappings:
 ### Routers
 
 - `require('gitlinker.routers').blob`: generate the `/blob` url, by default `link` API will use this router.
-- `require('gitlinker.routers').blame` (todo): generate the `/blame` url.
+- `require('gitlinker.routers').blame`: generate the `/blame` url.
+- `require('gitlinker.routers').src`: generate the `/src` url (for [BitBucket.org](https://bitbucket.org/)).
 
 ### API
 
@@ -148,16 +155,31 @@ require('gitlinker').setup({
 
   -- key mapping
   mapping = {
+    -- copy git link to clipboard
     ["<leader>gl"] = {
-      -- copy git link to clipboard
       action = require("gitlinker.actions").clipboard,
       desc = "Copy git link to clipboard",
     },
+    -- open git link in browser
     ["<leader>gL"] = {
-      -- open git link in browser
       action = require("gitlinker.actions").system,
       desc = "Open git link in browser",
     },
+  },
+
+  -- different web sites use different urls, so we want to auto bind these routers
+  --
+  -- **note**:
+  -- auto bindings only work when `router=nil` in `link` API.
+  --
+  -- github.com: `/blob`
+  -- gitlab.com: `/blob`
+  -- bitbucket.org: `/src`
+  --
+  router_binding = {
+    ["^github"] = require("gitlinker.routers").blob,
+    ["^gitlab"] = require("gitlinker.routers").blob,
+    ["^bitbucket"] = require("gitlinker.routers").src,
   },
 
   -- enable debug
@@ -233,7 +255,7 @@ hi link NvimGitLinkerHighlightTextObject Constant
 
 > Also see [Highlight Group](#highlight-group).
 
-### Blame (todo)
+### Blame
 
 To link to the `/blame` url, please specify the `router` option in `link` API:
 

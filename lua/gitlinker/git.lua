@@ -1,12 +1,12 @@
 local logger = require("gitlinker.logger")
 local spawn = require("gitlinker.spawn")
 
---- @class CmdResult
+--- @class gitlinker.CmdResult
 --- @field stdout string[]
 --- @field stderr string[]
 local CmdResult = {}
 
---- @return CmdResult
+--- @return gitlinker.CmdResult
 function CmdResult:new()
   local o = {
     stdout = {},
@@ -42,7 +42,7 @@ end
 --- @package
 --- @param args string[]
 --- @param cwd string?
---- @return CmdResult
+--- @return gitlinker.CmdResult
 local function cmd(args, cwd)
   local result = CmdResult:new()
 

@@ -4,19 +4,6 @@ local path = require("gitlinker.path")
 local logger = require("gitlinker.logger")
 local utils = require("gitlinker.utils")
 
---- @class Linker
---- @field remote_url string e.g. git@github.com:linrongbin16/gitlinker.nvim.git
---- @field protocol "git"|"http"|"https"
---- @field host string
---- @field user string
---- @field repo string
---- @field rev string
---- @field file string
---- @field lstart integer
---- @field lend integer
---- @field file_changed boolean
-local Linker = {}
-
 -- example:
 -- git@github.com:linrongbin16/gitlinker.nvim.git
 -- https://github.com/linrongbin16/gitlinker.nvim.git
@@ -81,9 +68,10 @@ local function _parse_remote_url(remote_url)
   return result
 end
 
---- @param r Range?
---- @return Linker?
-function Linker:make(r)
+--- @alias gitlinker.Linker {remote_url:string,protocol:"git"|"http"|"https",host:string,user:string,repo:string,rev:string,file:string,lstart:integer,lend:integer,file_changed:boolean}
+--- @param r gitlinker.Range?
+--- @return gitlinker.Linker?
+local function make_linker(r)
   local root = git.get_root()
   if not root then
     return nil
@@ -141,7 +129,7 @@ function Linker:make(r)
   -- )
 
   if not range.is_range(r) then
-    r = range.Range:make()
+    r = range.make_range()
     -- logger.debug("[linker - Linker:make] range:%s", vim.inspect(r))
   end
 
@@ -160,13 +148,13 @@ function Linker:make(r)
     file_changed = file_changed,
   }
 
-  logger.debug("|linker.Linker:make| o:%s", vim.inspect(o))
+  logger.debug("|linker.make_linker| o:%s", vim.inspect(o))
   return o
 end
 
 local M = {
   _parse_remote_url = _parse_remote_url,
-  Linker = Linker,
+  make_linker = make_linker,
 }
 
 return M

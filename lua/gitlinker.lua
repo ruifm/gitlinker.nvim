@@ -1,5 +1,5 @@
 local logger = require("gitlinker.logger")
-local Linker = require("gitlinker.linker").Linker
+local linker = require("gitlinker.linker")
 local highlight = require("gitlinker.highlight")
 local deprecation = require("gitlinker.deprecation")
 
@@ -22,15 +22,28 @@ local Defaults = {
   --- @type table<string, KeyMappingConfig>
   mapping = {
     ["<leader>gl"] = {
-      router = require("gitlinker.routers").blob,
       action = require("gitlinker.actions").clipboard,
       desc = "Copy git link to clipboard",
     },
     ["<leader>gL"] = {
-      router = require("gitlinker.routers").blob,
       action = require("gitlinker.actions").system,
       desc = "Open git link in browser",
     },
+  },
+
+  -- different web sites use different urls, so we want to auto bind these routers
+  --
+  -- **note**:
+  -- auto bindings only work when `router=nil` in `link` API.
+  --
+  -- github.com: `/blob`
+  -- gitlab.com: `/blob`
+  -- bitbucket.org: `/src`
+  --
+  router_binding = {
+    ["^github"] = require("gitlinker.routers").blob,
+    ["^gitlab"] = require("gitlinker.routers").blob,
+    ["^bitbucket"] = require("gitlinker.routers").src,
   },
 
   -- enable debug
@@ -130,17 +143,29 @@ local function link(opts)
   local range = (type(opts.lstart) == "number" and type(opts.lend) == "number")
       and { lstart = opts.lstart, lend = opts.lend }
     or nil
-  local lk = Linker:make(range)
+  local lk = linker.make_linker(range)
   if not lk then
     return nil
   end
 
-  local url = type(opts.router) == "function" and opts.router(lk)
-    or require("gitlinker.routers").blob(lk)
+  local router = opts.router
+  if router == nil then
+    if type(opts.router_binding) == "table" then
+      for pat, rout in pairs(opts.router_binding) do
+        if string.match(lk.host, pat) then
+          router = rout
+          break
+        end
+      end
+    end
+    router = router or require("gitlinker.routers").blob
+  end
+  local ok, url = pcall(router, lk)
   logger.ensure(
-    type(url) == "string" and string.len(url) > 0,
-    "fatal: failed to generate permanent url from remote url:%s",
-    lk.remote_url
+    ok and type(url) == "string" and string.len(url) > 0,
+    "fatal: failed to generate permanent url from remote url (%s): %s",
+    vim.inspect(lk.remote_url),
+    vim.inspect(url)
   )
 
   if opts.action then
