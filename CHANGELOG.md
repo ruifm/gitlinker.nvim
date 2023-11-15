@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.0.0](https://github.com/linrongbin16/gitlinker.nvim/compare/v1.3.0...v2.0.0) (2023-11-15)
+
+
+### ⚠ BREAKING CHANGES
+
+* **routers:** use routers instead of lua patterns! ([#110](https://github.com/linrongbin16/gitlinker.nvim/issues/110))
+
+### Features
+
+* **alias host:** support git alias host via `ssh -ttG` ([c377f61](https://github.com/linrongbin16/gitlinker.nvim/commit/c377f613a1d0a1fb74f40d9832f729eaddb6fa9f))
+* **routers:** use routers instead of lua patterns! ([#110](https://github.com/linrongbin16/gitlinker.nvim/issues/110)) ([c377f61](https://github.com/linrongbin16/gitlinker.nvim/commit/c377f613a1d0a1fb74f40d9832f729eaddb6fa9f))
+
 ## [1.3.0](https://github.com/linrongbin16/gitlinker.nvim/compare/v1.2.0...v1.3.0) (2023-11-13)
 
 
