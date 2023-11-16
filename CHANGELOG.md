@@ -1,5 +1,23 @@
 # Changelog
 
+## [3.1.0](https://github.com/linrongbin16/gitlinker.nvim/compare/v3.0.0...v3.1.0) (2023-11-16)
+
+
+### Features
+
+* **command:** add `GitLink` ([#120](https://github.com/linrongbin16/gitlinker.nvim/issues/120)) ([065f5c9](https://github.com/linrongbin16/gitlinker.nvim/commit/065f5c9229bc65b844ba6824c9c5ebc4683aa815))
+
+
+### Bug Fixes
+
+* **spawn:** fix cannot use vimL function in uv loop error ([065f5c9](https://github.com/linrongbin16/gitlinker.nvim/commit/065f5c9229bc65b844ba6824c9c5ebc4683aa815))
+
+
+### Performance Improvements
+
+* **keys:** deprecate default key mappings ([065f5c9](https://github.com/linrongbin16/gitlinker.nvim/commit/065f5c9229bc65b844ba6824c9c5ebc4683aa815))
+* **routers:** add placeholder to avoid loop call ([#121](https://github.com/linrongbin16/gitlinker.nvim/issues/121)) ([e605210](https://github.com/linrongbin16/gitlinker.nvim/commit/e605210941057849491cca4d7f44c0e09f363a69))
+
 ## [3.0.0](https://github.com/linrongbin16/gitlinker.nvim/compare/v2.1.0...v3.0.0) (2023-11-16)
 
 
