@@ -1,3 +1,5 @@
+--- @alias gitlinker.Action fun(url:string):any
+
 -- copy url to clipboard
 --- @param url string
 local function clipboard(url)

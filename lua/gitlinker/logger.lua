@@ -42,7 +42,7 @@ local Configs = {
   ),
 }
 
---- @param opts Options?
+--- @param opts gitlinker.Options?
 local function setup(opts)
   Configs = vim.tbl_deep_extend("force", vim.deepcopy(Configs), opts or {})
   if type(Configs.level) == "string" then

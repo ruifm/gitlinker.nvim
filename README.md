@@ -9,11 +9,13 @@
 <a href="https://app.codecov.io/github/linrongbin16/gitlinker.nvim"><img alt="codecov" src="https://img.shields.io/codecov/c/github/linrongbin16/gitlinker.nvim?logo=codecov&logoColor=F01F7A&label=Codecov" /></a>
 </p>
 
-> Maintained fork of [ruifm's gitlinker](https://github.com/ruifm/gitlinker.nvim), refactored with bug fixes, alias-host, `/blame` url support and other improvements.
+> Maintained fork of [ruifm's gitlinker](https://github.com/ruifm/gitlinker.nvim), refactored with bug fixes, git alias host, `/blame` url support and other improvements.
 
 A lua plugin for [Neovim](https://github.com/neovim/neovim) to generate sharable file permalinks (with line ranges) for git host websites. Inspired by [tpope/vim-fugitive](https://github.com/tpope/vim-fugitive)'s `:GBrowse`.
 
 Here's an example of git permalink: https://github.com/neovim/neovim/blob/2e156a3b7d7e25e56b03683cc6228c531f4c91ef/src/nvim/main.c#L137-L156.
+
+![gitlinker](https://github.com/linrongbin16/gitlinker.nvim/assets/6496887/0d83fd82-4726-4dae-a70d-2c07236981b6)
 
 For now supported platforms are:
 
@@ -39,6 +41,8 @@ PRs are welcomed for other git host websites!
   - [Vim Command](#vim-command)
   - [Highlighting](#highlighting)
   - [Blame](#blame)
+  - [Self-Host Git Hosts](#self-host-git-hosts)
+  - [Fully Customize Urls](#fully-customize-urls)
 - [Highlight Group](#highlight-group)
 - [Development](#development)
 - [Contribute](#contribute)
@@ -122,9 +126,13 @@ These two operations are already defined in key mappings:
 
 ### Routers
 
-- `require('gitlinker.routers').blob`: generate the `/blob` url, by default `link` API will use this router.
+- `require('gitlinker.routers').browse`: generate the `/blob` url, by default `link` API will use this router.
 - `require('gitlinker.routers').blame`: generate the `/blame` url.
-- `require('gitlinker.routers').src`: generate the `/src` url (for [BitBucket.org](https://bitbucket.org/)).
+
+> Note:
+>
+> - `browse` could generate other urls for other git host websites, e.g., `/src` for bitbucket.org.
+> - `blame` could generate other urls for other git host websites, e.g., `/annotate` for bitbucket.org.
 
 ### API
 
@@ -169,19 +177,18 @@ require('gitlinker').setup({
     },
   },
 
-  -- different web sites use different urls, so we want to auto bind these routers
-  --
-  -- **note**:
-  -- auto bindings only work when `router=nil` in `link` API.
-  --
-  -- github.com: `/blob`
-  -- gitlab.com: `/blob`
-  -- bitbucket.org: `/src`
-  --
+  -- router bindings
   router_binding = {
-    ["^github"] = require("gitlinker.routers").blob,
-    ["^gitlab"] = require("gitlinker.routers").blob,
-    ["^bitbucket"] = require("gitlinker.routers").src,
+    browse = {
+      ["^github%.com"] = require("gitlinker.routers").github_browse,
+      ["^gitlab%.com"] = require("gitlinker.routers").gitlab_browse,
+      ["^bitbucket%.org"] = require("gitlinker.routers").bitbucket_browse,
+    },
+    blame = {
+      ["^github%.com"] = require("gitlinker.routers").github_blame,
+      ["^gitlab%.com"] = require("gitlinker.routers").gitlab_blame,
+      ["^bitbucket%.org"] = require("gitlinker.routers").bitbucket_blame,
+    },
   },
 
   -- enable debug
@@ -269,6 +276,7 @@ Or just add new key mappings in `setup`:
 ```lua
 require('gitlinker').setup({
   mapping = {
+    -- don't remove the default keys or they will not been mapped.
     ["<leader>gl"] = {
       action = require("gitlinker.actions").clipboard,
       desc = "Copy git link to clipboard",
@@ -291,6 +299,72 @@ require('gitlinker').setup({
   },
 })
 ```
+
+### Self-Host Git Hosts
+
+To generate url for self-host git host websites, please specify bindings in `router_binding` option.
+
+Below example shows how to apply the github style routers to a self-host github websites, e.g. `github.your.host`:
+
+```lua
+require('gitlinker').setup({
+  router_binding = {
+    browse = {
+      -- add your host here
+      ["^github%.your%.host"] = require('gitlinker.routers').github_browse,
+    },
+    blame = {
+      -- add your host here
+      ["^github%.your%.host"] = require('gitlinker.routers').github_blame,
+    },
+  },
+})
+```
+
+> Note: the [lua pattern](https://www.lua.org/pil/20.2.html) needs to escape the `.` to `%.`.
+
+### Fully Customize Urls
+
+To fully customize url generation, please refer to the implementation of [routers.lua](https://github.com/linrongbin16/gitlinker.nvim/blob/master/lua/gitlinker/routers.lua), a router is simply construct the string from below components:
+
+- Protocol: `git`, `https`, etc.
+- Host: `github.com`, `gitlab.com`, `bitbucket.org`, etc.
+- User: `linrongbin16` (for this plugin), `neovim` (for [neovim](https://github.com/neovim/neovim)), etc.
+- Repo: `gitlinker.nvim`, `neovim`, etc.
+- Rev: git commit, e.g. `dbf3922382576391fbe50b36c55066c1768b08b6`.
+- File name: file path, e.g. `lua/gitlinker/routers.lua`.
+- Line range: start/end line numbers, e.g. `#L37-L156`.
+
+For example you can customize the line numbers in form `&line=1&lines-count=2` like this:
+
+```lua
+-- @param range {lstart:integer,lend:integer}
+local function your_lines(range)
+  if type(range) ~= 'table' or type(range.lstart) ~= 'number' then
+    return nil
+  end
+  local tmp = string.format([[&lines=%d]], range.lstart)
+  if type(range.lend) == "number" and range.lend > range.lstart then
+    tmp = tmp .. string.format([[&lines-count=%d]], r.lend)
+  end
+  return tmp
+end
+
+require('gitlinker').setup({
+  mapping = {
+    ["<leader>gl"] = {
+      action = require("gitlinker.actions").clipboard,
+      desc = "Copy git link to clipboard",
+      router = function(lk)
+        local builder = require('gitlinker.routers').Builder:new(lk, your_lines)
+        return builder:build("blob")
+      end,
+    },
+  },
+})
+```
+
+> Note: the `Builder` is an internal string helper class, there's no guarantee the internal class/function signature is stable.
 
 ## Highlight Group
 

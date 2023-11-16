@@ -3,8 +3,8 @@ local linker = require("gitlinker.linker")
 local highlight = require("gitlinker.highlight")
 local deprecation = require("gitlinker.deprecation")
 
---- @alias Options table<any, any>
---- @type Options
+--- @alias gitlinker.Options table<any, any>
+--- @type gitlinker.Options
 local Defaults = {
   -- print permanent url in command line
   --
@@ -18,8 +18,7 @@ local Defaults = {
 
   -- key mappings
   --
-  --- @alias KeyMappingConfig {action:fun(url:string):nil,desc:string?}
-  --- @type table<string, KeyMappingConfig>
+  --- @type table<string, {action:gitlinker.Action,desc:string?}>
   mapping = {
     ["<leader>gl"] = {
       action = require("gitlinker.actions").clipboard,
@@ -31,19 +30,20 @@ local Defaults = {
     },
   },
 
-  -- different web sites use different urls, so we want to auto bind these routers
+  -- router bindings
   --
-  -- **note**:
-  -- auto bindings only work when `router=nil` in `link` API.
-  --
-  -- github.com: `/blob`
-  -- gitlab.com: `/blob`
-  -- bitbucket.org: `/src`
-  --
+  --- @type table<"browse"|"blame", table<string, gitlinker.Router>>
   router_binding = {
-    ["^github"] = require("gitlinker.routers").blob,
-    ["^gitlab"] = require("gitlinker.routers").blob,
-    ["^bitbucket"] = require("gitlinker.routers").src,
+    browse = {
+      ["^github%.com"] = require("gitlinker.routers").github_browse,
+      ["^gitlab%.com"] = require("gitlinker.routers").gitlab_browse,
+      ["^bitbucket%.org"] = require("gitlinker.routers").bitbucket_browse,
+    },
+    blame = {
+      ["^github%.com"] = require("gitlinker.routers").github_blame,
+      ["^gitlab%.com"] = require("gitlinker.routers").gitlab_blame,
+      ["^bitbucket%.org"] = require("gitlinker.routers").bitbucket_blame,
+    },
   },
 
   -- enable debug
@@ -62,10 +62,10 @@ local Defaults = {
   file_log = false,
 }
 
---- @type Options
+--- @type gitlinker.Options
 local Configs = {}
 
---- @param opts Options
+--- @param opts gitlinker.Options
 local function deprecated_notification(opts)
   if type(opts) == "table" and opts.pattern_rules ~= nil then
     deprecation.notify(
@@ -84,9 +84,32 @@ local function deprecated_notification(opts)
   end
 end
 
---- @param opts Options?
+--- @param opts gitlinker.Options?
 local function setup(opts)
+  local browse_bindings = vim.deepcopy(Defaults.router_binding.browse)
+  local blame_bindings = vim.deepcopy(Defaults.router_binding.blame)
+  local user_browse_bindings = (
+    type(opts) == "table"
+    and type(opts.router_binding) == "table"
+    and type(opts.router_binding.browse) == "table"
+  )
+      and vim.deepcopy(opts.router_binding.browse)
+    or {}
+  local user_blame_bindings = (
+    type(opts) == "table"
+    and type(opts.router_binding) == "table"
+    and type(opts.router_binding.blame) == "table"
+  )
+      and vim.deepcopy(opts.router_binding.blame)
+    or {}
+  browse_bindings =
+    vim.tbl_extend("force", browse_bindings, user_browse_bindings)
+  blame_bindings = vim.tbl_extend("force", blame_bindings, user_blame_bindings)
   Configs = vim.tbl_deep_extend("force", vim.deepcopy(Defaults), opts or {})
+  Configs.router_binding = {
+    browse = browse_bindings,
+    blame = blame_bindings,
+  }
 
   -- logger
   logger.setup({
@@ -94,6 +117,9 @@ local function setup(opts)
     console_log = Configs.console_log,
     file_log = Configs.file_log,
   })
+
+  -- router binding
+  require("gitlinker.routers").setup(Configs.router_binding or {})
 
   local key_mappings = nil
   if type(opts) == "table" and opts["mapping"] ~= nil then
@@ -133,7 +159,7 @@ local function setup(opts)
   deprecated_notification(Configs)
 end
 
---- @param opts Options?
+--- @param opts gitlinker.Options?
 --- @return string?
 local function link(opts)
   opts = vim.tbl_deep_extend("force", vim.deepcopy(Configs), opts or {})
@@ -148,18 +174,11 @@ local function link(opts)
     return nil
   end
 
-  local router = opts.router
-  if router == nil then
-    if type(opts.router_binding) == "table" then
-      for pat, rout in pairs(opts.router_binding) do
-        if string.match(lk.host, pat) then
-          router = rout
-          break
-        end
-      end
-    end
-    router = router or require("gitlinker.routers").blob
+  local router = opts.router or require("gitlinker.routers").browse
+  if not router then
+    return nil
   end
+
   local ok, url = pcall(router, lk)
   logger.ensure(
     ok and type(url) == "string" and string.len(url) > 0,
