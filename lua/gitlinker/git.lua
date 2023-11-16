@@ -204,11 +204,11 @@ local function resolve_host(host)
     result:print_err(errmsg)
     return nil
   end
-  logger.debug(
-    "|git.resolve_host| running %s: %s",
-    vim.inspect(args),
-    vim.inspect(result.stdout)
-  )
+  -- logger.debug(
+  --   "|git.resolve_host| running %s: %s",
+  --   vim.inspect(args),
+  --   vim.inspect(result.stdout)
+  -- )
 
   local stdout_map = {}
   for _, item in ipairs(result.stdout) do

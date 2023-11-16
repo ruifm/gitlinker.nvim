@@ -1,3 +1,5 @@
+local logger = require("gitlinker.logger")
+
 --- @param m string
 --- @return boolean
 local function _is_visual_mode(m)
@@ -10,11 +12,12 @@ end
 --- @alias gitlinker.Range {lstart:integer,lend:integer,cstart:integer?,cend:integer?}
 --- @return gitlinker.Range
 local function make_range()
-  local m = vim.fn.mode()
+  vim.cmd([[execute "normal! \<ESC>"]])
+  local m = vim.fn.visualmode()
+  logger.debug("|range.make_range| mode:%s", vim.inspect(m))
   local l1 = nil
   local l2 = nil
   if _is_visual_mode(m) then
-    vim.cmd([[execute "normal! \<ESC>"]])
     l1 = vim.fn.getpos("'<")[2]
     l2 = vim.fn.getpos("'>")[2]
   else

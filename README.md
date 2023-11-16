@@ -33,14 +33,8 @@ PRs are welcomed for other git host websites!
   - [vim-plug](#vim-plug)
   - [lazy.nvim](#lazynvim)
 - [Usage](#usage)
-  - [Actions](#actions)
-  - [Routers](#routers)
-  - [API](#api)
 - [Configuration](#configuration)
-  - [Key Mappings](#key-mappings)
-  - [Vim Command](#vim-command)
   - [Highlighting](#highlighting)
-  - [Blame](#blame)
   - [Self-Host Git Hosts](#self-host-git-hosts)
   - [Fully Customize Urls](#fully-customize-urls)
 - [Highlight Group](#highlight-group)
@@ -56,6 +50,7 @@ PRs are welcomed for other git host websites!
    - Respect ssh host alias.
    - Add `?plain=1` for markdown files.
    - Support `/blame` (by default is `/blob`).
+   - Provide `GitLink` command and drop off default key mappings.
 3. Improvements:
    - Use stderr from git command as error message.
    - Performant child process IO via `uv.spawn`.
@@ -109,48 +104,50 @@ require("lazy").setup({
 
 ## Usage
 
-You could use below lua code to copy/open git link:
+You could use below command:
 
-- `require('gitlinker').link({ action = require('gitlinker.actions').clipboard })` to copy git link to clipboard.
-- `require('gitlinker').link({ action = require('gitlinker.actions').system })` to open git link in browser.
-
-These two operations are already defined in key mappings:
-
-- `<leader>gl` (normal/visual mode): copy to clipboard.
-- `<leader>gL` (normal/visual mode): open in browser.
-
-### Actions
-
-- `require('gitlinker.actions').clipboard`: copy git link to clipboard.
-- `require('gitlinker.actions').system`: open git link in browser.
-
-### Routers
-
-- `require('gitlinker.routers').browse`: generate the `/blob` url, by default `link` API will use this router.
-- `require('gitlinker.routers').blame`: generate the `/blame` url.
+- `GitLink`: generate git link and copy to clipboard.
+- `GitLink!`: generate git link and open in browser.
+- `GitLink blame`: generate the `/blame` url and copy to clipboard, by default is `browse`.
 
 > Note:
 >
-> - `browse` could generate other urls for other git host websites, e.g., `/src` for bitbucket.org.
-> - `blame` could generate other urls for other git host websites, e.g., `/annotate` for bitbucket.org.
+> - `browse` router could generate for other git host websites, e.g., `/src` for bitbucket.org.
+> - `blame` router could generate for other git host websites, e.g., `/annotate` for bitbucket.org.
 
-### API
-
-`require('gitlinker').link(option)`: the main API that generate the git permalink, the `option` is a lua table that has below fields:
+<details>
+<summary><i>Click here to see recommended key mappings</i></summary>
 
 ```lua
-{
-  -- (mandatory) gitlinker actions
-  action = ...,
-
-  -- (optional) gitlinker routers
-  router = ...,
-
-  -- (optional) line range, please see in [Vim Command](#vim-command).
-  lstart = ...,
-  lend = ...,
-}
+-- browse
+vim.keymap.set(
+  {"n", 'v'},
+  "<leader>gl",
+  "<cmd>GitLink<cr>",
+  { silent = true, noremap = true, desc = "Copy git permlink to clipboard" }
+)
+vim.keymap.set(
+  {"n", 'v'},
+  "<leader>gL",
+  "<cmd>GitLink!<cr>",
+  { silent = true, noremap = true, desc = "Open git permlink in browser" }
+)
+-- blame
+vim.keymap.set(
+  {"n", 'v'},
+  "<leader>gb",
+  "<cmd>GitLink blame<cr>",
+  { silent = true, noremap = true, desc = "Copy git blame link to clipboard" }
+)
+vim.keymap.set(
+  {"n", 'v'},
+  "<leader>gB",
+  "<cmd>GitLink! blame<cr>",
+  { silent = true, noremap = true, desc = "Open git blame link in browser" }
+)
 ```
+
+</details>
 
 ## Configuration
 
@@ -163,6 +160,17 @@ require('gitlinker').setup({
   -- disable highlight by setting a value equal or less than 0
   highlight_duration = 500,
 
+  -- user command
+  command = {
+    -- to copy link to clipboard, use: 'GitLink'
+    -- to open link in browser, use bang: 'GitLink!'
+    -- to use blame router, use: 'GitLink blame'
+    -- to use browse router, use: 'GitLink browse' (which is the default router)
+    name = "GitLink",
+    desc = "Generate git permanent link",
+  },
+
+  --- @deprecated please use to 'GitLink'
   -- key mapping
   mapping = {
     -- copy git link to clipboard
@@ -177,8 +185,8 @@ require('gitlinker').setup({
     },
   },
 
-  -- router bindings
-  router_binding = {
+  -- router
+  router = {
     browse = {
       ["^github%.com"] = require("gitlinker.routers").github_browse,
       ["^gitlab%.com"] = require("gitlinker.routers").gitlab_browse,
@@ -202,52 +210,6 @@ require('gitlinker').setup({
 })
 ```
 
-### Key Mappings
-
-To disable default key mappings, set `mapping = false`.
-
-To create your own key mappings, please customize the `mapping` option, it will overwrite default options.
-
-### Vim Command
-
-To create your own vim command, please use:
-
-```vim
-" vimscript
-" copy to clipboard
-command! -range GitLink lua require('gitlinker').link({ action = require('gitlinker.actions').clipboard, lstart = vim.api.nvim_buf_get_mark(0, '<')[1], lend = vim.api.nvim_buf_get_mark(0, '>')[1] })
-" or open in browser
-command! -range GitLink lua require('gitlinker').link({ action = require('gitlinker.actions').system, lstart = vim.api.nvim_buf_get_mark(0, '<')[1], lend = vim.api.nvim_buf_get_mark(0, '>')[1] })
-```
-
-```lua
--- lua
--- copy to clipboard
-vim.api.nvim_create_user_command("GitLink", function()
-  require("gitlinker").link({
-    action = require("gitlinker.actions").clipboard,
-    lstart = vim.api.nvim_buf_get_mark(0, '<')[1],
-    lend = vim.api.nvim_buf_get_mark(0, '>')[1]
-  })
-  end, {
-  range = true,
-})
--- or open in browser
-vim.api.nvim_create_user_command("GitLink", function()
-  require("gitlinker").link({
-    action = require("gitlinker.actions").system,
-    lstart = vim.api.nvim_buf_get_mark(0, '<')[1],
-    lend = vim.api.nvim_buf_get_mark(0, '>')[1]
-  })
-  end, {
-  range = true,
-})
-```
-
-> Support command range is a little bit tricky, since you need to pass line range from command line to the `link` API.
->
-> Todo: add the `GitLink` command.
-
 ### Highlighting
 
 To create your own highlighting, please use:
@@ -264,51 +226,15 @@ hi link NvimGitLinkerHighlightTextObject Constant
 
 > Also see [Highlight Group](#highlight-group).
 
-### Blame
-
-To generate `/blame` url, please specify the `router` option in `link` API:
-
-- `require('gitlinker').link({ action = require('gitlinker.actions').clipboard, router = require('gitlinker.routers').blame })`: copy to clipboard.
-- `require('gitlinker').link({ action = require('gitlinker.actions').system, router = require('gitlinker.routers').blame })`: open in browser.
-
-Or just add new key mappings in `setup`:
-
-```lua
-require('gitlinker').setup({
-  mapping = {
-    -- don't remove the default keys or they will not been mapped.
-    ["<leader>gl"] = {
-      action = require("gitlinker.actions").clipboard,
-      desc = "Copy git link to clipboard",
-    },
-    ["<leader>gL"] = {
-      action = require("gitlinker.actions").system,
-      desc = "Open git link in browser",
-    },
-    -- add new keys for `/blame`
-    ["<leader>gb"] = {
-      action = require("gitlinker.actions").clipboard,
-      router = require("gitlinker.routers").blame, -- specify router
-      desc = "Copy git link to clipboard",
-    },
-    ["<leader>gB"] = {
-      action = require("gitlinker.actions").system,
-      router = require("gitlinker.routers").blame, -- specify router
-      desc = "Open git link in browser",
-    },
-  },
-})
-```
-
 ### Self-Host Git Hosts
 
-To generate url for self-host git host websites, please specify bindings in `router_binding` option.
+For self-host git host websites, please add more bindings in `router` option.
 
 Below example shows how to apply the github style routers to a self-host github websites, e.g. `github.your.host`:
 
 ```lua
 require('gitlinker').setup({
-  router_binding = {
+  router = {
     browse = {
       -- add your host here
       ["^github%.your%.host"] = require('gitlinker.routers').github_browse,
@@ -321,7 +247,10 @@ require('gitlinker').setup({
 })
 ```
 
-> Note: the [lua pattern](https://www.lua.org/pil/20.2.html) needs to escape the `.` to `%.`.
+> Note:
+>
+> - `github_browse` is a builtin router for [github.com](https://github.com/).
+> - the [lua pattern](https://www.lua.org/pil/20.2.html) needs to escape the `.` to `%.`.
 
 ### Fully Customize Urls
 
@@ -338,33 +267,48 @@ To fully customize url generation, please refer to the implementation of [router
 For example you can customize the line numbers in form `&line=1&lines-count=2` like this:
 
 ```lua
--- @param range {lstart:integer,lend:integer}
-local function your_lines(range)
-  if type(range) ~= 'table' or type(range.lstart) ~= 'number' then
-    return nil
+--- @param s string
+--- @param t string
+local function string_endswith(s, t)
+  return string.len(s) >= string.len(t) and string.sub(s, #s - #t + 1) == t
+end
+
+--- @param lk gitlinker.Linker
+local function your_router(lk)
+  local builder = ""
+  -- protocol: 'git', 'http', 'https'
+  builder = builder
+    .. (lk.protocol == "git" and "https://" or (lk.protocol .. "://"))
+  -- host: 'github.com', 'gitlab.com', 'bitbucket.org'
+  builder = builder .. lk.host .. "/"
+  -- user: 'linrongbin16', 'neovim'
+  builder = builder .. lk.user .. "/"
+  -- repo: 'gitlinker.nvim.git', 'neovim'
+  builder = builder
+    .. (string_endswith(lk.repo, ".git") and lk.repo:sub(1, #lk.repo - 4) or lk.repo)
+    .. "/"
+  -- rev: git commit, e.g. 'e605210941057849491cca4d7f44c0e09f363a69'
+  builder = lk.rev .. "/"
+  -- file: 'lua/gitlinker/logger.lua'
+  builder = builder
+    .. lk.file
+    .. (string_endswith(lk.file, ".md") and "?plain=1" or "")
+  -- line range: start line number, end line number
+  if type(lk.lstart) == "number" then
+    builder = builder .. string.format("&lines=%d", lk.lstart)
+    if type(lk.lend) == "number" and lk.lend > lk.lstart then
+      builder = builder .. string.format("&lines-count=%d", lk.lend)
+    end
   end
-  local tmp = string.format([[&lines=%d]], range.lstart)
-  if type(range.lend) == "number" and range.lend > range.lstart then
-    tmp = tmp .. string.format([[&lines-count=%d]], r.lend)
-  end
-  return tmp
+  return builder
 end
 
 require('gitlinker').setup({
-  mapping = {
-    ["<leader>gl"] = {
-      action = require("gitlinker.actions").clipboard,
-      desc = "Copy git link to clipboard",
-      router = function(lk)
-        local builder = require('gitlinker.routers').Builder:new(lk, your_lines)
-        return builder:build("blob")
-      end,
-    },
-  },
+  router = {
+    ["^github%.your%.host"] = your_router,
+  }
 })
 ```
-
-> Note: the `Builder` is an internal string helper class, there's no guarantee the internal class/function signature is stable.
 
 ## Highlight Group
 

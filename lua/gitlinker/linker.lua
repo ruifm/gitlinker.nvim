@@ -69,9 +69,8 @@ local function _parse_remote_url(remote_url)
 end
 
 --- @alias gitlinker.Linker {remote_url:string,protocol:"git"|"http"|"https",host:string,user:string,repo:string,rev:string,file:string,lstart:integer,lend:integer,file_changed:boolean}
---- @param r gitlinker.Range?
 --- @return gitlinker.Linker?
-local function make_linker(r)
+local function make_linker()
   local root = git.get_root()
   if not root then
     return nil
@@ -128,10 +127,8 @@ local function make_linker(r)
   --     vim.inspect(buf_path_on_cwd)
   -- )
 
-  if not range.is_range(r) then
-    r = range.make_range()
-    -- logger.debug("[linker - Linker:make] range:%s", vim.inspect(r))
-  end
+  local r = range.make_range()
+  -- logger.debug("[linker - Linker:make] range:%s", vim.inspect(r))
 
   local o = {
     remote_url = remote_url,
