@@ -1,5 +1,29 @@
 # Changelog
 
+## [3.0.0](https://github.com/linrongbin16/gitlinker.nvim/compare/v2.1.0...v3.0.0) (2023-11-16)
+
+
+### ⚠ BREAKING CHANGES
+
+* **router:** rename 'blob' router to 'browse' as a generic name
+* **router:** merge 'src' router into 'browse' router
+* **blame:** support more git hosts! ([#118](https://github.com/linrongbin16/gitlinker.nvim/issues/118))
+
+### break
+
+* **router:** merge 'src' router into 'browse' router ([c60618c](https://github.com/linrongbin16/gitlinker.nvim/commit/c60618c35adec9ef0d9e727ec1593d6d0f192ad7))
+* **router:** rename 'blob' router to 'browse' as a generic name ([c60618c](https://github.com/linrongbin16/gitlinker.nvim/commit/c60618c35adec9ef0d9e727ec1593d6d0f192ad7))
+
+
+### Features
+
+* **blame:** support more git hosts! ([#118](https://github.com/linrongbin16/gitlinker.nvim/issues/118)) ([c60618c](https://github.com/linrongbin16/gitlinker.nvim/commit/c60618c35adec9ef0d9e727ec1593d6d0f192ad7))
+
+
+### Bug Fixes
+
+* **ssh:** fix NPE for windows ([c60618c](https://github.com/linrongbin16/gitlinker.nvim/commit/c60618c35adec9ef0d9e727ec1593d6d0f192ad7))
+
 ## [2.1.0](https://github.com/linrongbin16/gitlinker.nvim/compare/v2.0.0...v2.1.0) (2023-11-15)
 
 
