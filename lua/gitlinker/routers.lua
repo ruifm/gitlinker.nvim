@@ -115,12 +115,20 @@ local BROWSE_BINDING = {}
 
 --- @alias gitlinker.Router fun(lk:gitlinker.Linker):string?
 --- @param lk gitlinker.Linker
+--- @param _placeholder boolean
 --- @return string?
-local function browse(lk)
+local function browse(lk, _placeholder)
   -- logger.debug(
   --   "|routers.browse| BROWSE_BINDING:%s",
   --   vim.inspect(BROWSE_BINDING)
   -- )
+  assert(
+    type(_placeholder) == "boolean" and _placeholder,
+    string.format(
+      "%s must be true, make sure you didn't set this function in 'router_binding'",
+      vim.inspect(_placeholder)
+    )
+  )
   for pattern, route in pairs(BROWSE_BINDING) do
     if string.match(lk.host, pattern) then
       logger.debug(
@@ -131,10 +139,12 @@ local function browse(lk)
       return route(lk)
     end
   end
-  logger.ensure(
+  assert(
     false,
-    "%s not support, please bind it in 'router_binding'!",
-    vim.inspect(lk.host)
+    string.format(
+      "%s not support, please bind it in 'router_binding'!",
+      vim.inspect(lk.host)
+    )
   )
   return nil
 end
@@ -163,18 +173,28 @@ end
 local BLAME_BINDING = {}
 
 --- @param lk gitlinker.Linker
+--- @param _placeholder boolean
 --- @return string?
-local function blame(lk)
-  logger.debug("|routers.blame| BLAME_BINDING:%s", vim.inspect(BLAME_BINDING))
+local function blame(lk, _placeholder)
+  -- logger.debug("|routers.blame| BLAME_BINDING:%s", vim.inspect(BLAME_BINDING))
+  assert(
+    type(_placeholder) == "boolean" and _placeholder,
+    string.format(
+      "%s must be true, make sure you didn't set this function in 'router_binding'",
+      vim.inspect(_placeholder)
+    )
+  )
   for pattern, route in pairs(BLAME_BINDING) do
     if string.match(lk.host, pattern) then
       return route(lk)
     end
   end
-  logger.ensure(
+  assert(
     false,
-    "%s not support, please bind it in 'router_binding'!",
-    vim.inspect(lk.host)
+    string.format(
+      "%s not support, please bind it in 'router_binding'!",
+      vim.inspect(lk.host)
+    )
   )
   return nil
 end
@@ -186,23 +206,11 @@ local function setup(router_binding)
     vim.deepcopy(BROWSE_BINDING),
     router_binding.browse or {}
   )
-  for _, route in pairs(BROWSE_BINDING) do
-    logger.ensure(
-      route ~= browse,
-      "must not use 'browse' itself in 'router_binding.browse'! please use other implementations e.g. github_browse, bitbucket_browse, etc."
-    )
-  end
   BLAME_BINDING = vim.tbl_extend(
     "force",
     vim.deepcopy(BLAME_BINDING),
     router_binding.blame or {}
   )
-  for _, route in pairs(BLAME_BINDING) do
-    logger.ensure(
-      route ~= blame,
-      "must not use 'blame' itself in 'router_binding.blame'! please use other implementations e.g. github_blame, bitbucket_blame, etc."
-    )
-  end
 end
 
 local M = {

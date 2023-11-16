@@ -9,7 +9,7 @@
 <a href="https://app.codecov.io/github/linrongbin16/gitlinker.nvim"><img alt="codecov" src="https://img.shields.io/codecov/c/github/linrongbin16/gitlinker.nvim?logo=codecov&logoColor=F01F7A&label=Codecov" /></a>
 </p>
 
-> Maintained fork of [ruifm's gitlinker](https://github.com/ruifm/gitlinker.nvim), refactored with bug fixes, git alias host, `/blame` url support and other improvements.
+> Maintained fork of [ruifm's gitlinker](https://github.com/ruifm/gitlinker.nvim), refactored with bug fixes, ssh host alias, `/blame` url support and other improvements.
 
 A lua plugin for [Neovim](https://github.com/neovim/neovim) to generate sharable file permalinks (with line ranges) for git host websites. Inspired by [tpope/vim-fugitive](https://github.com/tpope/vim-fugitive)'s `:GBrowse`.
 
@@ -53,7 +53,7 @@ PRs are welcomed for other git host websites!
    - Customize/disable default key mappings.
 2. New Features:
    - Windows support.
-   - Respect ssh config alias host.
+   - Respect ssh host alias.
    - Add `?plain=1` for markdown files.
    - Support `/blame` (by default is `/blob`).
 3. Improvements:
@@ -67,7 +67,7 @@ Requirement:
 
 - neovim &ge; v0.7.
 - [git](https://git-scm.com/).
-- [ssh](https://www.openssh.com/) (optional for resolve git alias host).
+- [ssh](https://www.openssh.com/) (optional for resolve ssh host alias).
 
 ### [packer.nvim](https://github.com/wbthomason/packer.nvim)
 

@@ -7,18 +7,12 @@ local deprecation = require("gitlinker.deprecation")
 --- @type gitlinker.Options
 local Defaults = {
   -- print permanent url in command line
-  --
-  --- @type boolean
   message = true,
 
   -- highlight the linked region
-  --
-  --- @type integer
   highlight_duration = 500,
 
   -- key mappings
-  --
-  --- @type table<string, {action:gitlinker.Action,desc:string?}>
   mapping = {
     ["<leader>gl"] = {
       action = require("gitlinker.actions").clipboard,
@@ -31,8 +25,6 @@ local Defaults = {
   },
 
   -- router bindings
-  --
-  --- @type table<"browse"|"blame", table<string, gitlinker.Router>>
   router_binding = {
     browse = {
       ["^github%.com"] = require("gitlinker.routers").github_browse,
@@ -47,18 +39,12 @@ local Defaults = {
   },
 
   -- enable debug
-  --
-  --- @type boolean
   debug = false,
 
   -- write logs to console(command line)
-  --
-  --- @type boolean
   console_log = true,
 
   -- write logs to file
-  --
-  --- @type boolean
   file_log = false,
 }
 
@@ -148,9 +134,9 @@ local function setup(opts)
 
   -- Configure highlight group
   if Configs.highlight_duration > 0 then
-    local hl_name = "NvimGitLinkerHighlightTextObject"
-    if not highlight.hl_group_exists(hl_name) then
-      vim.api.nvim_set_hl(0, hl_name, { link = "Search" })
+    local hl_group = "NvimGitLinkerHighlightTextObject"
+    if not highlight.hl_group_exists(hl_group) then
+      vim.api.nvim_set_hl(0, hl_group, { link = "Search" })
     end
   end
 
@@ -179,7 +165,7 @@ local function link(opts)
     return nil
   end
 
-  local ok, url = pcall(router, lk)
+  local ok, url = pcall(router, lk, true)
   logger.ensure(
     ok and type(url) == "string" and string.len(url) > 0,
     "fatal: failed to generate permanent url from remote url (%s): %s",
