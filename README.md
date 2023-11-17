@@ -300,7 +300,7 @@ To fully customize url generation, please refer to the implementation of [router
 - `file`: file name, e.g. `lua/gitlinker/routers.lua`.
 - `lstart`/`lend`: start/end line numbers, e.g. `#L37-L156`.
 
-For example you can customize the line numbers in form `&line=1&lines-count=2` like this:
+For example you can customize the line numbers in form `?&line=1&lines-count=2` like this:
 
 ```lua
 --- @param s string
@@ -311,10 +311,7 @@ end
 
 --- @param lk gitlinker.Linker
 local function your_router(lk)
-  local builder = ""
-  -- protocol: 'git@', 'ssh://git@', 'http://', 'https://'
-  builder = builder
-    .. (string_endswith(lk.protocol, "git@") and "https://" or lk.protocol)
+  local builder = "https://"
   -- host: 'github.com', 'gitlab.com', 'bitbucket.org'
   builder = builder .. lk.host .. "/"
   -- user: 'linrongbin16', 'neovim'
@@ -333,24 +330,25 @@ local function your_router(lk)
   if type(lk.lstart) == "number" then
     builder = builder .. string.format("&lines=%d", lk.lstart)
     if type(lk.lend) == "number" and lk.lend > lk.lstart then
-      builder = builder .. string.format("&lines-count=%d", lk.lend)
+      builder = builder
+        .. string.format("&lines-count=%d", lk.lend - lk.lstart + 1)
     end
   end
   return builder
 end
 
-require('gitlinker').setup({
+require("gitlinker").setup({
   router = {
     browse = {
       ["^github%.your%.host"] = your_router,
-    }
-  }
+    },
+  },
 })
 ```
 
-It seems quite a lot of engineering effort, isn't it? You can also use the url template, which should be easier to define the url schema.
+Quite a lot of engineering effort, isn't it? You can also use the url template, which should be easier to define the url schema.
 
-The url template is also the default implementation of builtin routers (see `router` option in [Configuration](#configuration)), while the error message could be confusing if there's any syntax issue:
+The url template is also the default implementation of builtin routers (see `router` option in [Configuration](#configuration)), but the error message could be confusing if there's any syntax issue:
 
 ```lua
 require("gitlinker").setup({
@@ -361,8 +359,8 @@ require("gitlinker").setup({
         .. "{_A.REPO}/blob/"
         .. "{_A.REV}/"
         .. "{_A.FILE}"
-        .. "&lines={_A.LSTART}"
-        .. "{_A.LEND > _A.LSTART and ('&lines-count=' .. _A.LEND) or ''}",
+        .. "?&lines={_A.LSTART}"
+        .. "{_A.LEND > _A.LSTART and ('&lines-count=' .. _A.LEND - _A.LSTART + 1) or ''}",
     },
   },
 })
