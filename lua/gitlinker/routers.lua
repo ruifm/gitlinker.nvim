@@ -111,44 +111,6 @@ local function bitbucket_browse(lk)
   return builder:build("src")
 end
 
-local BROWSE_BINDING = {}
-
---- @alias gitlinker.Router fun(lk:gitlinker.Linker):string
---- @param lk gitlinker.Linker
---- @param _placeholder boolean
---- @return string?
-local function browse(lk, _placeholder)
-  logger.debug(
-    "|routers.browse| BROWSE_BINDING:%s",
-    vim.inspect(BROWSE_BINDING)
-  )
-  assert(
-    type(_placeholder) == "boolean" and _placeholder,
-    string.format(
-      "%s must be true, make sure you didn't set this function in 'router'",
-      vim.inspect(_placeholder)
-    )
-  )
-  for pattern, route in pairs(BROWSE_BINDING) do
-    if string.match(lk.host, pattern) then
-      logger.debug(
-        "|routers.browse| match router:%s with pattern:%s",
-        vim.inspect(route),
-        vim.inspect(pattern)
-      )
-      return route(lk)
-    end
-  end
-  assert(
-    false,
-    string.format(
-      "%s not support, please bind it in 'router'!",
-      vim.inspect(lk.host)
-    )
-  )
-  return nil
-end
-
 --- @param lk gitlinker.Linker
 --- @return string
 local function github_blame(lk)
@@ -170,51 +132,7 @@ local function bitbucket_blame(lk)
   return builder:build("annotate")
 end
 
-local BLAME_BINDING = {}
-
---- @param lk gitlinker.Linker
---- @param _placeholder boolean
---- @return string?
-local function blame(lk, _placeholder)
-  logger.debug("|routers.blame| BLAME_BINDING:%s", vim.inspect(BLAME_BINDING))
-  assert(
-    type(_placeholder) == "boolean" and _placeholder,
-    string.format(
-      "%s must be true, make sure you didn't set this function in 'router'",
-      vim.inspect(_placeholder)
-    )
-  )
-  for pattern, route in pairs(BLAME_BINDING) do
-    if string.match(lk.host, pattern) then
-      logger.debug(
-        "|routers.blame| match router:%s with pattern:%s",
-        vim.inspect(route),
-        vim.inspect(pattern)
-      )
-      return route(lk)
-    end
-  end
-  assert(
-    false,
-    string.format(
-      "%s not support, please bind it in 'router'!",
-      vim.inspect(lk.host)
-    )
-  )
-  return nil
-end
-
---- @param bindings gitlinker.Options
-local function setup(bindings)
-  BROWSE_BINDING =
-    vim.tbl_extend("force", vim.deepcopy(BROWSE_BINDING), bindings.browse or {})
-  BLAME_BINDING =
-    vim.tbl_extend("force", vim.deepcopy(BLAME_BINDING), bindings.blame or {})
-end
-
 local M = {
-  setup = setup,
-
   -- Builder
   Builder = Builder,
 
@@ -222,17 +140,15 @@ local M = {
   LC_range = LC_range,
   lines_range = lines_range,
 
-  -- browse: /blob, /src
+  -- browse: `/blob`, `/src`
   github_browse = github_browse,
   gitlab_browse = gitlab_browse,
   bitbucket_browse = bitbucket_browse,
-  browse = browse,
 
-  -- blame: /blame, /annotate
+  -- blame: `/blame`, `/annotate`
   github_blame = github_blame,
   gitlab_blame = gitlab_blame,
   bitbucket_blame = bitbucket_blame,
-  blame = blame,
 }
 
 return M

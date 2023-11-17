@@ -2,7 +2,6 @@ local logger = require("gitlinker.logger")
 local linker = require("gitlinker.linker")
 local highlight = require("gitlinker.highlight")
 local deprecation = require("gitlinker.deprecation")
-local utils = require("gitlinker.utils")
 
 --- @alias gitlinker.Options table<any, any>
 --- @type gitlinker.Options
@@ -69,7 +68,54 @@ local function deprecated_notification(opts)
   end
 end
 
---- @param opts {action:gitlinker.Action,router:gitlinker.Router?}
+--- @alias gitlinker.Router fun(lk:gitlinker.Linker):string
+--- @param lk gitlinker.Linker
+--- @return string?
+local function _browse(lk)
+  for pattern, route in pairs(Configs.router.browse) do
+    if string.match(lk.host, pattern) then
+      logger.debug(
+        "|browse| match router:%s with pattern:%s",
+        vim.inspect(route),
+        vim.inspect(pattern)
+      )
+      return route(lk)
+    end
+  end
+  assert(
+    false,
+    string.format(
+      "%s not support, please bind it in 'router'!",
+      vim.inspect(lk.host)
+    )
+  )
+  return nil
+end
+
+--- @param lk gitlinker.Linker
+--- @return string?
+local function _blame(lk)
+  for pattern, route in pairs(Configs.router.blame) do
+    if string.match(lk.host, pattern) then
+      logger.debug(
+        "|blame| match router:%s with pattern:%s",
+        vim.inspect(route),
+        vim.inspect(pattern)
+      )
+      return route(lk)
+    end
+  end
+  assert(
+    false,
+    string.format(
+      "%s not support, please bind it in 'router'!",
+      vim.inspect(lk.host)
+    )
+  )
+  return nil
+end
+
+--- @param opts {action:gitlinker.Action,router:gitlinker.Router}
 --- @return string?
 local function link(opts)
   -- logger.debug("[link] merged opts: %s", vim.inspect(opts))
@@ -79,17 +125,12 @@ local function link(opts)
     return nil
   end
 
-  local router = opts.router or require("gitlinker.routers").browse
-  if not router then
-    return nil
-  end
-
-  local ok, url = pcall(router, lk, true)
+  local ok, url = pcall(opts.router, lk, true)
   logger.debug(
     "|link| ok:%s, url:%s, router:%s",
     vim.inspect(ok),
     vim.inspect(url),
-    vim.inspect(router)
+    vim.inspect(opts.router)
   )
   logger.ensure(
     ok and type(url) == "string" and string.len(url) > 0,
@@ -195,9 +236,6 @@ local function setup(opts)
     file_log = Configs.file_log,
   })
 
-  -- router binding
-  require("gitlinker.routers").setup(Configs.router or {})
-
   -- command
   vim.api.nvim_create_user_command(Configs.command.name, function(command_opts)
     local parsed_args = (
@@ -211,9 +249,9 @@ local function setup(opts)
       vim.inspect(command_opts),
       vim.inspect(parsed_args)
     )
-    local router = require("gitlinker.routers").browse
+    local router = _browse
     if parsed_args == "blame" then
-      router = require("gitlinker.routers").blame
+      router = _blame
     end
     local action = require("gitlinker.actions").clipboard
     if command_opts.bang then
@@ -249,6 +287,8 @@ end
 local M = {
   setup = setup,
   link = link,
+  _browse = _browse,
+  _blame = _blame,
 }
 
 return M
