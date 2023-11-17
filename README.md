@@ -108,12 +108,13 @@ You could use below command:
 
 - `GitLink`: generate git link and copy to clipboard.
 - `GitLink!`: generate git link and open in browser.
-- `GitLink blame`: generate the `/blame` url and copy to clipboard, by default is `browse`.
+- `GitLink blame`: generate the `/blame` url and copy to clipboard.
+- `GitLink! blame`: generate the `/blame` url and open in browser.
 
-> Note:
->
-> - `browse` router could generate for other git host websites, e.g., `/src` for bitbucket.org.
-> - `blame` router could generate for other git host websites, e.g., `/annotate` for bitbucket.org.
+There're two **routers** provided:
+
+- `browse`: generate the `/blob` urls (default router in `GitLink`), also work for other git host websites, e.g. generate `/src` for bitbucket.org.
+- `blame`: generate the `/blame` urls, also work for other git host websites, e.g. generate `/annotate` for bitbucket.org.
 
 <details>
 <summary><i>Click here to see recommended key mappings</i></summary>
