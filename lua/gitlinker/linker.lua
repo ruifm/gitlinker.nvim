@@ -11,12 +11,7 @@ local utils = require("gitlinker.utils")
 --- @param remote_url string
 --- @return {protocol:string?,host:string?,user:string?,repo:string?}
 local function _parse_remote_url(remote_url)
-  local GIT = "git"
-  local HTTP = "http"
-  local HTTPS = "https"
-  local GIT_PROTO = "git@"
-  local HTTP_PROTO = "http://"
-  local HTTPS_PROTO = "https://"
+  local PROTOS = { ["git@"] = ":", ["https://"] = "/", ["http://"] = "/" }
 
   local protocol = nil
   local protocol_end_pos = nil
@@ -24,36 +19,67 @@ local function _parse_remote_url(remote_url)
   local host_end_pos = nil
   local user = nil
   local repo = nil
-  if utils.string_startswith(remote_url, GIT_PROTO) then
-    protocol = GIT
-    protocol_end_pos = string.len(GIT_PROTO)
-    host_end_pos = utils.string_find(remote_url, ":", protocol_end_pos + 1)
-    logger.ensure(
-      type(host_end_pos) == "number" and host_end_pos > protocol_end_pos + 1,
-      "failed to parse remote url host:%s",
-      vim.inspect(remote_url)
+
+  --- @type string
+  local proto = nil
+  --- @type string
+  local proto_delimiter = nil
+  --- @type integer?
+  local proto_pos = nil
+  for p, d in pairs(PROTOS) do
+    proto_pos = utils.string_find(remote_url, p)
+    if type(proto_pos) == "number" and proto_pos > 0 then
+      proto = p
+      proto_delimiter = d
+      break
+    end
+  end
+  if not proto_pos then
+    error(
+      string.format(
+        "failed to parse remote url protocol:%s",
+        vim.inspect(remote_url)
+      )
     )
-    host = remote_url:sub(protocol_end_pos + 1, host_end_pos - 1)
-  elseif
-    utils.string_startswith(remote_url, HTTP_PROTO)
-    or utils.string_startswith(remote_url, HTTPS_PROTO)
-  then
-    protocol = utils.string_startswith(remote_url, HTTP_PROTO) and HTTP or HTTPS
-    protocol_end_pos = utils.string_startswith(remote_url, HTTP_PROTO)
-        and string.len(HTTP_PROTO)
-      or string.len(HTTPS_PROTO)
-    host_end_pos = utils.string_find(remote_url, "/", protocol_end_pos + 1)
-    logger.ensure(
-      type(host_end_pos) == "number" and host_end_pos > protocol_end_pos + 1,
-      "failed to parse remote url host:%s",
-      vim.inspect(remote_url)
+  end
+
+  logger.debug(
+    "|gitlinker.linker - _parse_remote_url| 1. remote_url:%s, proto_pos:%s (%s)",
+    vim.inspect(remote_url),
+    vim.inspect(proto_pos),
+    vim.inspect(proto)
+  )
+  if type(proto_pos) == "number" and proto_pos > 0 then
+    protocol_end_pos = proto_pos + string.len(proto) - 1
+    protocol = remote_url:sub(1, protocol_end_pos)
+    logger.debug(
+      "|gitlinker.linker - _parse_remote_url| 2. remote_url:%s, proto_pos:%s (%s), protocol_end_pos:%s (%s)",
+      vim.inspect(remote_url),
+      vim.inspect(proto_pos),
+      vim.inspect(proto),
+      vim.inspect(protocol_end_pos),
+      vim.inspect(protocol)
     )
+    host_end_pos =
+      utils.string_find(remote_url, proto_delimiter, protocol_end_pos + 1)
+    if not host_end_pos then
+      error(
+        string.format(
+          "failed to parse remote url host:%s",
+          vim.inspect(remote_url)
+        )
+      )
+    end
     host = remote_url:sub(protocol_end_pos + 1, host_end_pos - 1)
-  else
-    logger.ensure(
-      false,
-      "failed to parse remote url:%s",
-      vim.inspect(remote_url)
+    logger.debug(
+      "|gitlinker.linker - _parse_remote_url| last. remote_url:%s, proto_pos:%s (%s), protocol_end_pos:%s (%s), host_end_pos:%s (%s)",
+      vim.inspect(remote_url),
+      vim.inspect(proto_pos),
+      vim.inspect(proto),
+      vim.inspect(protocol_end_pos),
+      vim.inspect(protocol),
+      vim.inspect(host_end_pos),
+      vim.inspect(host)
     )
   end
 
@@ -68,7 +94,7 @@ local function _parse_remote_url(remote_url)
   return result
 end
 
---- @alias gitlinker.Linker {remote_url:string,protocol:"git"|"http"|"https",host:string,user:string,repo:string,rev:string,file:string,lstart:integer,lend:integer,file_changed:boolean}
+--- @alias gitlinker.Linker {remote_url:string,protocol:string,host:string,user:string,repo:string,rev:string,file:string,lstart:integer,lend:integer,file_changed:boolean}
 --- @return gitlinker.Linker?
 local function make_linker()
   local root = git.get_root()

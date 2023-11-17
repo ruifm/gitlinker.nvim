@@ -51,7 +51,7 @@ function Builder:new(lk, range_maker)
   local o = {
     domain = string.format(
       "%s%s",
-      lk.protocol == "git" and "https://" or (lk.protocol .. "://"),
+      utils.string_endswith(lk.protocol, "git@") and "https://" or lk.protocol,
       lk.host
     ),
     user = lk.user,
@@ -125,7 +125,7 @@ local function browse(lk, _placeholder)
   assert(
     type(_placeholder) == "boolean" and _placeholder,
     string.format(
-      "%s must be true, make sure you didn't set this function in 'router_binding'",
+      "%s must be true, make sure you didn't set this function in 'router'",
       vim.inspect(_placeholder)
     )
   )
@@ -142,7 +142,7 @@ local function browse(lk, _placeholder)
   assert(
     false,
     string.format(
-      "%s not support, please bind it in 'router_binding'!",
+      "%s not support, please bind it in 'router'!",
       vim.inspect(lk.host)
     )
   )
@@ -180,7 +180,7 @@ local function blame(lk, _placeholder)
   assert(
     type(_placeholder) == "boolean" and _placeholder,
     string.format(
-      "%s must be true, make sure you didn't set this function in 'router_binding'",
+      "%s must be true, make sure you didn't set this function in 'router'",
       vim.inspect(_placeholder)
     )
   )
@@ -197,25 +197,19 @@ local function blame(lk, _placeholder)
   assert(
     false,
     string.format(
-      "%s not support, please bind it in 'router_binding'!",
+      "%s not support, please bind it in 'router'!",
       vim.inspect(lk.host)
     )
   )
   return nil
 end
 
---- @param router_binding gitlinker.Options
-local function setup(router_binding)
-  BROWSE_BINDING = vim.tbl_extend(
-    "force",
-    vim.deepcopy(BROWSE_BINDING),
-    router_binding.browse or {}
-  )
-  BLAME_BINDING = vim.tbl_extend(
-    "force",
-    vim.deepcopy(BLAME_BINDING),
-    router_binding.blame or {}
-  )
+--- @param bindings gitlinker.Options
+local function setup(bindings)
+  BROWSE_BINDING =
+    vim.tbl_extend("force", vim.deepcopy(BROWSE_BINDING), bindings.browse or {})
+  BLAME_BINDING =
+    vim.tbl_extend("force", vim.deepcopy(BLAME_BINDING), bindings.blame or {})
 end
 
 local M = {

@@ -21,7 +21,7 @@ describe("routers", function()
     it("without line numbers", function()
       local actual = routers.browse({
         remote_url = "git@github.com:linrongbin16/gitlinker.nvim.git",
-        protocol = "git",
+        protocol = "git@",
         host = "github.com",
         user = "linrongbin16",
         repo = "gitlinker.nvim.git",
@@ -37,7 +37,7 @@ describe("routers", function()
     it("with line start", function()
       local actual = routers.browse({
         remote_url = "git@github.com:linrongbin16/gitlinker.nvim.git",
-        protocol = "git",
+        protocol = "git@",
         host = "github.com",
         user = "linrongbin16",
         repo = "gitlinker.nvim.git",
@@ -55,7 +55,7 @@ describe("routers", function()
     it("with same line start and line end", function()
       local actual = routers.browse({
         remote_url = "git@github.com:linrongbin16/gitlinker.nvim.git",
-        protocol = "git",
+        protocol = "git@",
         host = "github.com",
         user = "linrongbin16",
         repo = "gitlinker.nvim.git",
@@ -73,7 +73,7 @@ describe("routers", function()
     it("with different line start and line end", function()
       local actual = routers.browse({
         remote_url = "git@github.com:linrongbin16/gitlinker.nvim.git",
-        protocol = "git",
+        protocol = "git@",
         host = "github.com",
         user = "linrongbin16",
         repo = "gitlinker.nvim.git",
@@ -91,7 +91,7 @@ describe("routers", function()
     it("bitbucket without line numbers", function()
       local actual = routers.bitbucket_browse({
         remote_url = "git@bitbucket.org:linrongbin16/gitlinker.nvim.git",
-        protocol = "git",
+        protocol = "git@",
         host = "bitbucket.org",
         user = "linrongbin16",
         repo = "gitlinker.nvim.git",
@@ -107,7 +107,7 @@ describe("routers", function()
     it("bitbucket with line start", function()
       local actual = routers.bitbucket_browse({
         remote_url = "git@bitbucket.org:linrongbin16/gitlinker.nvim.git",
-        protocol = "git",
+        protocol = "git@",
         host = "bitbucket.org",
         user = "linrongbin16",
         repo = "gitlinker.nvim.git",
@@ -127,7 +127,7 @@ describe("routers", function()
     it("without line numbers", function()
       local actual = routers.blame({
         remote_url = "git@github.com:linrongbin16/gitlinker.nvim.git",
-        protocol = "git",
+        protocol = "git@",
         host = "github.com",
         user = "linrongbin16",
         repo = "gitlinker.nvim.git",
@@ -143,7 +143,7 @@ describe("routers", function()
     it("with line start", function()
       local actual = routers.blame({
         remote_url = "git@github.com:linrongbin16/gitlinker.nvim.git",
-        protocol = "git",
+        protocol = "git@",
         host = "github.com",
         user = "linrongbin16",
         repo = "gitlinker.nvim.git",
@@ -161,7 +161,7 @@ describe("routers", function()
     it("bitbucket without line numbers", function()
       local actual = routers.bitbucket_blame({
         remote_url = "git@github.com:linrongbin16/gitlinker.nvim.git",
-        protocol = "git",
+        protocol = "git@",
         host = "github.com",
         user = "linrongbin16",
         repo = "gitlinker.nvim.git",
@@ -177,7 +177,7 @@ describe("routers", function()
     it("bitbucket with line start", function()
       local actual = routers.bitbucket_blame({
         remote_url = "git@github.com:linrongbin16/gitlinker.nvim.git",
-        protocol = "git",
+        protocol = "git@",
         host = "github.com",
         user = "linrongbin16",
         repo = "gitlinker.nvim.git",

@@ -262,7 +262,7 @@ local function setup(opts)
       end
       vim.keymap.set({ "n", "v" }, k, function()
         deprecation.notify(
-          "'mapping' option is deprecated! please migrate to 'GitLink' command."
+          "'mapping' option is deprecated! please set 'mapping=false' and migrate to 'GitLink' command."
         )
         logger.debug("|setup| keymap v:%s", vim.inspect(v))
         link({ action = v.action, router = v.router })
