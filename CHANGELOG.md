@@ -1,5 +1,17 @@
 # Changelog
 
+## [4.1.0](https://github.com/linrongbin16/gitlinker.nvim/compare/v4.0.0...v4.1.0) (2023-11-17)
+
+
+### Features
+
+* **url:** support url template ([#128](https://github.com/linrongbin16/gitlinker.nvim/issues/128)) ([48e1a2f](https://github.com/linrongbin16/gitlinker.nvim/commit/48e1a2f0a79105702b2093209888ffb25e143476))
+
+
+### Bug Fixes
+
+* **command:** fix command range in both manual enter & key mapping ([48e1a2f](https://github.com/linrongbin16/gitlinker.nvim/commit/48e1a2f0a79105702b2093209888ffb25e143476))
+
 ## [4.0.0](https://github.com/linrongbin16/gitlinker.nvim/compare/v3.1.0...v4.0.0) (2023-11-17)
 
 
