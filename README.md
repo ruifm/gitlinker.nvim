@@ -117,6 +117,7 @@ You could use below command:
 
 <details>
 <summary><i>Click here to see recommended key mappings</i></summary>
+<br/>
 
 ```lua
 -- browse
