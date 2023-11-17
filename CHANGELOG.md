@@ -1,5 +1,21 @@
 # Changelog
 
+## [4.0.0](https://github.com/linrongbin16/gitlinker.nvim/compare/v3.1.0...v4.0.0) (2023-11-17)
+
+
+### ⚠ BREAKING CHANGES
+
+* **mapping:** drop of default key mappings! ([#126](https://github.com/linrongbin16/gitlinker.nvim/issues/126))
+
+### break
+
+* **mapping:** drop of default key mappings! ([#126](https://github.com/linrongbin16/gitlinker.nvim/issues/126)) ([528c604](https://github.com/linrongbin16/gitlinker.nvim/commit/528c60460db81e7d8df649281a70e673d548a1d4))
+
+
+### Bug Fixes
+
+* **parser:** support `ssh://git@` protocol ([#124](https://github.com/linrongbin16/gitlinker.nvim/issues/124)) ([53c4efc](https://github.com/linrongbin16/gitlinker.nvim/commit/53c4efc6659b70f4cd4a854885d767f044e3640e))
+
 ## [3.1.0](https://github.com/linrongbin16/gitlinker.nvim/compare/v3.0.0...v3.1.0) (2023-11-16)
 
 
