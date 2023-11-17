@@ -23,19 +23,6 @@ local Defaults = {
     desc = "Generate git permanent link",
   },
 
-  --- @deprecated please use to 'GitLink'
-  -- key mappings
-  mapping = {
-    ["<leader>gl"] = {
-      action = require("gitlinker.actions").clipboard,
-      desc = "Copy git link to clipboard",
-    },
-    ["<leader>gL"] = {
-      action = require("gitlinker.actions").system,
-      desc = "Open git link in browser",
-    },
-  },
-
   -- router bindings
   router = {
     browse = {
@@ -240,34 +227,10 @@ local function setup(opts)
     desc = Configs.command.desc,
   })
 
-  -- key mappings
-  local key_mappings = nil
-  if type(opts) == "table" and opts["mapping"] ~= nil then
-    if type(opts["mapping"]) == "table" then
-      key_mappings = opts["mapping"]
-    end
-  else
-    ---@diagnostic disable-next-line: deprecated
-    key_mappings = Defaults.mapping
-  end
-
-  if type(key_mappings) == "table" then
-    for k, v in pairs(key_mappings) do
-      local opt = {
-        noremap = true,
-        silent = true,
-      }
-      if v.desc then
-        opt.desc = v.desc
-      end
-      vim.keymap.set({ "n", "v" }, k, function()
-        deprecation.notify(
-          "'mapping' option is deprecated! please set 'mapping=false' and migrate to 'GitLink' command."
-        )
-        logger.debug("|setup| keymap v:%s", vim.inspect(v))
-        link({ action = v.action, router = v.router })
-      end, opt)
-    end
+  if type(Configs.mapping) == "table" then
+    deprecation.notify(
+      "'mapping' option is deprecated! please migrate to 'GitLink' command."
+    )
   end
 
   -- Configure highlight group

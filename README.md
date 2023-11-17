@@ -43,14 +43,14 @@ PRs are welcomed for other git host websites!
 
 ## Break Changes & Updates
 
-1. Bug fix:
-   - Customize/disable default key mappings.
+1. Break Changes:
+   - Drop off default key mappings.
 2. New Features:
+   - Provide `GitLink` command.
    - Windows support.
    - Respect ssh host alias.
    - Add `?plain=1` for markdown files.
    - Support `/blame` (by default is `/blob`).
-   - Provide `GitLink` command and drop off default key mappings.
 3. Improvements:
    - Use stderr from git command as error message.
    - Performant child process IO via `uv.spawn`.
@@ -170,21 +170,6 @@ require('gitlinker').setup({
     desc = "Generate git permanent link",
   },
 
-  --- @deprecated please use to 'GitLink'
-  -- key mapping
-  mapping = {
-    -- copy git link to clipboard
-    ["<leader>gl"] = {
-      action = require("gitlinker.actions").clipboard,
-      desc = "Copy git link to clipboard",
-    },
-    -- open git link in browser
-    ["<leader>gL"] = {
-      action = require("gitlinker.actions").system,
-      desc = "Open git link in browser",
-    },
-  },
-
   -- router
   router = {
     browse = {
@@ -276,9 +261,9 @@ end
 --- @param lk gitlinker.Linker
 local function your_router(lk)
   local builder = ""
-  -- protocol: 'git', 'http', 'https'
+  -- protocol: 'git@', 'ssh://git@', 'http://', 'https://'
   builder = builder
-    .. (lk.protocol == "git" and "https://" or (lk.protocol .. "://"))
+    .. (string_endswith(lk.protocol, "git@") and "https://" or lk.protocol)
   -- host: 'github.com', 'gitlab.com', 'bitbucket.org'
   builder = builder .. lk.host .. "/"
   -- user: 'linrongbin16', 'neovim'
