@@ -6,11 +6,12 @@ local utils = require("gitlinker.utils")
 -- example:
 -- git@github.com:linrongbin16/gitlinker.nvim.git
 -- https://github.com/linrongbin16/gitlinker.nvim.git
+-- ssh://git@git.xyz.abc/PROJECT_KEY/PROJECT.git
 --
 --- @param remote_url string
 --- @return {protocol:string?,host:string?,user:string?,repo:string?}
 local function _parse_remote_url(remote_url)
-  local PROTOS = { ["git@"] = ":", ["https://"] = "/", ["http://"] = "/" }
+  local PROTOS = { "git@", "https://", "http://" }
 
   local protocol = nil
   local protocol_end_pos = nil
@@ -21,15 +22,12 @@ local function _parse_remote_url(remote_url)
 
   --- @type string
   local proto = nil
-  --- @type string
-  local proto_delimiter = nil
   --- @type integer?
   local proto_pos = nil
-  for p, d in pairs(PROTOS) do
+  for _, p in ipairs(PROTOS) do
     proto_pos = utils.string_find(remote_url, p)
     if type(proto_pos) == "number" and proto_pos > 0 then
       proto = p
-      proto_delimiter = d
       break
     end
   end
@@ -59,8 +57,17 @@ local function _parse_remote_url(remote_url)
       vim.inspect(protocol_end_pos),
       vim.inspect(protocol)
     )
-    host_end_pos =
-      utils.string_find(remote_url, proto_delimiter, protocol_end_pos + 1)
+    local first_slash_pos = utils.string_find(
+      remote_url,
+      "/",
+      protocol_end_pos + 1
+    ) or (2 ^ 31 - 1)
+    local first_colon_pos = utils.string_find(
+      remote_url,
+      ":",
+      protocol_end_pos + 1
+    ) or (2 ^ 31 - 1)
+    host_end_pos = math.min(first_slash_pos, first_colon_pos)
     if not host_end_pos then
       error(
         string.format(
