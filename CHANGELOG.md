@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.1.1](https://github.com/linrongbin16/gitlinker.nvim/compare/v4.1.0...v4.1.1) (2023-11-17)
+
+
+### Bug Fixes
+
+* **parser:** support `ssh://git@git.xyz.abc/project/project.git` ([#132](https://github.com/linrongbin16/gitlinker.nvim/issues/132)) ([bf92aa8](https://github.com/linrongbin16/gitlinker.nvim/commit/bf92aa8a3eac0ccbeb4a219baaa08479f1239487))
+
 ## [4.1.0](https://github.com/linrongbin16/gitlinker.nvim/compare/v4.0.0...v4.1.0) (2023-11-17)
 
 
