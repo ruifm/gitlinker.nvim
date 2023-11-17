@@ -1,7 +1,9 @@
+local range = require("gitlinker.range")
 local logger = require("gitlinker.logger")
 local linker = require("gitlinker.linker")
 local highlight = require("gitlinker.highlight")
 local deprecation = require("gitlinker.deprecation")
+local utils = require("gitlinker.utils")
 
 --- @alias gitlinker.Options table<any, any>
 --- @type gitlinker.Options
@@ -25,14 +27,58 @@ local Defaults = {
   -- router bindings
   router = {
     browse = {
-      ["^github%.com"] = require("gitlinker.routers").github_browse,
-      ["^gitlab%.com"] = require("gitlinker.routers").gitlab_browse,
-      ["^bitbucket%.org"] = require("gitlinker.routers").bitbucket_browse,
+      -- example: https://github.com/linrongbin16/gitlinker.nvim/blob/9679445c7a24783d27063cd65f525f02def5f128/lua/gitlinker.lua#L3-L4
+      ["^github%.com"] = "https://github.com/"
+        .. "{_A.USER}/"
+        .. "{_A.REPO}/blob/"
+        .. "{_A.REV}/"
+        .. "{_A.FILE}"
+        .. "{(string.len(_A.FILE) >= 3 and _A.FILE:sub(#_A.FILE-2) == '.md') and '?plain=1' or ''}" -- '?plain=1'
+        .. "#L{_A.LSTART}"
+        .. "{(_A.LEND > _A.LSTART and ('-L' .. _A.LEND) or '')}",
+      -- example: https://gitlab.com/linrongbin16/gitlinker.nvim/blob/9679445c7a24783d27063cd65f525f02def5f128/lua/gitlinker.lua#L3-L4
+      ["^gitlab%.com"] = "https://gitlab.com/"
+        .. "{_A.USER}/"
+        .. "{_A.REPO}/blob/"
+        .. "{_A.REV}/"
+        .. "{_A.FILE}"
+        .. "#L{_A.LSTART}"
+        .. "{(_A.LEND > _A.LSTART and ('-L' .. _A.LEND) or '')}",
+      -- example: https://bitbucket.org/linrongbin16/gitlinker.nvim/src/9679445c7a24783d27063cd65f525f02def5f128/lua/gitlinker.lua#L3-L4
+      ["^bitbucket%.org"] = "https://bitbucket.org/"
+        .. "{_A.USER}/"
+        .. "{_A.REPO}/src/"
+        .. "{_A.REV}/"
+        .. "{_A.FILE}"
+        .. "#lines-{_A.LSTART}"
+        .. "{(_A.LEND > _A.LSTART and (':' .. _A.LEND) or '')}",
     },
     blame = {
-      ["^github%.com"] = require("gitlinker.routers").github_blame,
-      ["^gitlab%.com"] = require("gitlinker.routers").gitlab_blame,
-      ["^bitbucket%.org"] = require("gitlinker.routers").bitbucket_blame,
+      -- example: https://github.com/linrongbin16/gitlinker.nvim/blame/9679445c7a24783d27063cd65f525f02def5f128/lua/gitlinker.lua#L3-L4
+      ["^github%.com"] = "https://github.com/"
+        .. "{_A.USER}/"
+        .. "{_A.REPO}/blame/"
+        .. "{_A.REV}/"
+        .. "{_A.FILE}"
+        .. "{(string.len(_A.FILE) >= 3 and _A.FILE:sub(#_A.FILE-2) == '.md') and '?plain=1' or ''}"
+        .. "#L{_A.LSTART}"
+        .. "{(_A.LEND > _A.LSTART and ('-L' .. _A.LEND) or '')}",
+      -- example: https://gitlab.com/linrongbin16/gitlinker.nvim/blame/9679445c7a24783d27063cd65f525f02def5f128/lua/gitlinker.lua#L3-L4
+      ["^gitlab%.com"] = "https://gitlab.com/"
+        .. "{_A.USER}/"
+        .. "{_A.REPO}/blame/"
+        .. "{_A.REV}/"
+        .. "{_A.FILE}"
+        .. "#L{_A.LSTART}"
+        .. "{(_A.LEND > _A.LSTART and ('-L' .. _A.LEND) or '')}",
+      -- example: https://bitbucket.org/linrongbin16/gitlinker.nvim/annotate/9679445c7a24783d27063cd65f525f02def5f128/lua/gitlinker.lua#L3-L4
+      ["^bitbucket%.org"] = "https://bitbucket.org/"
+        .. "{_A.USER}/"
+        .. "{_A.REPO}/annotate/"
+        .. "{_A.REV}/"
+        .. "{_A.FILE}"
+        .. "#lines-{_A.LSTART}"
+        .. "{(_A.LEND > _A.LSTART and (':' .. _A.LEND) or '')}",
     },
   },
 
@@ -68,18 +114,125 @@ local function deprecated_notification(opts)
   end
 end
 
+--- @param lk gitlinker.Linker
+--- @param template string
+--- @return string
+local function _url_template_engine(lk, template)
+  local OPEN_BRACE = "{"
+  local CLOSE_BRACE = "}"
+  if type(template) ~= "string" or string.len(template) == 0 then
+    return template
+  end
+
+  --- @alias gitlinker.UrlTemplateExpr {plain:boolean,body:string}
+  --- @type gitlinker.UrlTemplateExpr[]
+  local exprs = {}
+
+  local i = 1
+  local n = string.len(template)
+  while i <= n do
+    local open_pos = utils.string_find(template, OPEN_BRACE, i)
+    if not open_pos then
+      table.insert(exprs, { plain = true, body = string.sub(template, i) })
+      break
+    end
+    table.insert(
+      exprs,
+      { plain = true, body = string.sub(template, i, open_pos - 1) }
+    )
+    local close_pos = utils.string_find(
+      template,
+      CLOSE_BRACE,
+      open_pos + string.len(OPEN_BRACE)
+    )
+    assert(
+      type(close_pos) == "number" and close_pos > open_pos,
+      string.format(
+        "failed to evaluate url template(%s) at pos %d",
+        vim.inspect(template),
+        open_pos + string.len(OPEN_BRACE)
+      )
+    )
+    table.insert(exprs, {
+      plain = false,
+      body = string.sub(
+        template,
+        open_pos + string.len(OPEN_BRACE),
+        close_pos - 1
+      ),
+    })
+    logger.debug(
+      "|routers.url_template| expressions:%s (%d-%d)",
+      vim.inspect(exprs),
+      vim.inspect(open_pos),
+      vim.inspect(close_pos)
+    )
+    i = close_pos + string.len(CLOSE_BRACE)
+  end
+  logger.debug(
+    "|routers.url_template| final expressions:%s",
+    vim.inspect(exprs)
+  )
+
+  local results = {}
+  for _, exp in ipairs(exprs) do
+    if exp.plain then
+      table.insert(results, exp.body)
+    else
+      local evaluated = vim.fn.luaeval(exp.body, {
+        PROTOCOL = lk.protocol,
+        HOST = lk.host,
+        USER = lk.user,
+        REPO = utils.string_endswith(lk.repo, ".git")
+            and lk.repo:sub(1, #lk.repo - 4)
+          or lk.repo,
+        REV = lk.rev,
+        FILE = lk.file,
+        LSTART = lk.lstart,
+        LEND = (type(lk.lend) == "number" and lk.lend > lk.lstart) and lk.lend
+          or lk.lstart,
+      })
+      logger.debug(
+        "|_url_template_engine| exp:%s, lk:%s, evaluated:%s",
+        vim.inspect(exp.body),
+        vim.inspect(lk),
+        vim.inspect(evaluated)
+      )
+      table.insert(results, evaluated)
+    end
+  end
+
+  return table.concat(results, "")
+end
+
 --- @alias gitlinker.Router fun(lk:gitlinker.Linker):string
 --- @param lk gitlinker.Linker
 --- @return string?
 local function _browse(lk)
   for pattern, route in pairs(Configs.router.browse) do
-    if string.match(lk.host, pattern) then
+    if
+      string.match(lk.host, pattern)
+      or string.match(lk.protocol .. lk.host, pattern)
+    then
       logger.debug(
         "|browse| match router:%s with pattern:%s",
         vim.inspect(route),
         vim.inspect(pattern)
       )
-      return route(lk)
+      if type(route) == "function" then
+        return route(lk)
+      elseif type(route) == "string" then
+        return _url_template_engine(lk, route)
+      else
+        assert(
+          false,
+          string.format(
+            "unsupported router %s on pattern %s",
+            vim.inspect(route),
+            vim.inspect(pattern)
+          )
+        )
+      end
     end
   end
   assert(
@@ -96,13 +249,29 @@ end
 --- @return string?
 local function _blame(lk)
   for pattern, route in pairs(Configs.router.blame) do
-    if string.match(lk.host, pattern) then
+    if
+      string.match(lk.host, pattern)
+      or string.match(lk.protocol .. lk.host, pattern)
+    then
       logger.debug(
         "|blame| match router:%s with pattern:%s",
         vim.inspect(route),
         vim.inspect(pattern)
       )
-      return route(lk)
+      if type(route) == "function" then
+        return route(lk)
+      elseif type(route) == "string" then
+        return _url_template_engine(lk, route)
+      else
+        assert(
+          false,
+          string.format(
+            "unsupported router %s on pattern %s",
+            vim.inspect(route),
+            vim.inspect(pattern)
+          )
+        )
+      end
     end
   end
   assert(
@@ -115,7 +284,7 @@ local function _blame(lk)
   return nil
 end
 
---- @param opts {action:gitlinker.Action,router:gitlinker.Router}
+--- @param opts {action:gitlinker.Action,router:gitlinker.Router,lstart:integer,lend:integer}
 --- @return string?
 local function link(opts)
   -- logger.debug("[link] merged opts: %s", vim.inspect(opts))
@@ -124,6 +293,8 @@ local function link(opts)
   if not lk then
     return nil
   end
+  lk.lstart = opts.lstart
+  lk.lend = opts.lend
 
   local ok, url = pcall(opts.router, lk, true)
   logger.debug(
@@ -238,6 +409,7 @@ local function setup(opts)
 
   -- command
   vim.api.nvim_create_user_command(Configs.command.name, function(command_opts)
+    local r = range.make_range()
     local parsed_args = (
       type(command_opts.args) == "string"
       and string.len(command_opts.args) > 0
@@ -245,10 +417,15 @@ local function setup(opts)
         and vim.trim(command_opts.args)
       or nil
     logger.debug(
-      "command opts:%s, parsed:%s",
+      "command opts:%s, parsed:%s, range:%s",
       vim.inspect(command_opts),
-      vim.inspect(parsed_args)
+      vim.inspect(parsed_args),
+      vim.inspect(r)
     )
+    local lstart =
+      math.min(r.lstart, r.lend, command_opts.line1, command_opts.line2)
+    local lend =
+      math.max(r.lstart, r.lend, command_opts.line1, command_opts.line2)
     local router = _browse
     if parsed_args == "blame" then
       router = _blame
@@ -257,7 +434,7 @@ local function setup(opts)
     if command_opts.bang then
       action = require("gitlinker.actions").system
     end
-    link({ action = action, router = router })
+    link({ action = action, router = router, lstart = lstart, lend = lend })
   end, {
     nargs = "*",
     range = true,

@@ -1,6 +1,5 @@
 local utils = require("gitlinker.utils")
 local range = require("gitlinker.range")
-local logger = require("gitlinker.logger")
 
 --- @class gitlinker.Builder
 --- @field domain string?
@@ -55,10 +54,9 @@ function Builder:new(lk, range_maker)
       lk.host
     ),
     user = lk.user,
-    repo = (utils.string_endswith(lk.repo, ".git") and lk.repo:sub(
-      1,
-      #lk.repo - 4
-    ) or lk.repo),
+    repo = utils.string_endswith(lk.repo, ".git")
+        and lk.repo:sub(1, #lk.repo - 4)
+      or lk.repo,
     rev = lk.rev,
     location = string.format(
       "%s%s",

@@ -12,12 +12,12 @@ end
 --- @alias gitlinker.Range {lstart:integer,lend:integer,cstart:integer?,cend:integer?}
 --- @return gitlinker.Range
 local function make_range()
-  vim.cmd([[execute "normal! \<ESC>"]])
-  local m = vim.fn.visualmode()
+  local m = vim.fn.mode()
   logger.debug("|range.make_range| mode:%s", vim.inspect(m))
   local l1 = nil
   local l2 = nil
   if _is_visual_mode(m) then
+    vim.cmd([[execute "normal! \<ESC>"]])
     l1 = vim.fn.getpos("'<")[2]
     l2 = vim.fn.getpos("'>")[2]
   else

@@ -1,4 +1,3 @@
-local range = require("gitlinker.range")
 local git = require("gitlinker.git")
 local path = require("gitlinker.path")
 local logger = require("gitlinker.logger")
@@ -153,9 +152,6 @@ local function make_linker()
   --     vim.inspect(buf_path_on_cwd)
   -- )
 
-  local r = range.make_range()
-  -- logger.debug("[linker - Linker:make] range:%s", vim.inspect(r))
-
   local o = {
     remote_url = remote_url,
     protocol = parsed_remote_url.protocol,
@@ -165,9 +161,9 @@ local function make_linker()
     rev = rev,
     file = buf_path_on_root,
     ---@diagnostic disable-next-line: need-check-nil
-    lstart = r.lstart,
+    lstart = nil,
     ---@diagnostic disable-next-line: need-check-nil
-    lend = r.lend,
+    lend = nil,
     file_changed = file_changed,
   }
 

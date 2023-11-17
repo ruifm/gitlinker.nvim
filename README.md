@@ -170,17 +170,61 @@ require('gitlinker').setup({
     desc = "Generate git permanent link",
   },
 
-  -- router
+  -- router bindings
   router = {
     browse = {
-      ["^github%.com"] = require("gitlinker.routers").github_browse,
-      ["^gitlab%.com"] = require("gitlinker.routers").gitlab_browse,
-      ["^bitbucket%.org"] = require("gitlinker.routers").bitbucket_browse,
+      -- example: https://github.com/linrongbin16/gitlinker.nvim/blob/9679445c7a24783d27063cd65f525f02def5f128/lua/gitlinker.lua#L3-L4
+      ["^github%.com"] = "https://github.com/"
+        .. "{_A.USER}/"
+        .. "{_A.REPO}/blob/"
+        .. "{_A.REV}/"
+        .. "{_A.FILE}"
+        .. "{(string.len(_A.FILE) >= 3 and _A.FILE:sub(#_A.FILE-2) == '.md') and '?plain=1' or ''}" -- '?plain=1'
+        .. "#L{_A.LSTART}"
+        .. "{(_A.LEND > _A.LSTART and ('-L' .. _A.LEND) or '')}",
+      -- example: https://gitlab.com/linrongbin16/gitlinker.nvim/blob/9679445c7a24783d27063cd65f525f02def5f128/lua/gitlinker.lua#L3-L4
+      ["^gitlab%.com"] = "https://gitlab.com/"
+        .. "{_A.USER}/"
+        .. "{_A.REPO}/blob/"
+        .. "{_A.REV}/"
+        .. "{_A.FILE}"
+        .. "#L{_A.LSTART}"
+        .. "{(_A.LEND > _A.LSTART and ('-L' .. _A.LEND) or '')}",
+      -- example: https://bitbucket.org/linrongbin16/gitlinker.nvim/src/9679445c7a24783d27063cd65f525f02def5f128/lua/gitlinker.lua#lines-3:4
+      ["^bitbucket%.org"] = "https://bitbucket.org/"
+        .. "{_A.USER}/"
+        .. "{_A.REPO}/src/"
+        .. "{_A.REV}/"
+        .. "{_A.FILE}"
+        .. "#lines-{_A.LSTART}"
+        .. "{(_A.LEND > _A.LSTART and (':' .. _A.LEND) or '')}",
     },
     blame = {
-      ["^github%.com"] = require("gitlinker.routers").github_blame,
-      ["^gitlab%.com"] = require("gitlinker.routers").gitlab_blame,
-      ["^bitbucket%.org"] = require("gitlinker.routers").bitbucket_blame,
+      -- example: https://github.com/linrongbin16/gitlinker.nvim/blame/9679445c7a24783d27063cd65f525f02def5f128/lua/gitlinker.lua#L3-L4
+      ["^github%.com"] = "https://github.com/"
+        .. "{_A.USER}/"
+        .. "{_A.REPO}/blame/"
+        .. "{_A.REV}/"
+        .. "{_A.FILE}"
+        .. "{(string.len(_A.FILE) >= 3 and _A.FILE:sub(#_A.FILE-2) == '.md') and '?plain=1' or ''}"
+        .. "#L{_A.LSTART}"
+        .. "{(_A.LEND > _A.LSTART and ('-L' .. _A.LEND) or '')}",
+      -- example: https://gitlab.com/linrongbin16/gitlinker.nvim/blame/9679445c7a24783d27063cd65f525f02def5f128/lua/gitlinker.lua#L3-L4
+      ["^gitlab%.com"] = "https://gitlab.com/"
+        .. "{_A.USER}/"
+        .. "{_A.REPO}/blame/"
+        .. "{_A.REV}/"
+        .. "{_A.FILE}"
+        .. "#L{_A.LSTART}"
+        .. "{(_A.LEND > _A.LSTART and ('-L' .. _A.LEND) or '')}",
+      -- example: https://bitbucket.org/linrongbin16/gitlinker.nvim/annotate/9679445c7a24783d27063cd65f525f02def5f128/lua/gitlinker.lua#lines-3:4
+      ["^bitbucket%.org"] = "https://bitbucket.org/"
+        .. "{_A.USER}/"
+        .. "{_A.REPO}/annotate/"
+        .. "{_A.REV}/"
+        .. "{_A.FILE}"
+        .. "#lines-{_A.LSTART}"
+        .. "{(_A.LEND > _A.LSTART and (':' .. _A.LEND) or '')}",
     },
   },
 
@@ -232,22 +276,27 @@ require('gitlinker').setup({
 })
 ```
 
-> Note:
->
-> - `github_browse` is a builtin router for [github.com](https://github.com/).
-> - the [lua pattern](https://www.lua.org/pil/20.2.html) needs to escape the `.` to `%.`.
+There're 3 groups of builtin APIs you can directly use:
+
+- `github_browse`/`github_blame`: for [github.com](https://github.com/).
+- `gitlab_browse`/`gitlab_blame`: for [gitlab.com](https://gitlab.com/).
+- `bitbucket_browse`/`bitbucket_blame`: for [bitbucket.org](https://bitbucket.org/).
 
 ### Fully Customize Urls
 
+<details>
+<summary><i>Click here to see how to fully customize urls</i></summary>
+<br/>
+
 To fully customize url generation, please refer to the implementation of [routers.lua](https://github.com/linrongbin16/gitlinker.nvim/blob/master/lua/gitlinker/routers.lua), a router is simply construct the string from below components:
 
-- Protocol: `git`, `https`, etc.
-- Host: `github.com`, `gitlab.com`, `bitbucket.org`, etc.
-- User: `linrongbin16` (for this plugin), `neovim` (for [neovim](https://github.com/neovim/neovim)), etc.
-- Repo: `gitlinker.nvim`, `neovim`, etc.
-- Rev: git commit, e.g. `dbf3922382576391fbe50b36c55066c1768b08b6`.
-- File name: file path, e.g. `lua/gitlinker/routers.lua`.
-- Line range: start/end line numbers, e.g. `#L37-L156`.
+- `protocol`: `git@`, `ssh://git@`, `https`, etc.
+- `host`: `github.com`, `gitlab.com`, `bitbucket.org`, etc.
+- `user`: `linrongbin16` (for this plugin), `neovim` (for [neovim](https://github.com/neovim/neovim)), etc.
+- `repo`: `gitlinker.nvim.git`, `neovim.git`, etc.
+- `rev`: git commit, e.g. `dbf3922382576391fbe50b36c55066c1768b08b6`.
+- `file`: file name, e.g. `lua/gitlinker/routers.lua`.
+- `lstart`/`lend`: start/end line numbers, e.g. `#L37-L156`.
 
 For example you can customize the line numbers in form `&line=1&lines-count=2` like this:
 
@@ -290,10 +339,48 @@ end
 
 require('gitlinker').setup({
   router = {
-    ["^github%.your%.host"] = your_router,
+    browse = {
+      ["^github%.your%.host"] = your_router,
+    }
   }
 })
 ```
+
+It seems quite a lot of engineering effort, isn't it? You can also use the url template, which should be easier to define the url schema.
+
+The url template is also the default implementation of builtin routers (see `router` option in [Configuration](#configuration)), while the error message could be confusing if there's any syntax issue:
+
+```lua
+require("gitlinker").setup({
+  router = {
+    browse = {
+      ["^github%.your%.host"] = "https://github.your.host/"
+        .. "{_A.USER}/"
+        .. "{_A.REPO}/blob/"
+        .. "{_A.REV}/"
+        .. "{_A.FILE}"
+        .. "&lines={_A.LSTART}"
+        .. "{_A.LEND > _A.LSTART and ('&lines-count=' .. _A.LEND) or ''}",
+    },
+  },
+})
+```
+
+The template string use curly braces `{}` to contains lua scripts, and evaluate via [luaeval()](https://neovim.io/doc/user/lua.html#lua-eval).
+
+The available variables are the same with the `lk` parameter passing to hook functions, but in upper case, and with the `_A.` prefix:
+
+- `_A.PROTOCOL`: `git@`, `ssh://git@`, `https`, etc.
+- `_A.HOST`: `github.com`, `gitlab.com`, `bitbucket.org`, etc.
+- `_A.USER`: `linrongbin16` (for this plugin), `neovim` (for [neovim](https://github.com/neovim/neovim)), etc.
+- `_A.REPO`: `gitlinker.nvim`, `neovim`, etc.
+  - **Note**: for easier writing, the `.git` suffix has been removed.
+- `_A.REV`: git commit, e.g. `dbf3922382576391fbe50b36c55066c1768b08b6`.
+- `_A.FILE`: file name, e.g. `lua/gitlinker/routers.lua`.
+- `_A.LSTART`/`_A.LEND`: start/end line numbers, e.g. `#L37-L156`.
+  - **Note**: for easier writing, the `_A.LEND` will always exists so no NPE will be throwed.
+
+</details>
 
 ## Highlight Group
 

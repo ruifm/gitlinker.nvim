@@ -26,10 +26,12 @@ describe("gitlinker", function()
         rev = "399b1d05473c711fc5592a6ffc724e231c403486",
         file = "lua/gitlinker/logger.lua",
         file_changed = false,
+        lstart = 1,
+        lend = 1,
       } --[[@as gitlinker.Linker]], true)
       assert_eq(
         actual,
-        "https://github.com/linrongbin16/gitlinker.nvim/blob/399b1d05473c711fc5592a6ffc724e231c403486/lua/gitlinker/logger.lua"
+        "https://github.com/linrongbin16/gitlinker.nvim/blob/399b1d05473c711fc5592a6ffc724e231c403486/lua/gitlinker/logger.lua#L1"
       )
     end)
     it("with line start", function()
@@ -96,10 +98,12 @@ describe("gitlinker", function()
         rev = "399b1d05473c711fc5592a6ffc724e231c403486",
         file = "lua/gitlinker/logger.lua",
         file_changed = false,
+        lstart = 1,
+        lend = 1,
       } --[[@as gitlinker.Linker]], true)
       assert_eq(
         actual,
-        "https://github.com/linrongbin16/gitlinker.nvim/blame/399b1d05473c711fc5592a6ffc724e231c403486/lua/gitlinker/logger.lua"
+        "https://github.com/linrongbin16/gitlinker.nvim/blame/399b1d05473c711fc5592a6ffc724e231c403486/lua/gitlinker/logger.lua#L1"
       )
     end)
     it("with line start", function()
