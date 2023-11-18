@@ -15,6 +15,8 @@ local function system(url)
     job = vim.fn.jobstart({ "open", url })
   elseif vim.fn.has("win32") > 0 or vim.fn.has("win64") > 0 then
     job = vim.fn.jobstart({ "cmd", "/C", "start", url })
+  elseif vim.fn.executable("wslview") > 0 then
+    job = vim.fn.jobstart({ "wslview", url })
   else
     job = vim.fn.jobstart({ "xdg-open", url })
   end
