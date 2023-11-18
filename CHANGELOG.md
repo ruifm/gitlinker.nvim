@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.2.0](https://github.com/linrongbin16/gitlinker.nvim/compare/v4.1.1...v4.2.0) (2023-11-18)
+
+
+### Features
+
+* **actions:** enable wslview ([#135](https://github.com/linrongbin16/gitlinker.nvim/issues/135)) ([ebb7a73](https://github.com/linrongbin16/gitlinker.nvim/commit/ebb7a7348e5865091ada4cfbf6647f8458c1af7e))
+
 ## [4.1.1](https://github.com/linrongbin16/gitlinker.nvim/compare/v4.1.0...v4.1.1) (2023-11-17)
 
 
