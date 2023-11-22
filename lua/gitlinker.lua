@@ -1,4 +1,5 @@
 local range = require("gitlinker.range")
+local LogLevels = require("gitlinker.logger").LogLevels
 local logger = require("gitlinker.logger")
 local linker = require("gitlinker.linker")
 local highlight = require("gitlinker.highlight")
@@ -329,15 +330,14 @@ local function link(opts)
   return url
 end
 
---- @param opts gitlinker.Options?
+--- @param opts gitlinker.Options
 --- @return gitlinker.Options
 local function _merge_routers(opts)
   -- browse
   local browse_routers = vim.deepcopy(Defaults.router.browse)
   local browse_router_binding_opts = {}
   if
-    type(opts) == "table"
-    and type(opts.router_binding) == "table"
+    type(opts.router_binding) == "table"
     and type(opts.router_binding.browse) == "table"
   then
     deprecation.notify(
@@ -346,9 +346,7 @@ local function _merge_routers(opts)
     browse_router_binding_opts = vim.deepcopy(opts.router_binding.browse)
   end
   local browse_router_opts = (
-    type(opts) == "table"
-    and type(opts.router) == "table"
-    and type(opts.router.browse) == "table"
+    type(opts.router) == "table" and type(opts.router.browse) == "table"
   )
       and vim.deepcopy(opts.router.browse)
     or {}
@@ -364,8 +362,7 @@ local function _merge_routers(opts)
   local blame_routers = vim.deepcopy(Defaults.router.blame)
   local blame_router_binding_opts = {}
   if
-    type(opts) == "table"
-    and type(opts.router_binding) == "table"
+    type(opts.router_binding) == "table"
     and type(opts.router_binding.blame) == "table"
   then
     deprecation.notify(
@@ -374,9 +371,7 @@ local function _merge_routers(opts)
     blame_router_binding_opts = vim.deepcopy(opts.router_binding.blame)
   end
   local blame_router_opts = (
-    type(opts) == "table"
-    and type(opts.router) == "table"
-    and type(opts.router.blame) == "table"
+    type(opts.router) == "table" and type(opts.router.blame) == "table"
   )
       and vim.deepcopy(opts.router.blame)
     or {}
@@ -396,13 +391,13 @@ end
 
 --- @param opts gitlinker.Options?
 local function setup(opts)
-  local router_configs = _merge_routers(opts)
+  local router_configs = _merge_routers(opts or {})
   Configs = vim.tbl_deep_extend("force", vim.deepcopy(Defaults), opts or {})
   Configs.router = router_configs
 
   -- logger
   logger.setup({
-    level = Configs.debug and "DEBUG" or "INFO",
+    level = Configs.debug and LogLevels.DEBUG or LogLevels.INFO,
     console_log = Configs.console_log,
     file_log = Configs.file_log,
   })

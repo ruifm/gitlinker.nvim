@@ -9,9 +9,10 @@ describe("logger", function()
     vim.api.nvim_command("cd " .. cwd)
   end)
 
+  local LogLevels = require("gitlinker.logger").LogLevels
   local logger = require("gitlinker.logger")
   logger.setup({
-    level = "DEBUG",
+    level = LogLevels.DEBUG,
     console_log = true,
     file_log = true,
   })

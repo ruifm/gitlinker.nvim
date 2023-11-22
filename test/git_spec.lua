@@ -8,14 +8,13 @@ describe("git", function()
   before_each(function()
     vim.api.nvim_command("cd " .. cwd)
     vim.opt.swapfile = false
-    local logger = require("gitlinker.logger")
-    logger.setup()
     vim.cmd([[ edit lua/gitlinker.lua ]])
   end)
 
+  local LogLevels = require("gitlinker.logger").LogLevels
   local logger = require("gitlinker.logger")
   logger.setup({
-    level = "DEBUG",
+    level = LogLevels.DEBUG,
     console_log = true,
     file_log = true,
   })
