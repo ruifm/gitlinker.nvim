@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.3.0](https://github.com/linrongbin16/gitlinker.nvim/compare/v4.2.0...v4.3.0) (2023-11-22)
+
+
+### Features
+
+* **bare/worktree:** only check remote branches if remote has 'fetch' config ([#143](https://github.com/linrongbin16/gitlinker.nvim/issues/143)) ([9352c3a](https://github.com/linrongbin16/gitlinker.nvim/commit/9352c3ab6c8dc14c60a980f06cdfc53ff87df686))
+
 ## [4.2.0](https://github.com/linrongbin16/gitlinker.nvim/compare/v4.1.1...v4.2.0) (2023-11-18)
 
 
