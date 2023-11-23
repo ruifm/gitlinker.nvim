@@ -53,6 +53,15 @@ local Defaults = {
         .. "{_A.FILE}"
         .. "#lines-{_A.LSTART}"
         .. "{(_A.LEND > _A.LSTART and (':' .. _A.LEND) or '')}",
+      -- example: https://codeberg.org/linrongbin16/gitlinker.nvim/src/commit/a570f22ff833447ee0c58268b3bae4f7197a8ad8/LICENSE#L5-L6
+      ["^codeberg%.org"] = "https://codeberg.org/"
+        .. "{_A.USER}/"
+        .. "{_A.REPO}/src/commit/"
+        .. "{_A.REV}/"
+        .. "{_A.FILE}"
+        .. "{(string.len(_A.FILE) >= 3 and _A.FILE:sub(#_A.FILE-2) == '.md') and '?display=source' or ''}" -- '?display=source'
+        .. "#L{_A.LSTART}"
+        .. "{(_A.LEND > _A.LSTART and ('-L' .. _A.LEND) or '')}",
     },
     blame = {
       -- example: https://github.com/linrongbin16/gitlinker.nvim/blame/9679445c7a24783d27063cd65f525f02def5f128/lua/gitlinker.lua#L3-L4
@@ -80,6 +89,14 @@ local Defaults = {
         .. "{_A.FILE}"
         .. "#lines-{_A.LSTART}"
         .. "{(_A.LEND > _A.LSTART and (':' .. _A.LEND) or '')}",
+      -- example: https://codeberg.org/linrongbin16/gitlinker.nvim/blame/commit/a570f22ff833447ee0c58268b3bae4f7197a8ad8/LICENSE#L5-L6
+      ["^codeberg%.org"] = "https://codeberg.org/"
+        .. "{_A.USER}/"
+        .. "{_A.REPO}/blame/commit/"
+        .. "{_A.REV}/"
+        .. "{_A.FILE}"
+        .. "#L{_A.LSTART}"
+        .. "{(_A.LEND > _A.LSTART and ('-L' .. _A.LEND) or '')}",
     },
   },
 
