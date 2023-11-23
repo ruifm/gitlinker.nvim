@@ -234,5 +234,41 @@ describe("gitlinker", function()
         "https://gitlab.com/linrongbin16/gitlinker.nvim/blame/399b1d05473c711fc5592a6ffc724e231c403486/lua/gitlinker/logger.lua#L1-L2"
       )
     end)
+    it("bitbucket with same lstart/lend", function()
+      local actual = gitlinker._blame({
+        remote_url = "git@bitbucket.org:linrongbin16/gitlinker.nvim.git",
+        protocol = "git@",
+        host = "bitbucket.org",
+        user = "linrongbin16",
+        repo = "gitlinker.nvim.git",
+        rev = "399b1d05473c711fc5592a6ffc724e231c403486",
+        file = "lua/gitlinker/logger.lua",
+        file_changed = false,
+        lstart = 13,
+        lend = 13,
+      } --[[@as gitlinker.Linker]], true)
+      assert_eq(
+        actual,
+        "https://bitbucket.org/linrongbin16/gitlinker.nvim/annotate/399b1d05473c711fc5592a6ffc724e231c403486/lua/gitlinker/logger.lua#lines-13"
+      )
+    end)
+    it("bitbucket with different lstart/lend", function()
+      local actual = gitlinker._blame({
+        remote_url = "https://bitbucket.org:linrongbin16/gitlinker.nvim.git",
+        protocol = "https://",
+        host = "bitbucket.org",
+        user = "linrongbin16",
+        repo = "gitlinker.nvim.git",
+        rev = "399b1d05473c711fc5592a6ffc724e231c403486",
+        file = "lua/gitlinker/logger.lua",
+        lstart = 1,
+        lend = 2,
+        file_changed = false,
+      }--[[@as gitlinker.Linker]], true)
+      assert_eq(
+        actual,
+        "https://bitbucket.org/linrongbin16/gitlinker.nvim/annotate/399b1d05473c711fc5592a6ffc724e231c403486/lua/gitlinker/logger.lua#lines-1:2"
+      )
+    end)
   end)
 end)
