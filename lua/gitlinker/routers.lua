@@ -75,7 +75,7 @@ function Builder:new(lk, range_maker)
   return o
 end
 
---- @param url "blob"|"blame"|"src"|"annotate"
+--- @param url string
 --- @return string
 function Builder:build(url)
   return table.concat({
@@ -87,6 +87,8 @@ function Builder:build(url)
     self.location,
   }, "/")
 end
+
+-- browse {
 
 --- @param lk gitlinker.Linker
 --- @return string
@@ -111,6 +113,17 @@ end
 
 --- @param lk gitlinker.Linker
 --- @return string
+local function codeberg_browse(lk)
+  local builder = Builder:new(lk, LC_range)
+  return builder:build("src/commit")
+end
+
+-- browse }
+
+-- blame {
+
+--- @param lk gitlinker.Linker
+--- @return string
 local function github_blame(lk)
   local builder = Builder:new(lk, LC_range)
   return builder:build("blame")
@@ -130,6 +143,15 @@ local function bitbucket_blame(lk)
   return builder:build("annotate")
 end
 
+--- @param lk gitlinker.Linker
+--- @return string
+local function codeberg_blame(lk)
+  local builder = Builder:new(lk, LC_range)
+  return builder:build("blame/commit")
+end
+
+-- blame }
+
 local M = {
   -- Builder
   Builder = Builder,
@@ -142,11 +164,13 @@ local M = {
   github_browse = github_browse,
   gitlab_browse = gitlab_browse,
   bitbucket_browse = bitbucket_browse,
+  codeberg_browse = codeberg_browse,
 
   -- blame: `/blame`, `/annotate`
   github_blame = github_blame,
   gitlab_blame = gitlab_blame,
   bitbucket_blame = bitbucket_blame,
+  codeberg_blame = codeberg_blame,
 }
 
 return M
