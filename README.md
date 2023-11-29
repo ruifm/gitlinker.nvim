@@ -245,7 +245,7 @@ You can define your own action callback.
 
 For example, to copy the url over a remote SSH session with an
 [OSC52][osc52]-compatible terminal, you can integrate gitlinker with
-[ojroques/vim-oscyank][oscyank] and use its `OSCYankString` function:
+[ojroques/vim-oscyank][oscyank] and use its `OSCYank` function:
 
 ```lua
 require'gitlinker'.setup{
@@ -254,7 +254,7 @@ require'gitlinker'.setup{
       -- yank to unnamed register
       vim.api.nvim_command('let @" = \'' .. url .. '\'')
       -- copy to the system clipboard using OSC52
-      vim.fn.OSCYankString(url)
+      vim.fn.OSCYank(url)
     end,
   },
 }
