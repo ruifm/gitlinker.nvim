@@ -182,11 +182,13 @@ already builtin**, it's just an example):
 ``` lua
 callbacks = {
   ["github.com"] = function(url_data)
-      local url = require"gitlinker.hosts".get_base_https_url(url_data) ..
-        url_data.repo .. "/blob/" .. url_data.rev .. "/" .. url_data.file
+      local base_url = require"gitlinker.hosts".get_base_https_url(url_data)
+      local url = string.format("%s%s/blob/%s/%s", base_url , url_data.repo, url_data.rev, url_data.file) 
       if url_data.lstart then
-        url = url .. "#L" .. url_data.lstart
-        if url_data.lend then url = url .. "-L" .. url_data.lend end
+        url = string.format("%s#L%s", url, url_data.lstart)
+        if url_data.lend then
+          url = string.format("%s-L%s", url, url_data.lend)
+        end
       end
       return url
     end
@@ -251,8 +253,8 @@ For example, to copy the url over a remote SSH session with an
 require'gitlinker'.setup{
   opts = {
     action_callback = function(url)
-      -- yank to unnamed register
-      vim.api.nvim_command('let @" = \'' .. url .. '\'')
+      -- yank to system clipboard register
+      vim.fn.setreg("*", url)
       -- copy to the system clipboard using OSC52
       vim.fn.OSCYankString(url)
     end,
