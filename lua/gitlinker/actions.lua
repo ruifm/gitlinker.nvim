@@ -1,16 +1,16 @@
 local M = {}
 
-local api = vim.api
 local job = require("plenary.job")
 
 --- copies the url to clipboard
 --
 -- @param url the url string
 function M.copy_to_clipboard(url)
-  api.nvim_command("let @+ = '" .. url .. "'")
+  vim.fn.setreg("+", url)
 end
 
 --- opens the url in your default browser
+--- In NeoVim nightly, this can be replaced with `:h vim.ui.open()`
 --
 -- Uses xdg-open
 -- @param url the url string
